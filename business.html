@@ -65,7 +65,8 @@ select{
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:12px;
+  font-size:13px;
+  margin-bottom:20px;
 }
 
 th,td{
@@ -79,14 +80,8 @@ th{
   color:white;
 }
 
-.group-header{
-  background:#2e6da4;
-  color:white;
-  font-weight:bold;
-}
-
-.sub-header{
-  background:#d9edf7;
+.info-row{
+  background:#dff0d8;
   font-weight:bold;
 }
 
@@ -114,13 +109,12 @@ th{
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-// Convert Lakhs to Crore
+// Lakhs to Crore
 function toCrore(value){
   if(!value || isNaN(value)) return "";
   return (Number(value)/100).toFixed(2);
 }
 
-// Load Branches
 function loadBranches(){
   fetch(API_URL + "?type=branches")
   .then(res=>res.json())
@@ -150,37 +144,27 @@ document.getElementById("branch").addEventListener("change",function(){
       return;
     }
 
-    let html = `
+    let html="";
+
+    // Row 1 - Branch Info
+    html += `
     <div class="card">
-    <table>
-      <tr class="group-header">
-        <th rowspan="3">SOLID</th>
-        <th rowspan="3">Branch Name</th>
-        <th colspan="8">ADVANCE</th>
-        <th colspan="8">NPA</th>
-        <th colspan="8">DEPOSIT</th>
-        <th colspan="8">CASA</th>
-      </tr>
-      <tr class="sub-header">
-        ${generateSubHeader()}
-        ${generateSubHeader()}
-        ${generateSubHeader()}
-        ${generateSubHeader()}
-      </tr>
-      <tr class="sub-header">
-        ${generateGrowthHeader()}
-        ${generateGrowthHeader()}
-        ${generateGrowthHeader()}
-        ${generateGrowthHeader()}
-      </tr>
-      <tr>
-        <td>${row[0]}</td>
-        <td>${row[1]}</td>
-        ${generateData(row.slice(2))}
-      </tr>
-    </table>
+      <table>
+        <tr class="info-row">
+          <td>SOL ID</td>
+          <td>${row[0]}</td>
+          <td>Branch Name</td>
+          <td>${row[1]}</td>
+        </tr>
+      </table>
     </div>
     `;
+
+    // Data Sections
+    html += createSection("DEPOSIT", row.slice(18,26));
+    html += createSection("CASA", row.slice(26,34));
+    html += createSection("ADVANCE", row.slice(2,10));
+    html += createSection("NPA", row.slice(10,18));
 
     document.getElementById("dashboard").innerHTML = html;
 
@@ -189,35 +173,28 @@ document.getElementById("branch").addEventListener("change",function(){
 
 });
 
-// Sub header row
-function generateSubHeader(){
+function createSection(title,data){
+
   return `
-  <th>31-03-2025</th>
-  <th>Last Month</th>
-  <th>Previous</th>
-  <th>Current</th>
-  <th colspan="4">Growth FY 2025-26</th>
+  <div class="card">
+    <div class="section-title">${title}</div>
+    <table>
+      <tr>
+        <th>31-03-2025</th>
+        <th>Last Month</th>
+        <th>Previous</th>
+        <th>Current</th>
+        <th>Growth</th>
+        <th>FTD</th>
+        <th>MTD</th>
+        <th>YTD</th>
+      </tr>
+      <tr>
+        ${data.map(v=>`<td>${toCrore(v)}</td>`).join("")}
+      </tr>
+    </table>
+  </div>
   `;
-}
-
-// Growth header row
-function generateGrowthHeader(){
-  return `
-  <th></th>
-  <th></th>
-  <th></th>
-  <th></th>
-  <th>FTD</th>
-  <th>MTD</th>
-  <th>YTD</th>
-  <th></th>
-  `;
-}
-
-// Data row
-function generateData(dataArray){
-
-  return dataArray.map(v=>`<td>${toCrore(v)}</td>`).join("");
 }
 
 loadBranches();
