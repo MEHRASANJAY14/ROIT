@@ -22,9 +22,7 @@ body{
   font-weight:bold;
 }
 
-.container{
-  padding:10px;
-}
+.container{padding:10px;}
 
 select{
   width:100%;
@@ -34,7 +32,47 @@ select{
   border:1px solid #ccc;
 }
 
-/* SECTION */
+/* 🔥 Branch Info */
+.branch-card{
+  background:white;
+  padding:10px;
+  margin-bottom:12px;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  text-align:center;
+  font-weight:bold;
+  color:#006400;
+}
+
+/* 🔥 Summary Cards */
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.summary-card{
+  background:white;
+  padding:12px;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+.summary-card h4{
+  margin:0;
+  font-size:13px;
+  color:#555;
+}
+
+.summary-card h2{
+  margin:5px 0 0 0;
+  color:#006400;
+  font-size:18px;
+}
+
+/* Section */
 .section{
   background:white;
   padding:10px;
@@ -53,16 +91,15 @@ select{
   margin-bottom:8px;
 }
 
-/* TABLE */
 .table-wrapper{
   width:100%;
-  overflow-x:auto;   /* 🔥 allow scroll on mobile */
+  overflow-x:auto;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:650px;  /* 🔥 prevent compression */
+  min-width:600px;
 }
 
 th,td{
@@ -75,15 +112,18 @@ th,td{
 th{
   background:#2e7d32;
   color:white;
+  white-space:normal;
+  line-height:1.3;
+  position:sticky;
+  top:0;
+  z-index:2;
 }
+
 .header-date{
   font-weight:bold;
   font-size:11px;
-  display:inline-block;   /* 🔥 block nahi, inline-block */
-  white-space:nowrap;     /* 🔥 date wrap nahi hogi */
-}
-.sub{
-  background:#c8e6c9;
+  display:inline-block;
+  white-space:nowrap;
 }
 
 .positive{color:green;font-weight:bold}
@@ -111,6 +151,8 @@ RO JABALPUR BUSINESS DASHBOARD (₹ Lakhs)
 <option value="">Select Branch</option>
 </select>
 
+<div id="branchInfo"></div>
+<div id="summary"></div>
 <div id="dashboard"></div>
 
 </div>
@@ -127,6 +169,34 @@ function growthClass(v){
   if(Number(v)>0) return "positive";
   if(Number(v)<0) return "negative";
   return "";
+}
+
+function formatHeader(text){
+
+  if(!text) return "";
+
+  text = text.trim();
+
+  if(text.includes("Previous as on")){
+    const date = text.replace("Previous as on","").trim();
+    return "Previous<br>as on<br><span class='header-date'>"+date+"</span>";
+  }
+
+  if(text.includes("Current as on")){
+    const date = text.replace("Current as on","").trim();
+    return "Current<br>as on<br><span class='header-date'>"+date+"</span>";
+  }
+
+  if(text.includes("Last Month")){
+    const date = text.replace("Last Month","").trim();
+    return "Last<br>Month<br><span class='header-date'>"+date+"</span>";
+  }
+
+  if(/^\d{2}[-\/.]\d{2}[-\/.]\d{4}$/.test(text)){
+    return "<span class='header-date'>"+text+"</span>";
+  }
+
+  return text;
 }
 
 function loadBranches(){
@@ -154,10 +224,10 @@ function renderSection(title,start,row,headers){
     <div class="table-wrapper">
       <table>
         <tr>
-          <th>${h[0]}</th>
-          <th>${h[1]}</th>
-          <th>${h[2]}</th>
-          <th>${h[3]}</th>
+          <th>${formatHeader(h[0])}</th>
+          <th>${formatHeader(h[1])}</th>
+          <th>${formatHeader(h[2])}</th>
+          <th>${formatHeader(h[3])}</th>
           <th>FTD</th>
           <th>MTD</th>
           <th>YTD</th>
@@ -187,6 +257,36 @@ document.getElementById("branch").addEventListener("change",function(){
     const row=result.row;
     const headers=result.headers;
 
+    // 🔥 Branch Info Row
+    document.getElementById("branchInfo").innerHTML=`
+      <div class="branch-card">
+        Branch Code: ${row[0]} &nbsp; | &nbsp;
+        Branch Name: ${row[1]}
+      </div>
+    `;
+
+    // 🔥 Summary Cards
+    document.getElementById("summary").innerHTML=`
+      <div class="summary">
+        <div class="summary-card">
+          <h4>Advance (Current)</h4>
+          <h2>${row[5]}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>NPA (Current)</h4>
+          <h2>${row[13]}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>Deposit (Current)</h4>
+          <h2>${row[19]}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>CASA (Current)</h4>
+          <h2>${row[26]}</h2>
+        </div>
+      </div>
+    `;
+
     let html="";
     html+=renderSection("ADVANCE",2,row,headers);
     html+=renderSection("NPA",9,row,headers);
@@ -205,4 +305,3 @@ loadBranches();
 
 </body>
 </html>
-
