@@ -2,192 +2,142 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RO Jabalpur Inventory</title>
+<title>MPGB RO Jabalpur - Dashboard</title>
 
 <style>
 body{
-  font-family:Arial;
+  margin:0;
+  font-family:Arial, sans-serif;
   background:#f4f6f9;
-  padding:20px
 }
+
+/* Logo Section */
+.header{
+  background:white;
+  text-align:center;
+  padding:10px;
+  border-bottom:4px solid #006400;
+}
+
+.logo{
+  max-width:250px;
+  height:auto;
+}
+
+/* Main Heading Section */
+.title-bar{
+  background:#006400;
+  color:white;
+  text-align:center;
+  padding:18px;
+}
+
+.title-bar h1{
+  margin:0;
+  font-size:22px;
+  letter-spacing:1px;
+}
+
+.title-bar h2{
+  margin:5px 0 0 0;
+  font-size:16px;
+  font-weight:normal;
+}
+
+.title-bar h3{
+  margin:5px 0 0 0;
+  font-size:15px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+/* Cards */
+.container{
+  padding:20px;
+}
+
 .card{
   background:white;
   padding:20px;
-  border-radius:8px;
-  box-shadow:0 4px 8px rgba(0,0,0,0.1)
+  margin-bottom:20px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  text-align:center;
 }
-input,select{
-  width:100%;
-  padding:8px;
-  margin:6px 0;
-  border:1px solid #ccc;
-  border-radius:4px
-}
-button{
-  padding:10px;
-  background:#007bff;
-  color:white;
-  border:none;
-  width:100%;
-  border-radius:5px;
-  margin-top:10px
-}
-h3{text-align:center}
-</style>
 
+.card h3{
+  color:#006400;
+  margin-bottom:10px;
+}
+
+.btn{
+  display:inline-block;
+  padding:10px 20px;
+  background:#008000;
+  color:white;
+  text-decoration:none;
+  border-radius:5px;
+  margin-top:10px;
+}
+
+.btn:hover{
+  background:#004d00;
+}
+
+/* Footer */
+.footer{
+  background:#006400;
+  color:white;
+  text-align:center;
+  padding:10px;
+  font-size:12px;
+  position:fixed;
+  bottom:0;
+  width:100%;
+}
+</style>
 </head>
+
 <body>
 
-<div class="card">
+<!-- Logo -->
+<div class="header">
+  <img src="mpgb_logo.png" class="logo">
+</div>
 
-<h3>RO Jabalpur Inventory Entry</h3>
+<!-- Heading -->
+<div class="title-bar">
+  <h1>MADHYA PRADESH GRAMIN BANK</h1>
+  <h2>REGIONAL OFFICE JABALPUR</h2>
+  <h3>DASHBOARD</h3>
+</div>
 
-<!-- Branch Dropdown -->
-<select id="branch"></select>
+<!-- Content -->
+<div class="container">
 
-<input id="solid" placeholder="SOL ID" readonly>
-<input id="solname" placeholder="SOL NAME" readonly>
+  <div class="card">
+    <h3>Asset Entry</h3>
+    <p>Add and manage branch assets securely.</p>
+    <a href="inventory.html" class="btn">Go to Entry</a>
+  </div>
 
-<select id="asset">
-  <option value="">Select Asset Type</option>
-  <option>CPU</option>
-  <option>MONITOR</option>
-  <option>SCANNER</option>
-  <option>PASSBOOK PRINTER</option>
-  <option>LASER PRINTER</option>
-  <option>BIOMETRIC DEVICE</option>
-  <option>MODEM</option>
-  <option>ROUTER</option>
-  <option>VC DEVICE</option>
-  <option>LED PROJECTOR</option>
-  <option>PROJECTOR SCREEN</option>
-  <option>SPEAKER</option>
-</select>
+  <div class="card">
+    <h3>View Asset List</h3>
+    <p>Check all registered assets branch-wise.</p>
+    <a href="inventory.html" class="btn">View Assets</a>
+  </div>
 
-<input id="brand" placeholder="Brand">
-<input id="model" placeholder="Model">
-<input id="serial" placeholder="Serial No">
-<input id="assigned" placeholder="Assigned To">
-
-<select id="critical">
-  <option value="LOW">LOW</option>
-  <option value="MEDIUM">MEDIUM</option>
-  <option value="HIGH">HIGH</option>
-</select>
-
-<input id="ip" placeholder="IP Address">
-<input id="host" placeholder="Hostname">
-<input id="os" placeholder="Operating System">
-<input id="mac" placeholder="MAC Address">
-
-<select id="status">
-  <option value="">Select Status</option>
-  <option>WORKING</option>
-  <option>FAULTY</option>
-  <option>UNDER REPAIR</option>
-  <option>SCRAP</option>
-</select>
-
-<button onclick="saveData()">Save Asset</button>
+  <div class="card">
+    <h3>Reports</h3>
+    <p>Monitor Working / Faulty / Under Repair Assets.</p>
+    <a href="inventory.html" class="btn">Open Reports</a>
+  </div>
 
 </div>
 
-<script>
-
-const API_URL = "https://script.google.com/macros/s/AKfycbz6gx8Ko_Kpgoof9v1gCOy4ajQsNm2O_iL3IM6o2aGHaYYF0QD25q_PxSAyC-uGFcc/exec";
-
-
-// 🔹 Load Branches from Google Sheet
-function loadBranches(){
-  fetch(API_URL + "?type=branches")
-  .then(res => res.json())
-  .then(data => {
-    const select = document.getElementById("branch");
-    select.innerHTML = "<option value=''>Select Branch</option>";
-    data.forEach(row => {
-      let option = document.createElement("option");
-      option.value = row[0];
-      option.text = row[0] + " - " + row[1];
-      select.appendChild(option);
-    });
-  })
-  .catch(err=>{
-    alert("Branch Load Error");
-    console.log(err);
-  });
-}
-
-
-// 🔹 When Branch Selected
-document.addEventListener("change", function(e){
-  if(e.target.id=="branch"){
-    const selectedText = e.target.options[e.target.selectedIndex].text;
-    document.getElementById("solid").value = e.target.value;
-    document.getElementById("solname").value = selectedText.split(" - ")[1];
-  }
-});
-
-
-// 🔹 Save Data
-function saveData(){
-
-  const branch = document.getElementById("branch");
-  const asset = document.getElementById("asset");
-  const status = document.getElementById("status");
-
-  if(!branch.value){
-    alert("Please Select Branch");
-    return;
-  }
-
-  if(!asset.value){
-    alert("Please Select Asset Type");
-    return;
-  }
-
-  if(!status.value){
-    alert("Please Select Status");
-    return;
-  }
-
-  const data = {
-    solid: document.getElementById("solid").value,
-    solname: document.getElementById("solname").value,
-    asset: asset.value,
-    brand: document.getElementById("brand").value,
-    model: document.getElementById("model").value,
-    serial: document.getElementById("serial").value,
-    assigned: document.getElementById("assigned").value,
-    critical: document.getElementById("critical").value,
-    ip: document.getElementById("ip").value,
-    host: document.getElementById("host").value,
-    os: document.getElementById("os").value,
-    mac: document.getElementById("mac").value,
-    status: status.value
-  };
-
-  fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(resp => {
-    alert("Saved Successfully");
-    document.querySelectorAll("input").forEach(i=>i.value="");
-    branch.value="";
-    asset.value="";
-    status.value="";
-  })
-  .catch(err=>{
-    alert("Error Saving Data");
-    console.log(err);
-  });
-}
-
-
-loadBranches();
-
-</script>
+<div class="footer">
+  © Madhya Pradesh Gramin Bank | RO Jabalpur
+</div>
 
 </body>
 </html>
