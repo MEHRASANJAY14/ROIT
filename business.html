@@ -10,8 +10,7 @@
 body{
   margin:0;
   font-family:Segoe UI, Arial;
-  background:linear-gradient(to right,#eef2f3,#e6f2e6);
-  overflow-x:hidden;
+  background:#f4f6f8;
 }
 
 .topbar{
@@ -27,18 +26,19 @@ body{
 
 select{
   width:100%;
-  padding:8px;
+  padding:10px;
   border-radius:6px;
   border:1px solid #ccc;
   margin-bottom:15px;
 }
 
-.card{
+/* SECTION CARD */
+.section{
   background:white;
-  padding:10px;
   border-radius:8px;
+  padding:12px;
   margin-bottom:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
 }
 
 .section-title{
@@ -48,29 +48,64 @@ select{
   text-align:center;
   font-weight:bold;
   border-radius:4px;
-  margin-bottom:8px;
+  margin-bottom:10px;
 }
 
-.table-wrapper{overflow-x:auto;}
-
+/* DESKTOP TABLE */
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:12px;
-  table-layout:fixed;
 }
 
 th,td{
   border:1px solid #ddd;
   padding:6px;
   text-align:center;
+  font-size:13px;
 }
 
-th{background:#2e7d32;color:white;}
-.sub{background:#c8e6c9;}
+th{
+  background:#2e7d32;
+  color:white;
+}
+
+.sub{
+  background:#c8e6c9;
+}
 
 .positive{color:green;font-weight:bold}
 .negative{color:red;font-weight:bold}
+
+/* 🔥 MOBILE VIEW */
+@media(max-width:768px){
+
+  table, thead, tbody, th, td, tr {
+    display:block;
+  }
+
+  thead{display:none;}
+
+  tr{
+    margin-bottom:10px;
+    border:1px solid #ddd;
+    padding:8px;
+    border-radius:6px;
+    background:#fafafa;
+  }
+
+  td{
+    border:none;
+    text-align:left;
+    padding:4px 0;
+  }
+
+  td::before{
+    content:attr(data-label);
+    font-weight:bold;
+    display:block;
+    color:#006400;
+  }
+}
 
 .footer{
   text-align:center;
@@ -132,29 +167,29 @@ function renderSection(title,start,row,headers){
   const d=row.slice(start,start+7);
 
   return `
-  <div class="card">
+  <div class="section">
     <div class="section-title">${title}</div>
-    <div class="table-wrapper">
-      <table>
+    <table>
+      <thead>
         <tr>
-          <th rowspan="2">${h[0]}</th>
-          <th rowspan="2">${h[1]}</th>
-          <th rowspan="2">${h[2]}</th>
-          <th rowspan="2">${h[3]}</th>
-          <th colspan="3">Growth FY</th>
-        </tr>
-        <tr class="sub">
+          <th>${h[0]}</th>
+          <th>${h[1]}</th>
+          <th>${h[2]}</th>
+          <th>${h[3]}</th>
           <th>FTD</th>
           <th>MTD</th>
           <th>YTD</th>
         </tr>
+      </thead>
+      <tbody>
         <tr>
           ${d.map((v,i)=>
-            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
+            `<td data-label="${h[i] || ['FTD','MTD','YTD'][i-4] || ''}" 
+            class="${i>=4?growthClass(v):''}">${v}</td>`
           ).join("")}
         </tr>
-      </table>
-    </div>
+      </tbody>
+    </table>
   </div>
   `;
 }
@@ -165,16 +200,10 @@ document.getElementById("branch").addEventListener("change",function(){
   .then(res=>res.json())
   .then(result=>{
 
-    if(result.error){
-      alert(result.error);
-      return;
-    }
-
     const row=result.row;
     const headers=result.headers;
 
     let html="";
-
     html+=renderSection("ADVANCE",2,row,headers);
     html+=renderSection("NPA",9,row,headers);
     html+=renderSection("DEPOSIT",16,row,headers);
