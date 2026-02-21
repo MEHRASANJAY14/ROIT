@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branch Business Dashboard</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;padding:20px}
+h2{text-align:center;color:#006400}
+select{width:100%;padding:8px;margin:10px 0;border-radius:4px;border:1px solid #ccc}
+
+.card{
+  background:white;
+  padding:15px;
+  margin-bottom:20px;
+  border-radius:10px;
+  box-shadow:0 4px 8px rgba(0,0,0,0.1)
+}
+
+.section-title{
+  background:#006400;
+  color:white;
+  padding:8px;
+  border-radius:5px;
+  margin-bottom:10px;
+  text-align:center;
+  font-weight:bold;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:center;
+}
+
+th{background:#008000;color:white}
+</style>
+</head>
+<body>
+
+<h2>Branch Business Dashboard</h2>
+
+<select id="branch">
+  <option value="">Select Branch</option>
+</select>
+
+<div id="dashboard"></div>
+
+<script>
+
+// 🌐 Your Exact API URL
+const API_URL = "https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
+
+
+// Load Branch Dropdown from API
+function loadBranches(){
+  fetch(API_URL + "?type=branches")
+  .then(res => res.json())
+  .then(data => {
+    const select = document.getElementById("branch");
+    data.forEach(row => {
+      const opt = document.createElement("option");
+      opt.value = row[0];
+      opt.text = row[0] + " - " + row[1];
+      select.appendChild(opt);
+    });
+  })
+  .catch(err => {
+    alert("Error loading branches");
+    console.error(err);
+  });
+}
+
+// When Branch is Selected
+document.getElementById("branch").addEventListener("change", function() {
+  const solid = this.value;
+  if(!solid) return;
+
+  fetch(API_URL + "?type=branchData&solid=" + solid)
+  .then(res => res.json())
+  .then(row => {
+    if(row.error){
+      document.getElementById("dashboard").innerHTML = "<p>No data found for this branch.</p>";
+      return;
+    }
+
+    let html = "";
+    html += createSection("ADVANCE", row.slice(2,10));
+    html += createSection("NPA",     row.slice(10,18));
+    html += createSection("DEPOSIT", row.slice(18,26));
+    html += createSection("CASA",    row.slice(26,34));
+
+    document.getElementById("dashboard").innerHTML = html;
+  })
+  .catch(err => {
+    alert("Error retrieving branch data");
+    console.error(err);
+  });
+});
+
+// Create Section UI
+function createSection(title, data){
+  return `
+  <div class="card">
+    <div class="section-title">${title}</div>
+    <table>
+      <tr>
+        <th>31-03-2025</th>
+        <th>Last Month</th>
+        <th>Previous</th>
+        <th>Current</th>
+        <th>Growth FY</th>
+        <th>FTD</th>
+        <th>MTD</th>
+        <th>YTD</th>
+      </tr>
+      <tr>
+        ${data.map(val => `<td>${val || ""}</td>`).join("")}
+      </tr>
+    </table>
+  </div>
+  `;
+}
+
+// Initial Load
+loadBranches();
+
+</script>
+
+</body>
+</html>
