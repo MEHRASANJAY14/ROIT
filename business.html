@@ -2,12 +2,47 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Branch Business Dashboard</title>
+<title>RO Jabalpur Business Dashboard</title>
 
 <style>
-body{font-family:Arial;background:#f4f6f9;padding:20px}
-h2{text-align:center;color:#006400}
-select{width:100%;padding:8px;margin:10px 0;border-radius:4px;border:1px solid #ccc}
+body{
+  font-family:Arial;
+  background:#f4f6f9;
+  margin:0;
+  padding:20px;
+}
+
+.topbar{
+  background:#006400;
+  padding:10px;
+}
+
+.topbar a{
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+  background:#004d00;
+  padding:6px 12px;
+  border-radius:5px;
+}
+
+.header{
+  text-align:center;
+  margin:15px 0;
+}
+
+.header h2{
+  color:#006400;
+  margin:0;
+}
+
+select{
+  width:100%;
+  padding:8px;
+  margin:15px 0;
+  border-radius:4px;
+  border:1px solid #ccc;
+}
 
 .card{
   background:white;
@@ -39,12 +74,35 @@ th,td{
   text-align:center;
 }
 
-th{background:#008000;color:white}
+th{
+  background:#008000;
+  color:white;
+}
+
+.group-header{
+  background:#2e6da4;
+  color:white;
+  font-weight:bold;
+}
+
+.sub-header{
+  background:#d9edf7;
+  font-weight:bold;
+}
+
 </style>
 </head>
+
 <body>
 
-<h2>Branch Business Dashboard</h2>
+<div class="topbar">
+  <a href="index.html">⬅ Back to Dashboard</a>
+</div>
+
+<div class="header">
+  <h2>MADHYA PRADESH GRAMIN BANK</h2>
+  <h3>RO JABALPUR - BUSINESS DASHBOARD (Amount in Crore)</h3>
+</div>
 
 <select id="branch">
   <option value="">Select Branch</option>
@@ -54,81 +112,114 @@ th{background:#008000;color:white}
 
 <script>
 
-// 🌐 Your Exact API URL
 const API_URL = "https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
+// Convert Lakhs to Crore
+function toCrore(value){
+  if(!value || isNaN(value)) return "";
+  return (Number(value)/100).toFixed(2);
+}
 
-// Load Branch Dropdown from API
+// Load Branches
 function loadBranches(){
   fetch(API_URL + "?type=branches")
-  .then(res => res.json())
-  .then(data => {
-    const select = document.getElementById("branch");
-    data.forEach(row => {
-      const opt = document.createElement("option");
-      opt.value = row[0];
-      opt.text = row[0] + " - " + row[1];
+  .then(res=>res.json())
+  .then(data=>{
+    const select=document.getElementById("branch");
+    data.forEach(row=>{
+      let opt=document.createElement("option");
+      opt.value=row[0];
+      opt.text=row[0]+" - "+row[1];
       select.appendChild(opt);
     });
   })
-  .catch(err => {
-    alert("Error loading branches");
-    console.error(err);
-  });
+  .catch(()=>alert("Error loading branches"));
 }
 
-// When Branch is Selected
-document.getElementById("branch").addEventListener("change", function() {
-  const solid = this.value;
+document.getElementById("branch").addEventListener("change",function(){
+
+  const solid=this.value;
   if(!solid) return;
 
-  fetch(API_URL + "?type=branchData&solid=" + solid)
-  .then(res => res.json())
-  .then(row => {
+  fetch(API_URL + "?type=branchData&solid="+solid)
+  .then(res=>res.json())
+  .then(row=>{
+
     if(row.error){
-      document.getElementById("dashboard").innerHTML = "<p>No data found for this branch.</p>";
+      alert("Branch data not found");
       return;
     }
 
-    let html = "";
-    html += createSection("ADVANCE", row.slice(2,10));
-    html += createSection("NPA",     row.slice(10,18));
-    html += createSection("DEPOSIT", row.slice(18,26));
-    html += createSection("CASA",    row.slice(26,34));
-
-    document.getElementById("dashboard").innerHTML = html;
-  })
-  .catch(err => {
-    alert("Error retrieving branch data");
-    console.error(err);
-  });
-});
-
-// Create Section UI
-function createSection(title, data){
-  return `
-  <div class="card">
-    <div class="section-title">${title}</div>
+    let html = `
+    <div class="card">
     <table>
-      <tr>
-        <th>31-03-2025</th>
-        <th>Last Month</th>
-        <th>Previous</th>
-        <th>Current</th>
-        <th>Growth FY</th>
-        <th>FTD</th>
-        <th>MTD</th>
-        <th>YTD</th>
+      <tr class="group-header">
+        <th rowspan="3">SOLID</th>
+        <th rowspan="3">Branch Name</th>
+        <th colspan="8">ADVANCE</th>
+        <th colspan="8">NPA</th>
+        <th colspan="8">DEPOSIT</th>
+        <th colspan="8">CASA</th>
+      </tr>
+      <tr class="sub-header">
+        ${generateSubHeader()}
+        ${generateSubHeader()}
+        ${generateSubHeader()}
+        ${generateSubHeader()}
+      </tr>
+      <tr class="sub-header">
+        ${generateGrowthHeader()}
+        ${generateGrowthHeader()}
+        ${generateGrowthHeader()}
+        ${generateGrowthHeader()}
       </tr>
       <tr>
-        ${data.map(val => `<td>${val || ""}</td>`).join("")}
+        <td>${row[0]}</td>
+        <td>${row[1]}</td>
+        ${generateData(row.slice(2))}
       </tr>
     </table>
-  </div>
+    </div>
+    `;
+
+    document.getElementById("dashboard").innerHTML = html;
+
+  })
+  .catch(()=>alert("Error retrieving branch data"));
+
+});
+
+// Sub header row
+function generateSubHeader(){
+  return `
+  <th>31-03-2025</th>
+  <th>Last Month</th>
+  <th>Previous</th>
+  <th>Current</th>
+  <th colspan="4">Growth FY 2025-26</th>
   `;
 }
 
-// Initial Load
+// Growth header row
+function generateGrowthHeader(){
+  return `
+  <th></th>
+  <th></th>
+  <th></th>
+  <th></th>
+  <th>FTD</th>
+  <th>MTD</th>
+  <th>YTD</th>
+  <th></th>
+  `;
+}
+
+// Data row
+function generateData(dataArray){
+
+  return dataArray.map(v=>`<td>${toCrore(v)}</td>`).join("");
+}
+
 loadBranches();
 
 </script>
