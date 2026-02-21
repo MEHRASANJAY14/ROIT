@@ -2,75 +2,71 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RO Jabalpur Inventory</title>
-
+<title>RO Jabalpur Inventory Entry</title>
 <style>
-body{font-family:Arial;background:#f4f6f9;padding:20px}
-input,select{width:100%;padding:8px;margin:6px 0}
-button{padding:10px;background:#007bff;color:white;border:none;width:100%}
-.card{background:white;padding:15px;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+  body{font-family:Arial;background:#f4f6f9;padding:20px}
+  input,select{width:100%;padding:8px;margin:6px 0;border:1px solid #ccc;border-radius:4px}
+  button{padding:10px;background:#007bff;color:white;border:none;width:100%;border-radius:5px}
+  h3{text-align:center;color:#222}
+  .card{background:white;padding:15px;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.1)}
 </style>
-
 </head>
 <body>
 
 <div class="card">
+  <h3>RO Jabalpur Inventory Entry</h3>
 
-<h3>RO Jabalpur Inventory Entry</h3>
+  <input id="solid" placeholder="SOL ID (e.g., 12010)">
+  <input id="solname" placeholder="SOL NAME (e.g., Jabalpur)">
 
-<input id="solid" placeholder="SOL ID">
-<input id="solname" placeholder="SOL NAME">
+  <select id="asset">
+    <option value="">Select Asset Type</option>
+    <option>CPU</option>
+    <option>MONITOR</option>
+    <option>SCANNER</option>
+    <option>PASSBOOK PRINTER</option>
+    <option>LASER PRINTER</option>
+    <option>BIOMETRIC DEVICE</option>
+    <option>MODEM</option>
+    <option>ROUTER</option>
+    <option>VC DEVICE</option>
+    <option>LED PROJECTOR</option>
+    <option>PROJECTOR SCREEN</option>
+    <option>SPEAKER</option>
+  </select>
 
-<select id="asset">
-<option value="">Select Asset Type</option>
-<option>CPU</option>
-<option>MONITOR</option>
-<option>SCANNER</option>
-<option>PASSBOOK PRINTER</option>
-<option>LASER PRINTER</option>
-<option>BIOMETRIC DEVICE</option>
-<option>MODEM</option>
-<option>ROUTER</option>
-<option>VC DEVICE</option>
-<option>LED PROJECTOR</option>
-<option>PROJECTOR SCREEN</option>
-<option>SPEAKER</option>
-</select>
+  <input id="brand" placeholder="Brand">
+  <input id="model" placeholder="Model">
+  <input id="serial" placeholder="Serial No">
+  <input id="assigned" placeholder="Assigned To">
 
-<input id="brand" placeholder="Brand">
-<input id="model" placeholder="Model">
-<input id="serial" placeholder="Serial No">
-<input id="assigned" placeholder="Assigned To">
+  <select id="critical">
+    <option value="LOW">LOW</option>
+    <option value="MEDIUM">MEDIUM</option>
+    <option value="HIGH">HIGH</option>
+  </select>
 
-<select id="critical">
-<option>LOW</option>
-<option>MEDIUM</option>
-<option>HIGH</option>
-</select>
+  <input id="ip" placeholder="IP Address">
+  <input id="host" placeholder="Hostname">
+  <input id="os" placeholder="Operating System">
+  <input id="mac" placeholder="MAC Address">
 
-<input id="ip" placeholder="IP Address">
-<input id="host" placeholder="Hostname">
-<input id="os" placeholder="Operating System">
-<input id="mac" placeholder="MAC Address">
+  <select id="status">
+    <option value="">Select Status</option>
+    <option>WORKING</option>
+    <option>FAULTY</option>
+    <option>UNDER REPAIR</option>
+    <option>SCRAP</option>
+  </select>
 
-<select id="status">
-<option value="">Select Status</option>
-<option>WORKING</option>
-<option>FAULTY</option>
-<option>UNDER REPAIR</option>
-<option>SCRAP</option>
-</select>
-
-<button onclick="saveData()">Save Asset</button>
-
+  <button onclick="saveData()">Save Asset</button>
 </div>
 
 <script>
-
 function saveData(){
-
-  if(asset.value=="" || status.value==""){
-    alert("Select Asset Type and Status");
+  // Basic validation
+  if(!asset.value || !status.value){
+    alert("Please select Asset Type and Status");
     return;
   }
 
@@ -95,18 +91,17 @@ function saveData(){
     body: JSON.stringify(data)
   })
   .then(res => res.json())
-  .then(response => {
-    alert("Saved Successfully");
+  .then(resp => {
+    alert("Saved Successfully!");
     document.querySelectorAll("input").forEach(i=>i.value="");
-    document.getElementById("asset").value="";
-    document.getElementById("status").value="";
+    asset.value="";
+    status.value="";
   })
-  .catch(error=>{
-    alert("Error Saving Data");
+  .catch(err => {
+    alert("Error: Unable to save.");
+    console.error(err);
   });
-
 }
-
 </script>
 
 </body>
