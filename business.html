@@ -18,27 +18,29 @@ body{
   color:white;
   text-align:center;
   padding:12px;
-  font-size:18px;
+  font-size:16px;
   font-weight:bold;
 }
 
-.container{padding:15px;}
+.container{
+  padding:10px;
+}
 
 select{
   width:100%;
-  padding:10px;
+  padding:8px;
+  margin-bottom:12px;
   border-radius:6px;
   border:1px solid #ccc;
-  margin-bottom:15px;
 }
 
-/* SECTION CARD */
+/* SECTION */
 .section{
   background:white;
-  border-radius:8px;
-  padding:12px;
+  padding:10px;
   margin-bottom:15px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.1);
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 .section-title{
@@ -48,20 +50,26 @@ select{
   text-align:center;
   font-weight:bold;
   border-radius:4px;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 
-/* DESKTOP TABLE */
+/* TABLE */
+.table-wrapper{
+  width:100%;
+  overflow-x:auto;   /* 🔥 allow scroll on mobile */
+}
+
 table{
   width:100%;
   border-collapse:collapse;
+  min-width:650px;  /* 🔥 prevent compression */
 }
 
 th,td{
   border:1px solid #ddd;
   padding:6px;
   text-align:center;
-  font-size:13px;
+  font-size:12px;
 }
 
 th{
@@ -76,40 +84,9 @@ th{
 .positive{color:green;font-weight:bold}
 .negative{color:red;font-weight:bold}
 
-/* 🔥 MOBILE VIEW */
-@media(max-width:768px){
-
-  table, thead, tbody, th, td, tr {
-    display:block;
-  }
-
-  thead{display:none;}
-
-  tr{
-    margin-bottom:10px;
-    border:1px solid #ddd;
-    padding:8px;
-    border-radius:6px;
-    background:#fafafa;
-  }
-
-  td{
-    border:none;
-    text-align:left;
-    padding:4px 0;
-  }
-
-  td::before{
-    content:attr(data-label);
-    font-weight:bold;
-    display:block;
-    color:#006400;
-  }
-}
-
 .footer{
   text-align:center;
-  padding:10px;
+  padding:8px;
   font-size:12px;
   color:#555;
 }
@@ -169,8 +146,8 @@ function renderSection(title,start,row,headers){
   return `
   <div class="section">
     <div class="section-title">${title}</div>
-    <table>
-      <thead>
+    <div class="table-wrapper">
+      <table>
         <tr>
           <th>${h[0]}</th>
           <th>${h[1]}</th>
@@ -180,16 +157,13 @@ function renderSection(title,start,row,headers){
           <th>MTD</th>
           <th>YTD</th>
         </tr>
-      </thead>
-      <tbody>
         <tr>
           ${d.map((v,i)=>
-            `<td data-label="${h[i] || ['FTD','MTD','YTD'][i-4] || ''}" 
-            class="${i>=4?growthClass(v):''}">${v}</td>`
+            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
           ).join("")}
         </tr>
-      </tbody>
-    </table>
+      </table>
+    </div>
   </div>
   `;
 }
@@ -199,6 +173,11 @@ document.getElementById("branch").addEventListener("change",function(){
   fetch(API_URL+"?type=branchData&solid="+this.value)
   .then(res=>res.json())
   .then(result=>{
+
+    if(result.error){
+      alert(result.error);
+      return;
+    }
 
     const row=result.row;
     const headers=result.headers;
