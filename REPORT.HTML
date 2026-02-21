@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROJBP Daily Business</title>
+
+<style>
+body{
+margin:0;
+font-family:Segoe UI;
+background:linear-gradient(135deg,#004d40,#00796b);
+}
+
+.header{
+text-align:center;
+color:white;
+padding:20px;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:white;
+border-radius:18px;
+padding:20px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+h3{
+color:#004d40;
+margin-top:15px;
+}
+
+input, select{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+margin-bottom:12px;
+font-size:14px;
+}
+
+button{
+width:100%;
+padding:14px;
+border-radius:14px;
+border:0;
+background:#004d40;
+color:white;
+font-size:16px;
+font-weight:bold;
+margin-top:10px;
+}
+
+.success{
+text-align:center;
+color:green;
+font-weight:bold;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">ROJBP Daily Business Entry</div>
+
+<div class="container">
+<div class="card">
+
+<h3>Branch Details</h3>
+
+<select id="branch">
+<option value="">Select Branch</option>
+<option>Jabalpur Main</option>
+<option>Sihora</option>
+<option>Katni</option>
+<option>Narsinghpur</option>
+<option>Mandla</option>
+</select>
+
+<input type="date" id="date">
+
+<h3>Business Figures (in Lakhs)</h3>
+
+<input type="number" id="deposit" placeholder="Total Deposit">
+<input type="number" id="casa" placeholder="CASA Balance">
+<input type="number" id="advance" placeholder="Total Advance">
+<input type="number" id="npa" placeholder="Total NPA">
+
+<button onclick="saveData()">Submit</button>
+
+<div class="success" id="msg"></div>
+
+</div>
+</div>
+
+<script>
+function saveData(){
+
+let data={
+branch:branch.value,
+date:date.value,
+deposit:deposit.value,
+casa:casa.value,
+advance:advance.value,
+npa:npa.value
+};
+
+localStorage.setItem("daily_"+branch.value, JSON.stringify(data));
+
+msg.innerHTML="Data Saved Successfully ✓";
+
+}
+</script>
+
+</body>
+</html>
