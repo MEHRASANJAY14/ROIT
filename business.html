@@ -2,50 +2,276 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Test Business</title>
+<title>RO Jabalpur Business Dashboard</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Segoe UI, Arial;
+  background:linear-gradient(to right,#eef2f3,#e6f2e6);
+  overflow-x:hidden;   /* 🔥 Prevent horizontal scroll */
+}
+
+.topbar{
+  background:linear-gradient(90deg,#004d00,#009933);
+  color:white;
+  text-align:center;
+  padding:12px;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.container{
+  padding:15px;
+  max-width:100%;
+  overflow:hidden;
+}
+
+select{
+  width:100%;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  margin-bottom:15px;
+}
+
+/* SUMMARY */
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.summary-card{
+  background:white;
+  padding:12px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+.summary-card h4{
+  margin:0;
+  font-size:13px;
+}
+
+.summary-card h2{
+  margin:5px 0 0 0;
+  color:#006400;
+  font-size:18px;
+}
+
+/* CARD */
+.card{
+  background:white;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  width:100%;
+  overflow:hidden;  /* 🔥 Prevent table overflow */
+}
+
+.section-title{
+  background:#006400;
+  color:white;
+  padding:6px;
+  border-radius:5px;
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:8px;
+}
+
+/* TABLE */
+.table-wrapper{
+  width:100%;
+  overflow-x:auto;   /* 🔥 Allow scroll inside table only if needed */
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+  table-layout:fixed;   /* 🔥 Prevent column expansion */
+  word-break:break-word;
+}
+
+th,td{
+  border:1px solid #ddd;
+  padding:4px;
+  text-align:center;
+}
+
+th{
+  background:#2e7d32;
+  color:white;
+  font-weight:600;
+}
+
+.sub{
+  background:#c8e6c9;
+}
+
+.info{
+  background:#e8f5e9;
+  font-weight:bold;
+}
+
+.positive{color:green;font-weight:bold}
+.negative{color:red;font-weight:bold}
+
+.footer{
+  text-align:center;
+  padding:8px;
+  font-size:12px;
+  color:#555;
+}
+
+</style>
 </head>
+
 <body>
+
+<div class="topbar">
+MADHYA PRADESH GRAMIN BANK  
+RO JABALPUR BUSINESS DASHBOARD (₹ Crore)
+</div>
+
+<div class="container">
 
 <select id="branch">
   <option value="">Select Branch</option>
 </select>
 
-<div id="output"></div>
+<div id="summary"></div>
+<div id="dashboard"></div>
+
+</div>
+
+<div class="footer">
+Powered by RO Jabalpur IT Cell
+</div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-fetch(API + "?type=branches")
-.then(res => res.json())
-.then(data => {
-  let select = document.getElementById("branch");
-  data.forEach(r => {
-    let o = document.createElement("option");
-    o.value = r[0];
-    o.text = r[0] + " - " + r[1];
-    select.appendChild(o);
+function toCrore(v){
+  if(!v||isNaN(v)) return "0.00";
+  return (Number(v)/100).toFixed(2);
+}
+
+function growthClass(v){
+  if(Number(v)>0) return "positive";
+  if(Number(v)<0) return "negative";
+  return "";
+}
+
+function loadBranches(){
+  fetch(API_URL+"?type=branches")
+  .then(res=>res.json())
+  .then(data=>{
+    const select=document.getElementById("branch");
+    data.forEach(r=>{
+      let o=document.createElement("option");
+      o.value=r[0];
+      o.text=r[0]+" - "+r[1];
+      select.appendChild(o);
+    });
   });
-})
-.catch(err => {
-  document.getElementById("output").innerHTML = "Branch Load Error";
-  console.error(err);
+}
+
+document.getElementById("branch").addEventListener("change",function(){
+
+  fetch(API_URL+"?type=branchData&solid="+this.value)
+  .then(res=>res.json())
+  .then(result=>{
+
+    const row=result.row;
+    const headers=result.headers;
+
+    document.getElementById("summary").innerHTML=`
+      <div class="summary">
+        <div class="summary-card">
+          <h4>Deposit (Current)</h4>
+          <h2>${toCrore(row[21])}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>CASA (Current)</h4>
+          <h2>${toCrore(row[29])}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>Advance (Current)</h4>
+          <h2>${toCrore(row[5])}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>NPA (Current)</h4>
+          <h2>${toCrore(row[13])}</h2>
+        </div>
+      </div>
+    `;
+
+    let html="";
+
+    html+=`
+    <div class="card">
+      <table>
+        <tr class="info">
+          <td>SOL ID</td>
+          <td>${row[0]}</td>
+          <td>Branch Name</td>
+          <td>${row[1]}</td>
+        </tr>
+      </table>
+    </div>
+    `;
+
+    html+=createSection("DEPOSIT",row.slice(18,26),headers,18);
+    html+=createSection("CASA",row.slice(26,34),headers,26);
+    html+=createSection("ADVANCE",row.slice(2,10),headers,2);
+    html+=createSection("NPA",row.slice(10,18),headers,10);
+
+    document.getElementById("dashboard").innerHTML=html;
+
+  });
+
 });
 
-document.getElementById("branch").addEventListener("change", function(){
+function createSection(title,data,headers,start){
 
-  fetch(API + "?type=branchData&solid=" + this.value)
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("output").innerHTML =
-      "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
-  })
-  .catch(err => {
-    document.getElementById("output").innerHTML = "Data Load Error";
-    console.error(err);
-  });
+  return `
+  <div class="card">
+    <div class="section-title">${title}</div>
+    <div class="table-wrapper">
+    <table>
+      <tr>
+        <th rowspan="2">${headers[start]}</th>
+        <th rowspan="2">${headers[start+1]}</th>
+        <th rowspan="2">${headers[start+2]}</th>
+        <th rowspan="2">${headers[start+3]}</th>
+        <th colspan="3">Growth FY</th>
+      </tr>
+      <tr class="sub">
+        <th>FTD</th>
+        <th>MTD</th>
+        <th>YTD</th>
+      </tr>
+      <tr>
+        ${data.map((v,i)=>`<td class="${i>=4?growthClass(v):''}">${toCrore(v)}</td>`).join("")}
+      </tr>
+    </table>
+    </div>
+  </div>
+  `;
+}
 
-});
+loadBranches();
 
 </script>
 
