@@ -303,6 +303,189 @@ loadBranches();
 </script>
 
 </body>
+</html>}
+
+.header-date{
+  font-weight:bold;
+  font-size:10px;
+  display:inline-block;
+  white-space:nowrap;
+}
+
+.positive{color:green;font-weight:bold}
+.negative{color:red;font-weight:bold}
+
+.footer{
+  text-align:center;
+  padding:6px;
+  font-size:11px;
+  color:#555;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+MADHYA PRADESH GRAMIN BANK  
+RO JABALPUR BUSINESS DASHBOARD (₹ Lakhs)
+</div>
+
+<div class="container">
+
+<select id="branch">
+<option value="">Select Branch</option>
+</select>
+
+<div id="branchInfo"></div>
+<div id="summary"></div>
+<div id="dashboard"></div>
+
+</div>
+
+<div class="footer">
+Powered by RO Jabalpur IT Cell
+</div>
+
+<script>
+
+const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
+
+function growthClass(v){
+  if(Number(v)>0) return "positive";
+  if(Number(v)<0) return "negative";
+  return "";
+}
+
+function formatHeader(text){
+
+  if(!text) return "";
+  text = text.trim();
+
+  if(text.includes("Previous as on")){
+    const date = text.replace("Previous as on","").trim();
+    return "Previous<br>as on<br><span class='header-date'>"+date+"</span>";
+  }
+
+  if(text.includes("Current as on")){
+    const date = text.replace("Current as on","").trim();
+    return "Current<br>as on<br><span class='header-date'>"+date+"</span>";
+  }
+
+  if(text.includes("Last Month")){
+    const date = text.replace("Last Month","").trim();
+    return "Last<br>Month<br><span class='header-date'>"+date+"</span>";
+  }
+
+  if(/^\d{2}[-\/.]\d{2}[-\/.]\d{4}$/.test(text)){
+    return "<span class='header-date'>"+text+"</span>";
+  }
+
+  return text;
+}
+
+function loadBranches(){
+  fetch(API_URL+"?type=branches")
+  .then(res=>res.json())
+  .then(data=>{
+    const select=document.getElementById("branch");
+    data.forEach(r=>{
+      let o=document.createElement("option");
+      o.value=r[0];
+      o.text=r[0]+" - "+r[1];
+      select.appendChild(o);
+    });
+  });
+}
+
+function renderSection(title,start,row,headers){
+
+  const h=headers.slice(start,start+7);
+  const d=row.slice(start,start+7);
+
+  return `
+  <div class="section">
+    <div class="section-title">${title}</div>
+    <div class="table-wrapper">
+      <table>
+        <tr>
+          <th>${formatHeader(h[0])}</th>
+          <th>${formatHeader(h[1])}</th>
+          <th>${formatHeader(h[2])}</th>
+          <th>${formatHeader(h[3])}</th>
+          <th>FTD</th>
+          <th>MTD</th>
+          <th>YTD</th>
+        </tr>
+        <tr>
+          ${d.map((v,i)=>
+            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
+          ).join("")}
+        </tr>
+      </table>
+    </div>
+  </div>
+  `;
+}
+
+document.getElementById("branch").addEventListener("change",function(){
+
+  fetch(API_URL+"?type=branchData&solid="+this.value)
+  .then(res=>res.json())
+  .then(result=>{
+
+    if(result.error){
+      alert(result.error);
+      return;
+    }
+
+    const row=result.row;
+    const headers=result.headers;
+
+    document.getElementById("branchInfo").innerHTML=`
+      <div class="branch-card">
+        Branch Code: ${row[0]} | Branch Name: ${row[1]}
+      </div>
+    `;
+
+    document.getElementById("summary").innerHTML=`
+      <div class="summary">
+        <div class="summary-card">
+          <h4>Advance</h4>
+          <h2>${row[5]}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>NPA</h4>
+          <h2>${row[12]}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>Deposit</h4>
+          <h2>${row[19]}</h2>
+        </div>
+        <div class="summary-card">
+          <h4>CASA</h4>
+          <h2>${row[26]}</h2>
+        </div>
+      </div>
+    `;
+
+    let html="";
+    html+=renderSection("ADVANCE",2,row,headers);
+    html+=renderSection("NPA",9,row,headers);
+    html+=renderSection("DEPOSIT",16,row,headers);
+    html+=renderSection("CASA",23,row,headers);
+
+    document.getElementById("dashboard").innerHTML=html;
+
+  });
+
+});
+
+loadBranches();
+
+</script>
+
+</body>
 </html>
 .summary-card{
   background:white;
@@ -545,17 +728,7 @@ document.getElementById("branch").addEventListener("change",function(){
     html+=renderSection("DEPOSIT",16,row,headers);
     html+=renderSection("CASA",23,row,headers);
 
-    document.getElementById("dashboard").innerHTML=html;
+    document.getElementById(
 
-  });
-
-});
-
-loadBranches();
-
-</script>
-
-</body>
-</html>
 
 
