@@ -5,16 +5,13 @@
 <title>RO Jabalpur Business Dashboard</title>
 
 <style>
-
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
   font-family:Segoe UI, Arial;
   background:linear-gradient(to right,#eef2f3,#e6f2e6);
-  overflow-x:hidden;   /* 🔥 Prevent horizontal scroll */
+  overflow-x:hidden;
 }
 
 .topbar{
@@ -28,8 +25,6 @@ body{
 
 .container{
   padding:15px;
-  max-width:100%;
-  overflow:hidden;
 }
 
 select{
@@ -56,16 +51,8 @@ select{
   text-align:center;
 }
 
-.summary-card h4{
-  margin:0;
-  font-size:13px;
-}
-
-.summary-card h2{
-  margin:5px 0 0 0;
-  color:#006400;
-  font-size:18px;
-}
+.summary-card h4{margin:0;font-size:13px}
+.summary-card h2{margin:5px 0 0 0;color:#006400}
 
 /* CARD */
 .card{
@@ -74,8 +61,6 @@ select{
   border-radius:10px;
   margin-bottom:15px;
   box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  width:100%;
-  overflow:hidden;  /* 🔥 Prevent table overflow */
 }
 
 .section-title{
@@ -88,30 +73,28 @@ select{
   margin-bottom:8px;
 }
 
-/* TABLE */
 .table-wrapper{
   width:100%;
-  overflow-x:auto;   /* 🔥 Allow scroll inside table only if needed */
+  overflow-x:auto;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:11px;
-  table-layout:fixed;   /* 🔥 Prevent column expansion */
-  word-break:break-word;
+  font-size:12px;
+  table-layout:fixed;
 }
 
 th,td{
   border:1px solid #ddd;
-  padding:4px;
+  padding:5px;
   text-align:center;
+  word-break:break-word;
 }
 
 th{
   background:#2e7d32;
   color:white;
-  font-weight:600;
 }
 
 .sub{
@@ -128,11 +111,10 @@ th{
 
 .footer{
   text-align:center;
-  padding:8px;
+  padding:10px;
   font-size:12px;
   color:#555;
 }
-
 </style>
 </head>
 
@@ -140,13 +122,13 @@ th{
 
 <div class="topbar">
 MADHYA PRADESH GRAMIN BANK  
-RO JABALPUR BUSINESS DASHBOARD (₹ Crore)
+RO JABALPUR BUSINESS DASHBOARD (₹ Lakhs)
 </div>
 
 <div class="container">
 
 <select id="branch">
-  <option value="">Select Branch</option>
+<option value="">Select Branch</option>
 </select>
 
 <div id="summary"></div>
@@ -161,11 +143,6 @@ Powered by RO Jabalpur IT Cell
 <script>
 
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
-
-function toCrore(v){
-  if(!v||isNaN(v)) return "0.00";
-  return (Number(v)/100).toFixed(2);
-}
 
 function growthClass(v){
   if(Number(v)>0) return "positive";
@@ -193,26 +170,32 @@ document.getElementById("branch").addEventListener("change",function(){
   .then(res=>res.json())
   .then(result=>{
 
+    if(result.error){
+      alert(result.error);
+      return;
+    }
+
     const row=result.row;
     const headers=result.headers;
 
+    // ===== SUMMARY CARDS =====
     document.getElementById("summary").innerHTML=`
       <div class="summary">
         <div class="summary-card">
           <h4>Deposit (Current)</h4>
-          <h2>${toCrore(row[21])}</h2>
+          <h2>${row[headers.indexOf("Current as on 21-02-2026")] || ""}</h2>
         </div>
         <div class="summary-card">
           <h4>CASA (Current)</h4>
-          <h2>${toCrore(row[29])}</h2>
+          <h2>${row[headers.lastIndexOf("Current as on 21-02-2026")] || ""}</h2>
         </div>
         <div class="summary-card">
           <h4>Advance (Current)</h4>
-          <h2>${toCrore(row[5])}</h2>
+          <h2>${row[5] || ""}</h2>
         </div>
         <div class="summary-card">
           <h4>NPA (Current)</h4>
-          <h2>${toCrore(row[13])}</h2>
+          <h2>${row[13] || ""}</h2>
         </div>
       </div>
     `;
@@ -232,40 +215,49 @@ document.getElementById("branch").addEventListener("change",function(){
     </div>
     `;
 
-    html+=createSection("DEPOSIT",row.slice(18,26),headers,18);
-    html+=createSection("CASA",row.slice(26,34),headers,26);
-    html+=createSection("ADVANCE",row.slice(2,10),headers,2);
-    html+=createSection("NPA",row.slice(10,18),headers,10);
+    html+=renderSection("DEPOSIT",row,headers);
+    html+=renderSection("CASA",row,headers);
+    html+=renderSection("ADVANCE",row,headers);
+    html+=renderSection("NPA",row,headers);
 
     document.getElementById("dashboard").innerHTML=html;
 
   });
-
 });
 
-function createSection(title,data,headers,start){
+
+function renderSection(title,row,headers){
+
+  const start=headers.findIndex(h=>h.toString().toUpperCase().includes(title));
+
+  if(start===-1) return "";
+
+  const sectionHeaders=headers.slice(start,start+7);
+  const sectionData=row.slice(start,start+7);
 
   return `
   <div class="card">
     <div class="section-title">${title}</div>
     <div class="table-wrapper">
-    <table>
-      <tr>
-        <th rowspan="2">${headers[start]}</th>
-        <th rowspan="2">${headers[start+1]}</th>
-        <th rowspan="2">${headers[start+2]}</th>
-        <th rowspan="2">${headers[start+3]}</th>
-        <th colspan="3">Growth FY</th>
-      </tr>
-      <tr class="sub">
-        <th>FTD</th>
-        <th>MTD</th>
-        <th>YTD</th>
-      </tr>
-      <tr>
-        ${data.map((v,i)=>`<td class="${i>=4?growthClass(v):''}">${toCrore(v)}</td>`).join("")}
-      </tr>
-    </table>
+      <table>
+        <tr>
+          <th rowspan="2">${sectionHeaders[0]}</th>
+          <th rowspan="2">${sectionHeaders[1]}</th>
+          <th rowspan="2">${sectionHeaders[2]}</th>
+          <th rowspan="2">${sectionHeaders[3]}</th>
+          <th colspan="3">Growth FY</th>
+        </tr>
+        <tr class="sub">
+          <th>FTD</th>
+          <th>MTD</th>
+          <th>YTD</th>
+        </tr>
+        <tr>
+          ${sectionData.map((v,i)=>
+            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
+          ).join("")}
+        </tr>
+      </table>
     </div>
   </div>
   `;
