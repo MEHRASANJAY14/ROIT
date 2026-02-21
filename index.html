@@ -1,1 +1,113 @@
-https://script.google.com/macros/s/AKfycbz6gx8Ko_Kpgoof9v1gCOy4ajQsNm2O_iL3IM6o2aGHaYYF0QD25q_PxSAyC-uGFcc/exec
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RO Jabalpur Inventory</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;padding:20px}
+input,select{width:100%;padding:8px;margin:6px 0}
+button{padding:10px;background:#007bff;color:white;border:none;width:100%}
+.card{background:white;padding:15px;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h3>RO Jabalpur Inventory Entry</h3>
+
+<input id="solid" placeholder="SOL ID">
+<input id="solname" placeholder="SOL NAME">
+
+<select id="asset">
+<option value="">Select Asset Type</option>
+<option>CPU</option>
+<option>MONITOR</option>
+<option>SCANNER</option>
+<option>PASSBOOK PRINTER</option>
+<option>LASER PRINTER</option>
+<option>BIOMETRIC DEVICE</option>
+<option>MODEM</option>
+<option>ROUTER</option>
+<option>VC DEVICE</option>
+<option>LED PROJECTOR</option>
+<option>PROJECTOR SCREEN</option>
+<option>SPEAKER</option>
+</select>
+
+<input id="brand" placeholder="Brand">
+<input id="model" placeholder="Model">
+<input id="serial" placeholder="Serial No">
+<input id="assigned" placeholder="Assigned To">
+
+<select id="critical">
+<option>LOW</option>
+<option>MEDIUM</option>
+<option>HIGH</option>
+</select>
+
+<input id="ip" placeholder="IP Address">
+<input id="host" placeholder="Hostname">
+<input id="os" placeholder="Operating System">
+<input id="mac" placeholder="MAC Address">
+
+<select id="status">
+<option value="">Select Status</option>
+<option>WORKING</option>
+<option>FAULTY</option>
+<option>UNDER REPAIR</option>
+<option>SCRAP</option>
+</select>
+
+<button onclick="saveData()">Save Asset</button>
+
+</div>
+
+<script>
+
+function saveData(){
+
+  if(asset.value=="" || status.value==""){
+    alert("Select Asset Type and Status");
+    return;
+  }
+
+  const data = {
+    solid: solid.value,
+    solname: solname.value,
+    asset: asset.value,
+    brand: brand.value,
+    model: model.value,
+    serial: serial.value,
+    assigned: assigned.value,
+    critical: critical.value,
+    ip: ip.value,
+    host: host.value,
+    os: os.value,
+    mac: mac.value,
+    status: status.value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbz6gx8Ko_Kpgoof9v1gCOy4ajQsNm2O_iL3IM6o2aGHaYYF0QD25q_PxSAyC-uGFcc/exec", {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(response => {
+    alert("Saved Successfully");
+    document.querySelectorAll("input").forEach(i=>i.value="");
+    document.getElementById("asset").value="";
+    document.getElementById("status").value="";
+  })
+  .catch(error=>{
+    alert("Error Saving Data");
+  });
+
+}
+
+</script>
+
+</body>
+</html>
