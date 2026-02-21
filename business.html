@@ -99,24 +99,29 @@ select{
   overflow-x:auto;
 }
 
+.table-wrapper{
+  width:100%;
+  overflow-x:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:520px;
-  table-layout:fixed;
+  min-width:480px;        /* 🔥 reduced more */
+  table-layout:fixed;     /* 🔥 equal column width */
 }
 
 th,td{
   border:1px solid #ddd;
-  padding:3px 4px;
+  padding:2px 3px;        /* 🔥 very tight */
   text-align:center;
-  font-size:11px;
+  font-size:10px;         /* 🔥 smaller */
 }
 
 th{
   background:#2e7d32;
   color:white;
-  line-height:1.1;
+  line-height:1;          /* 🔥 reduce header height */
   position:sticky;
   top:0;
   z-index:2;
@@ -124,7 +129,7 @@ th{
 
 .header-date{
   font-weight:bold;
-  font-size:10px;
+  font-size:9px;          /* 🔥 smaller date */
   display:inline-block;
   white-space:nowrap;
 }
@@ -288,4 +293,5 @@ loadBranches();
 
 </body>
 </html>
+
 
