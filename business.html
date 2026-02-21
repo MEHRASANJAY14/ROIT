@@ -5,98 +5,31 @@
 <title>RO Jabalpur Business Dashboard</title>
 
 <style>
-body{
-  font-family:Arial;
-  background:#f4f6f9;
-  margin:0;
-  padding:20px;
-}
-
-.topbar{
-  background:#006400;
-  padding:10px;
-}
-
-.topbar a{
-  color:white;
-  text-decoration:none;
-  font-weight:bold;
-  background:#004d00;
-  padding:6px 12px;
-  border-radius:5px;
-}
-
-.header{
-  text-align:center;
-  margin:15px 0;
-}
-
-.header h2{
-  color:#006400;
-  margin:0;
-}
-
-select{
-  width:100%;
-  padding:8px;
-  margin:15px 0;
-  border-radius:4px;
-  border:1px solid #ccc;
-}
-
-.card{
-  background:white;
-  padding:15px;
-  margin-bottom:20px;
-  border-radius:10px;
-  box-shadow:0 4px 8px rgba(0,0,0,0.1)
-}
-
-.section-title{
-  background:#006400;
-  color:white;
-  padding:8px;
-  border-radius:5px;
-  margin-bottom:10px;
-  text-align:center;
-  font-weight:bold;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-  margin-bottom:20px;
-}
-
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:center;
-}
-
-th{
-  background:#008000;
-  color:white;
-}
-
-.info-row{
-  background:#dff0d8;
-  font-weight:bold;
-}
-
+body{font-family:Arial;background:#f4f6f9;margin:0;padding:15px}
+.topbar{background:#006400;padding:8px}
+.topbar a{color:white;text-decoration:none;font-weight:bold;background:#004d00;padding:5px 10px;border-radius:4px}
+.header{text-align:center;margin:10px 0}
+.header h2{color:#006400;margin:0}
+select{width:100%;padding:6px;margin:10px 0}
+.card{background:white;padding:10px;margin-bottom:12px;border-radius:8px;box-shadow:0 3px 6px rgba(0,0,0,0.1)}
+.section-title{background:#006400;color:white;padding:6px;border-radius:4px;text-align:center;font-weight:bold;margin-bottom:5px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+th,td{border:1px solid #ccc;padding:4px;text-align:center}
+th{background:#008000;color:white}
+.sub{background:#d9edf7;font-weight:bold}
+.info{background:#e8f5e9;font-weight:bold}
 </style>
 </head>
 
 <body>
 
 <div class="topbar">
-  <a href="index.html">⬅ Back to Dashboard</a>
+  <a href="index.html">⬅ Back</a>
 </div>
 
 <div class="header">
   <h2>MADHYA PRADESH GRAMIN BANK</h2>
-  <h3>RO JABALPUR - BUSINESS DASHBOARD (Amount in Crore)</h3>
+  <h3>RO JABALPUR - BUSINESS DASHBOARD (₹ Crore)</h3>
 </div>
 
 <select id="branch">
@@ -109,10 +42,9 @@ th{
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-// Lakhs to Crore
-function toCrore(value){
-  if(!value || isNaN(value)) return "";
-  return (Number(value)/100).toFixed(2);
+function toCrore(v){
+  if(!v || isNaN(v)) return "";
+  return (Number(v)/100).toFixed(2);
 }
 
 function loadBranches(){
@@ -120,14 +52,13 @@ function loadBranches(){
   .then(res=>res.json())
   .then(data=>{
     const select=document.getElementById("branch");
-    data.forEach(row=>{
-      let opt=document.createElement("option");
-      opt.value=row[0];
-      opt.text=row[0]+" - "+row[1];
-      select.appendChild(opt);
+    data.forEach(r=>{
+      let o=document.createElement("option");
+      o.value=r[0];
+      o.text=r[0]+" - "+r[1];
+      select.appendChild(o);
     });
-  })
-  .catch(()=>alert("Error loading branches"));
+  });
 }
 
 document.getElementById("branch").addEventListener("change",function(){
@@ -137,20 +68,22 @@ document.getElementById("branch").addEventListener("change",function(){
 
   fetch(API_URL + "?type=branchData&solid="+solid)
   .then(res=>res.json())
-  .then(row=>{
+  .then(result=>{
 
-    if(row.error){
-      alert("Branch data not found");
+    if(result.error){
+      alert("Branch not found");
       return;
     }
 
+    const row = result.row;
+    const headers = result.headers;
+
     let html="";
 
-    // Row 1 - Branch Info
-    html += `
+    html+=`
     <div class="card">
       <table>
-        <tr class="info-row">
+        <tr class="info">
           <td>SOL ID</td>
           <td>${row[0]}</td>
           <td>Branch Name</td>
@@ -160,31 +93,31 @@ document.getElementById("branch").addEventListener("change",function(){
     </div>
     `;
 
-    // Data Sections
-    html += createSection("DEPOSIT", row.slice(18,26));
-    html += createSection("CASA", row.slice(26,34));
-    html += createSection("ADVANCE", row.slice(2,10));
-    html += createSection("NPA", row.slice(10,18));
+    html+=createSection("DEPOSIT", row.slice(18,26), headers, 18);
+    html+=createSection("CASA", row.slice(26,34), headers, 26);
+    html+=createSection("ADVANCE", row.slice(2,10), headers, 2);
+    html+=createSection("NPA", row.slice(10,18), headers, 10);
 
-    document.getElementById("dashboard").innerHTML = html;
+    document.getElementById("dashboard").innerHTML=html;
 
-  })
-  .catch(()=>alert("Error retrieving branch data"));
+  });
 
 });
 
-function createSection(title,data){
+function createSection(title,data,headers,startIndex){
 
   return `
   <div class="card">
     <div class="section-title">${title}</div>
     <table>
       <tr>
-        <th>31-03-2025</th>
-        <th>Last Month</th>
-        <th>Previous</th>
-        <th>Current</th>
-        <th>Growth</th>
+        <th rowspan="2">${headers[startIndex]}</th>
+        <th rowspan="2">${headers[startIndex+1]}</th>
+        <th rowspan="2">${headers[startIndex+2]}</th>
+        <th rowspan="2">${headers[startIndex+3]}</th>
+        <th colspan="3">Growth FY</th>
+      </tr>
+      <tr class="sub">
         <th>FTD</th>
         <th>MTD</th>
         <th>YTD</th>
