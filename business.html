@@ -15,7 +15,7 @@ body{
 }
 
 .topbar{
-  background:linear-gradient(90deg,#004d00,#009933);
+  background:#006400;
   color:white;
   text-align:center;
   padding:12px;
@@ -23,9 +23,7 @@ body{
   font-weight:bold;
 }
 
-.container{
-  padding:15px;
-}
+.container{padding:15px;}
 
 select{
   width:100%;
@@ -35,30 +33,10 @@ select{
   margin-bottom:15px;
 }
 
-/* SUMMARY */
-.summary{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:10px;
-  margin-bottom:15px;
-}
-
-.summary-card{
-  background:white;
-  padding:12px;
-  border-radius:10px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  text-align:center;
-}
-
-.summary-card h4{margin:0;font-size:13px}
-.summary-card h2{margin:5px 0 0 0;color:#006400}
-
-/* CARD */
 .card{
   background:white;
   padding:10px;
-  border-radius:10px;
+  border-radius:8px;
   margin-bottom:15px;
   box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
@@ -67,16 +45,13 @@ select{
   background:#006400;
   color:white;
   padding:6px;
-  border-radius:5px;
-  font-weight:bold;
   text-align:center;
+  font-weight:bold;
+  border-radius:4px;
   margin-bottom:8px;
 }
 
-.table-wrapper{
-  width:100%;
-  overflow-x:auto;
-}
+.table-wrapper{overflow-x:auto;}
 
 table{
   width:100%;
@@ -87,24 +62,12 @@ table{
 
 th,td{
   border:1px solid #ddd;
-  padding:5px;
+  padding:6px;
   text-align:center;
-  word-break:break-word;
 }
 
-th{
-  background:#2e7d32;
-  color:white;
-}
-
-.sub{
-  background:#c8e6c9;
-}
-
-.info{
-  background:#e8f5e9;
-  font-weight:bold;
-}
+th{background:#2e7d32;color:white;}
+.sub{background:#c8e6c9;}
 
 .positive{color:green;font-weight:bold}
 .negative{color:red;font-weight:bold}
@@ -131,7 +94,6 @@ RO JABALPUR BUSINESS DASHBOARD (₹ Lakhs)
 <option value="">Select Branch</option>
 </select>
 
-<div id="summary"></div>
 <div id="dashboard"></div>
 
 </div>
@@ -164,6 +126,39 @@ function loadBranches(){
   });
 }
 
+function renderSection(title,start,row,headers){
+
+  const h=headers.slice(start,start+7);
+  const d=row.slice(start,start+7);
+
+  return `
+  <div class="card">
+    <div class="section-title">${title}</div>
+    <div class="table-wrapper">
+      <table>
+        <tr>
+          <th rowspan="2">${h[0]}</th>
+          <th rowspan="2">${h[1]}</th>
+          <th rowspan="2">${h[2]}</th>
+          <th rowspan="2">${h[3]}</th>
+          <th colspan="3">Growth FY</th>
+        </tr>
+        <tr class="sub">
+          <th>FTD</th>
+          <th>MTD</th>
+          <th>YTD</th>
+        </tr>
+        <tr>
+          ${d.map((v,i)=>
+            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
+          ).join("")}
+        </tr>
+      </table>
+    </div>
+  </div>
+  `;
+}
+
 document.getElementById("branch").addEventListener("change",function(){
 
   fetch(API_URL+"?type=branchData&solid="+this.value)
@@ -178,90 +173,18 @@ document.getElementById("branch").addEventListener("change",function(){
     const row=result.row;
     const headers=result.headers;
 
-    // ===== SUMMARY CARDS =====
-    document.getElementById("summary").innerHTML=`
-      <div class="summary">
-        <div class="summary-card">
-          <h4>Deposit (Current)</h4>
-          <h2>${row[headers.indexOf("Current as on 21-02-2026")] || ""}</h2>
-        </div>
-        <div class="summary-card">
-          <h4>CASA (Current)</h4>
-          <h2>${row[headers.lastIndexOf("Current as on 21-02-2026")] || ""}</h2>
-        </div>
-        <div class="summary-card">
-          <h4>Advance (Current)</h4>
-          <h2>${row[5] || ""}</h2>
-        </div>
-        <div class="summary-card">
-          <h4>NPA (Current)</h4>
-          <h2>${row[13] || ""}</h2>
-        </div>
-      </div>
-    `;
-
     let html="";
 
-    html+=`
-    <div class="card">
-      <table>
-        <tr class="info">
-          <td>SOL ID</td>
-          <td>${row[0]}</td>
-          <td>Branch Name</td>
-          <td>${row[1]}</td>
-        </tr>
-      </table>
-    </div>
-    `;
-
-    html+=renderSection("DEPOSIT",row,headers);
-    html+=renderSection("CASA",row,headers);
-    html+=renderSection("ADVANCE",row,headers);
-    html+=renderSection("NPA",row,headers);
+    html+=renderSection("ADVANCE",2,row,headers);
+    html+=renderSection("NPA",9,row,headers);
+    html+=renderSection("DEPOSIT",16,row,headers);
+    html+=renderSection("CASA",23,row,headers);
 
     document.getElementById("dashboard").innerHTML=html;
 
   });
+
 });
-
-
-function renderSection(title,row,headers){
-
-  const start=headers.findIndex(h=>h.toString().toUpperCase().includes(title));
-
-  if(start===-1) return "";
-
-  const sectionHeaders=headers.slice(start,start+7);
-  const sectionData=row.slice(start,start+7);
-
-  return `
-  <div class="card">
-    <div class="section-title">${title}</div>
-    <div class="table-wrapper">
-      <table>
-        <tr>
-          <th rowspan="2">${sectionHeaders[0]}</th>
-          <th rowspan="2">${sectionHeaders[1]}</th>
-          <th rowspan="2">${sectionHeaders[2]}</th>
-          <th rowspan="2">${sectionHeaders[3]}</th>
-          <th colspan="3">Growth FY</th>
-        </tr>
-        <tr class="sub">
-          <th>FTD</th>
-          <th>MTD</th>
-          <th>YTD</th>
-        </tr>
-        <tr>
-          ${sectionData.map((v,i)=>
-            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
-          ).join("")}
-        </tr>
-      </table>
-    </div>
-  </div>
-  `;
-}
 
 loadBranches();
 
