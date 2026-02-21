@@ -1,99 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Business</title>
+</head>
+<body>
+
+<select id="branch">
+  <option value="">Select Branch</option>
+</select>
+
+<div id="output"></div>
+
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
+const API = "https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-function toCrore(v){
-  if(!v || isNaN(v)) return "";
-  return (Number(v)/100).toFixed(2);
-}
-
-function loadBranches(){
-  fetch(API_URL + "?type=branches")
-  .then(res=>res.json())
-  .then(data=>{
-    if(data.error) throw data.error;
-    const select=document.getElementById("branch");
-    data.forEach(r=>{
-      let o=document.createElement("option");
-      o.value=r[0];
-      o.text=r[0]+" - "+r[1];
-      select.appendChild(o);
-    });
-  })
-  .catch(err=>{
-    console.error(err);
-    alert("Error loading branches");
+fetch(API + "?type=branches")
+.then(res => res.json())
+.then(data => {
+  let select = document.getElementById("branch");
+  data.forEach(r => {
+    let o = document.createElement("option");
+    o.value = r[0];
+    o.text = r[0] + " - " + r[1];
+    select.appendChild(o);
   });
-}
+})
+.catch(err => {
+  document.getElementById("output").innerHTML = "Branch Load Error";
+  console.error(err);
+});
 
-document.getElementById("branch").addEventListener("change",function(){
+document.getElementById("branch").addEventListener("change", function(){
 
-  const solid=this.value;
-  if(!solid) return;
-
-  fetch(API_URL + "?type=branchData&solid="+solid)
-  .then(res=>res.json())
-  .then(result=>{
-
-    if(result.error) throw result.error;
-
-    const row = result.row;
-    const headers = result.headers;
-
-    let html=`
-    <div class="card">
-      <table>
-        <tr class="info">
-          <td>SOL ID</td>
-          <td>${row[0]}</td>
-          <td>Branch Name</td>
-          <td>${row[1]}</td>
-        </tr>
-      </table>
-    </div>
-    `;
-
-    html+=createSection("DEPOSIT", row.slice(18,26), headers, 18);
-    html+=createSection("CASA", row.slice(26,34), headers, 26);
-    html+=createSection("ADVANCE", row.slice(2,10), headers, 2);
-    html+=createSection("NPA", row.slice(10,18), headers, 10);
-
-    document.getElementById("dashboard").innerHTML=html;
-
+  fetch(API + "?type=branchData&solid=" + this.value)
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("output").innerHTML =
+      "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
   })
-  .catch(err=>{
+  .catch(err => {
+    document.getElementById("output").innerHTML = "Data Load Error";
     console.error(err);
-    alert("Error retrieving branch data");
   });
 
 });
 
-function createSection(title,data,headers,startIndex){
-
-  return `
-  <div class="card">
-    <div class="section-title">${title}</div>
-    <table>
-      <tr>
-        <th rowspan="2">${headers[startIndex]}</th>
-        <th rowspan="2">${headers[startIndex+1]}</th>
-        <th rowspan="2">${headers[startIndex+2]}</th>
-        <th rowspan="2">${headers[startIndex+3]}</th>
-        <th colspan="3">Growth FY</th>
-      </tr>
-      <tr>
-        <th>FTD</th>
-        <th>MTD</th>
-        <th>YTD</th>
-      </tr>
-      <tr>
-        ${data.map(v=>`<td>${toCrore(v)}</td>`).join("")}
-      </tr>
-    </table>
-  </div>
-  `;
-}
-
-loadBranches();
-
 </script>
+
+</body>
+</html>
