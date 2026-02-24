@@ -93,6 +93,12 @@ th{
   color:#006400;
   font-weight:bold;
 }
+
+@media print {
+  button,.back{display:none}
+  body{background:white}
+  .container{box-shadow:none;margin:0}
+}
 </style>
 </head>
 
@@ -118,14 +124,13 @@ MPGB RO Jabalpur - Staff Loan EMI (2:1 Simple Reducing)
 
 <div class="result" id="summary" style="display:none;"></div>
 
-<h3 style="color:#006400;">Monthly Schedule</h3>
+<h3 style="color:#006400;">Monthly Amortization Schedule</h3>
 <table id="schedule"></table>
 
 <a href="emi.html" class="back">⬅ Back to Normal EMI</a>
 
 </div>
 
-<!-- PDF Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
@@ -157,32 +162,43 @@ let monthlyPrincipal=P/principalMonths;
 let r=annual/12/100;
 
 let balance=P;
-let totalInterest=0;
+let accumulatedInterest=0;
 
 let table=document.getElementById("schedule");
-table.innerHTML="<tr><th>Month</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>";
+table.innerHTML="<tr><th>Month</th><th>Principal Repayment</th><th>Interest Repayment</th><th>Outstanding (Principal + Accrued Interest)</th></tr>";
 
+/* Phase 1 – Principal Repayment */
 for(let i=1;i<=principalMonths;i++){
+
   let interest=balance*r;
-  totalInterest+=interest;
+  accumulatedInterest+=interest;
+
   balance-=monthlyPrincipal;
+
+  let outstanding=balance+accumulatedInterest;
 
   table.innerHTML+=`<tr>
   <td>${i}</td>
   <td>${format(monthlyPrincipal)}</td>
-  <td>${format(interest)}</td>
-  <td>${format(balance>0?balance:0)}</td>
+  <td>0</td>
+  <td>${format(outstanding>0?outstanding:0)}</td>
   </tr>`;
 }
 
-let monthlyInterestRecovery=totalInterest/interestMonths;
+/* Phase 2 – Interest Repayment */
+
+let monthlyInterestRecovery=accumulatedInterest/interestMonths;
+let remainingInterest=accumulatedInterest;
 
 for(let i=1;i<=interestMonths;i++){
+
+  remainingInterest-=monthlyInterestRecovery;
+
   table.innerHTML+=`<tr>
   <td>${principalMonths+i}</td>
   <td>0</td>
   <td>${format(monthlyInterestRecovery)}</td>
-  <td>0</td>
+  <td>${format(remainingInterest>0?remainingInterest:0)}</td>
   </tr>`;
 }
 
@@ -191,15 +207,16 @@ document.getElementById("summary").innerHTML=`
 <p><strong>Principal Phase:</strong> ${principalYears.toFixed(0)} Years</p>
 <p><strong>Interest Phase:</strong> ${interestYears.toFixed(0)} Years</p>
 <p><strong>Monthly Principal (Phase 1):</strong> ₹ ${format(monthlyPrincipal)}</p>
-<p><strong>Total Accumulated Interest:</strong> ₹ ${format(totalInterest)}</p>
-<p><strong>Monthly Interest (Phase 2):</strong> ₹ ${format(monthlyInterestRecovery)}</p>
+<p><strong>Total Accumulated Interest:</strong> ₹ ${format(accumulatedInterest)}</p>
+<p><strong>Monthly Interest Recovery (Phase 2):</strong> ₹ ${format(monthlyInterestRecovery)}</p>
+<p><strong>Total Payment:</strong> ₹ ${format(P+accumulatedInterest)}</p>
 `;
 
 document.getElementById("summary").style.display="block";
 
 savedData={
   P,annual,years,principalYears,interestYears,
-  monthlyPrincipal,totalInterest,monthlyInterestRecovery
+  monthlyPrincipal,accumulatedInterest,monthlyInterestRecovery
 };
 
 }
@@ -227,11 +244,8 @@ doc.text("Tenure: "+savedData.years+" Years",20,y); y+=10;
 
 doc.text("Principal Phase: "+savedData.principalYears.toFixed(0)+" Years",20,y); y+=8;
 doc.text("Interest Phase: "+savedData.interestYears.toFixed(0)+" Years",20,y); y+=8;
-doc.text("Monthly Principal: ₹ "+format(savedData.monthlyPrincipal),20,y); y+=8;
-doc.text("Total Accumulated Interest: ₹ "+format(savedData.totalInterest),20,y); y+=8;
-doc.text("Monthly Interest Recovery: ₹ "+format(savedData.monthlyInterestRecovery),20,y); y+=10;
-
-doc.text("Note: Simple Interest calculated on reducing balance.",20,y);
+doc.text("Total Accumulated Interest: ₹ "+format(savedData.accumulatedInterest),20,y); y+=8;
+doc.text("Total Payment: ₹ "+format(savedData.P+savedData.accumulatedInterest),20,y);
 
 doc.save("MPGB_Staff_Loan_EMI_Report.pdf");
 
