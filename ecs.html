@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Branch Mandate Dashboard</title>
+<title>Mandate Followup List</title>
 
 <style>
 body{
     font-family: Arial;
-    margin:0;
-    padding:10px;
     background:#f4f6f9;
+    padding:10px;
 }
 
 h2{
@@ -19,21 +18,20 @@ h2{
 }
 
 input{
-    padding:8px;
     width:100%;
+    padding:8px;
     margin-bottom:10px;
     border:1px solid #ccc;
     border-radius:5px;
 }
 
 table{
-    border-collapse:collapse;
     width:100%;
+    border-collapse:collapse;
     background:white;
-    font-size:14px;
 }
 
-th,td{
+th, td{
     border:1px solid #ddd;
     padding:8px;
     text-align:center;
@@ -42,24 +40,15 @@ th,td{
 th{
     background:#003366;
     color:white;
-    cursor:pointer;
     position:sticky;
     top:0;
-}
-
-.green{background:#c6f6d5;}
-.yellow{background:#fefcbf;}
-.red{background:#fed7d7;}
-
-@media(max-width:768px){
-    table{font-size:12px;}
 }
 </style>
 </head>
 
 <body>
 
-<h2>Branch Wise Loan & Mandate Dashboard</h2>
+<h2>Mandate Followup - Branch List</h2>
 
 <input type="text" id="search" placeholder="Search Branch...">
 
@@ -83,32 +72,18 @@ fetch(sheetURL)
     // HEADER
     let header = "<tr>";
     rows[0].forEach(col => {
-        header += `<th onclick="sortTable(this)">${col}</th>`;
+        header += `<th>${col}</th>`;
     });
-    header += "<th>Mandate %</th></tr>";
+    header += "</tr>";
     thead.innerHTML = header;
 
     // DATA
     rows.slice(1).forEach(row => {
-
-        let requested = parseFloat(row[8]) || 0;   // TotalBranchRequestedMandate
-        let accepted = parseFloat(row[9]) || 0;    // TotalAccepted
-
-        let percent = requested > 0 ? ((accepted/requested)*100).toFixed(1) : 0;
-
-        let colorClass = "";
-        if(percent >= 75) colorClass="green";
-        else if(percent >=50) colorClass="yellow";
-        else colorClass="red";
-
         let tr = "<tr>";
         row.forEach(col => {
             tr += `<td>${col}</td>`;
         });
-
-        tr += `<td class="${colorClass}">${percent}%</td>`;
         tr += "</tr>";
-
         tbody.innerHTML += tr;
     });
 
@@ -123,22 +98,6 @@ document.getElementById("search").addEventListener("keyup", function(){
         row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
     });
 });
-
-// SORT FUNCTION
-function sortTable(th){
-    const table = th.closest("table");
-    const index = Array.from(th.parentNode.children).indexOf(th);
-    const rows = Array.from(table.querySelectorAll("tbody tr"));
-    const asc = th.classList.toggle("asc");
-
-    rows.sort((a,b)=>{
-        let A = a.children[index].innerText;
-        let B = b.children[index].innerText;
-        return asc ? A.localeCompare(B,undefined,{numeric:true}) : B.localeCompare(A,undefined,{numeric:true});
-    });
-
-    rows.forEach(row=>table.querySelector("tbody").appendChild(row));
-}
 
 </script>
 
