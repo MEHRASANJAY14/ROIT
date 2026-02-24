@@ -206,47 +206,77 @@ branch.addEventListener("change",function(){
 // Save
 function saveData(){
 
-if(!branch.value) return alert("Select Branch");
-if(!asset.value) return alert("Select Asset Type");
-if(!serial.value.trim()) return alert("Serial Required");
-if(!status.value) return alert("Select Status");
-if(!windows.value) return alert("Select Windows Activated");
+  const branch = document.getElementById("branch");
+  const asset = document.getElementById("asset");
+  const serial = document.getElementById("serial");
+  const status = document.getElementById("status");
+  const windows = document.getElementById("windows");
 
-const formData=new FormData();
+  if(!branch.value){
+    alert("Select Branch");
+    return;
+  }
 
-formData.append("solid",solid.value);
-formData.append("solname",solname.value);
-formData.append("asset",asset.value);
-formData.append("brand",brand.value);
-formData.append("model",model.value);
-formData.append("serial",serial.value);
-formData.append("assigned",assigned.value);
-formData.append("critical",critical.value);
-formData.append("ip",ip.value);
-formData.append("host",host.value);
-formData.append("os",os.value);
-formData.append("mac",mac.value);
-formData.append("status",status.value);
-formData.append("windows",windows.value);
+  if(!asset.value){
+    alert("Select Asset Type");
+    return;
+  }
 
-fetch(API_URL,{
-method:"POST",
-body:formData
-})
-.then(res=>res.text())
-.then(res=>{
-if(res.includes("success")){
-alert("Asset Saved Successfully");
-location.reload();
-}else{
-alert("Error: "+res);
+  if(!serial.value.trim()){
+    alert("Serial Required");
+    return;
+  }
+
+  // ✅ FIXED STATUS CHECK
+  if(status.value === ""){
+    alert("Select Status");
+    return;
+  }
+
+  // Windows optional? Agar compulsory nahi karna to hata dein
+  // if(windows.value === ""){
+  //   alert("Select Windows Activated");
+  //   return;
+  // }
+
+  const formData = new FormData();
+
+  formData.append("solid", document.getElementById("solid").value);
+  formData.append("solname", document.getElementById("solname").value);
+  formData.append("asset", asset.value);
+  formData.append("brand", document.getElementById("brand").value);
+  formData.append("model", document.getElementById("model").value);
+  formData.append("serial", serial.value);
+  formData.append("assigned", document.getElementById("assigned").value);
+  formData.append("critical", document.getElementById("critical").value);
+
+  // ✅ Network fields optional
+  formData.append("ip", document.getElementById("ip").value || "");
+  formData.append("host", document.getElementById("host").value || "");
+  formData.append("os", document.getElementById("os").value || "");
+  formData.append("mac", document.getElementById("mac").value || "");
+
+  formData.append("status", status.value);
+  formData.append("windows", windows.value || "");
+
+  fetch(API_URL,{
+    method:"POST",
+    body:formData
+  })
+  .then(res=>res.text())
+  .then(res=>{
+    if(res.includes("success")){
+      alert("Asset Saved Successfully");
+      location.reload();
+    }else{
+      alert("Server Error: " + res);
+    }
+  })
+  .catch(err=>{
+    alert("Network Error: " + err);
+  });
 }
-})
-.catch(err=>{
-alert("Network Error: "+err);
-});
 
-}
 
 loadBranches();
 
@@ -254,3 +284,4 @@ loadBranches();
 
 </body>
 </html>
+
