@@ -131,12 +131,13 @@ button{
 
 <script>
 
-const API_URL="https://script.google.com/macros/s/AKfycbzVXRVk1me6iuGb_E-H_8PiqvrmQ0X5GkWvopdiQHl2OFUFLS8-grCwHpRpEHfjtbUc/exec";
+const API_URL="PASTE_YOUR_NEW_EXEC_URL_HERE";
 
-// 🔥 Auto Entry Date
+// Auto Entry Date
 document.getElementById("entryDate").value =
   new Date().toLocaleString("en-IN");
 
+// Load Branch
 function loadBranches(){
   fetch(API_URL+"?type=branches")
   .then(res=>res.json())
@@ -159,13 +160,8 @@ document.getElementById("branch").addEventListener("change",function(){
     ? text.split(" - ")[1] : "";
 });
 
+// Save
 function saveData(){
-
-  const branch=document.getElementById("branch");
-  const asset=document.getElementById("asset");
-  const serial=document.getElementById("serial");
-  const status=document.getElementById("status");
-  const windows=document.getElementById("windows");
 
   if(!branch.value) return alert("Select Branch");
   if(!asset.value) return alert("Select Hardware Type");
@@ -173,31 +169,30 @@ function saveData(){
   if(!status.value) return alert("Select Status");
   if(!windows.value) return alert("Select Windows Activated Status");
 
-  const data={
-    solid:solid.value,
-    solname:solname.value,
-    asset:asset.value,
-    brand:brand.value,
-    model:model.value,
-    serial:serial.value.trim(),
-    assigned:assigned.value,
-    critical:critical.value,
-    status:status.value,
-    windows:windows.value
-  };
+  const formData=new FormData();
+
+  formData.append("solid",solid.value);
+  formData.append("solname",solname.value);
+  formData.append("asset",asset.value);
+  formData.append("brand",brand.value);
+  formData.append("model",model.value);
+  formData.append("serial",serial.value.trim());
+  formData.append("assigned",assigned.value);
+  formData.append("critical",critical.value);
+  formData.append("status",status.value);
+  formData.append("windows",windows.value);
 
   fetch(API_URL,{
     method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify(data)
+    body:formData
   })
-  .then(res=>res.json())
+  .then(res=>res.text())
   .then(res=>{
-    if(res.result==="success"){
+    if(res==="success"){
       alert("Hardware Asset Saved Successfully");
       location.reload();
     }else{
-      alert("Server Error: "+JSON.stringify(res));
+      alert("Server Error: "+res);
     }
   })
   .catch(err=>{
@@ -211,4 +206,3 @@ loadBranches();
 
 </body>
 </html>
-
