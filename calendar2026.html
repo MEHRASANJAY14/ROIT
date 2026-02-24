@@ -77,6 +77,19 @@ align-items:center;
 margin-bottom:20px;
 }
 
+/* ===== GREEN PATTI FOR MONTH ===== */
+.month-title{
+flex:1;
+text-align:center;
+background:#006837;
+color:white;
+padding:10px 0;
+border-radius:6px;
+font-size:20px;
+font-weight:bold;
+letter-spacing:1px;
+}
+
 .month-btn{
 background:#006837;
 color:white;
@@ -85,16 +98,11 @@ padding:8px 16px;
 border-radius:6px;
 cursor:pointer;
 font-size:16px;
+margin:0 10px;
 }
 
 .month-btn:hover{
 background:#004d29;
-}
-
-.month-title{
-font-size:20px;
-font-weight:bold;
-color:#006837;
 }
 
 /* LEGEND */
@@ -102,7 +110,7 @@ color:#006837;
 display:flex;
 justify-content:center;
 gap:25px;
-margin-bottom:15px;
+margin:15px 0;
 font-size:13px;
 }
 
@@ -183,13 +191,13 @@ body{background:white;}
 @media(max-width:600px){
 .calendar{gap:4px;}
 .date{padding:6px;font-size:12px;}
+.month-title{font-size:16px;}
 }
 </style>
 </head>
 
 <body>
 
-<!-- FULL STRETCH LOGO -->
 <div class="top-logo">
 <img src="mpgb_header_small.png" onerror="this.style.display='none'">
 </div>
