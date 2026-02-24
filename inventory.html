@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hardware Inventory Entry</title>
+<title>RO Jabalpur Inventory</title>
 
 <style>
 body{
@@ -11,23 +11,9 @@ body{
   padding:20px;
 }
 
-.header{
-  background:#006400;
-  color:white;
-  padding:15px;
+h2{
   text-align:center;
-  border-radius:8px;
-  margin-bottom:10px;
-}
-
-.back-btn{
-  display:inline-block;
-  margin-bottom:15px;
-  padding:8px 15px;
-  background:#004d00;
-  color:white;
-  text-decoration:none;
-  border-radius:5px;
+  color:#006400;
 }
 
 .card{
@@ -35,13 +21,6 @@ body{
   padding:20px;
   border-radius:10px;
   box-shadow:0 4px 8px rgba(0,0,0,0.1);
-}
-
-.section-title{
-  color:#006400;
-  font-weight:bold;
-  margin-top:15px;
-  margin-bottom:5px;
 }
 
 input,select{
@@ -54,38 +33,29 @@ input,select{
 
 button{
   padding:10px;
-  background:#008000;
+  background:#006400;
   color:white;
   border:none;
   width:100%;
   border-radius:5px;
-  margin-top:15px;
+  margin-top:10px;
+  font-weight:bold;
 }
 </style>
+
 </head>
 <body>
 
-<a href="index.html" class="back-btn">⬅ Back to Dashboard</a>
-
-<div class="header">
-  <h2>Hardware Inventory Entry</h2>
-</div>
+<h2>RO Jabalpur Hardware Inventory</h2>
 
 <div class="card">
 
-<div class="section-title">Entry Details</div>
-<input id="entryDate" readonly>
-
-<div class="section-title">Branch Details</div>
-
 <select id="branch"></select>
 <input id="solid" placeholder="SOL ID" readonly>
-<input id="solname" placeholder="SOL NAME" readonly>
-
-<div class="section-title">Hardware Details</div>
+<input id="solname" placeholder="SOL Name" readonly>
 
 <select id="asset">
-  <option value="">Select Hardware Type</option>
+  <option value="">Select Asset Type</option>
   <option>CPU</option>
   <option>MONITOR</option>
   <option>SCANNER</option>
@@ -102,14 +72,19 @@ button{
 
 <input id="brand" placeholder="Brand">
 <input id="model" placeholder="Model">
-<input id="serial" placeholder="Serial No (Mandatory)">
+<input id="serial" placeholder="Serial No">
 <input id="assigned" placeholder="Assigned To">
 
 <select id="critical">
-  <option value="LOW">LOW</option>
-  <option value="MEDIUM">MEDIUM</option>
-  <option value="HIGH">HIGH</option>
+  <option>LOW</option>
+  <option>MEDIUM</option>
+  <option>HIGH</option>
 </select>
+
+<input id="ip" placeholder="IP Address">
+<input id="host" placeholder="Hostname">
+<input id="os" placeholder="Operating System">
+<input id="mac" placeholder="MAC Address">
 
 <select id="status">
   <option value="">Select Status</option>
@@ -125,82 +100,90 @@ button{
   <option>NO</option>
 </select>
 
-<form id="inventoryForm"
-      method="POST"
-      action="PASTE_YOUR_EXEC_URL_HERE"
-      target="hiddenFrame">
-
-  <input type="hidden" name="solid" id="f_solid">
-  <input type="hidden" name="solname" id="f_solname">
-  <input type="hidden" name="asset" id="f_asset">
-  <input type="hidden" name="brand" id="f_brand">
-  <input type="hidden" name="model" id="f_model">
-  <input type="hidden" name="serial" id="f_serial">
-  <input type="hidden" name="assigned" id="f_assigned">
-  <input type="hidden" name="critical" id="f_critical">
-  <input type="hidden" name="status" id="f_status">
-  <input type="hidden" name="windows" id="f_windows">
-
-  <button type="button" onclick="submitForm()">
-    Save Hardware Asset
-  </button>
-</form>
-
-<iframe name="hiddenFrame" style="display:none;"></iframe>
+<button onclick="saveData()">Save Asset</button>
 
 </div>
 
 <script>
 
-const API_URL="PASTE_YOUR_EXEC_URL_HERE";
+// 🔵 IMPORTANT: Your Apps Script URL
+const API_URL = "https://script.google.com/macros/s/AKfycbyLQTvwbvI8kDG_ONaAHg0Aj9U6uBp7yWFxUjcgL8RqhDvI5Qr_q3Us1y9mrmsCq0ye/exec";
 
-document.getElementById("entryDate").value =
-  new Date().toLocaleString("en-IN");
-
+// Load Branch List
 function loadBranches(){
-  fetch(API_URL+"?type=branches")
+
+  fetch(API_URL + "?type=branches")
   .then(res=>res.json())
   .then(data=>{
+
     const select=document.getElementById("branch");
     select.innerHTML="<option value=''>Select Branch</option>";
+
     data.forEach(row=>{
       let option=document.createElement("option");
       option.value=row[0];
       option.text=row[0]+" - "+row[1];
       select.appendChild(option);
     });
+
+  }).catch(()=>{
+    alert("Error loading branches");
   });
 }
 
+// Set SOL
 document.getElementById("branch").addEventListener("change",function(){
+
   const text=this.options[this.selectedIndex].text;
+
   solid.value=this.value;
-  solname.value=text.split(" - ")[1];
+  solname.value=text.includes(" - ") ? text.split(" - ")[1] : "";
 });
 
-function submitForm(){
+
+// Save Data
+function saveData(){
 
   if(!branch.value) return alert("Select Branch");
-  if(!asset.value) return alert("Select Hardware Type");
-  if(!serial.value.trim()) return alert("Serial Number Mandatory");
+  if(!asset.value) return alert("Select Asset Type");
+  if(!serial.value.trim()) return alert("Serial Number required");
   if(!status.value) return alert("Select Status");
-  if(!windows.value) return alert("Select Windows Activated Status");
+  if(!windows.value) return alert("Select Windows Activated");
 
-  f_solid.value=solid.value;
-  f_solname.value=solname.value;
-  f_asset.value=asset.value;
-  f_brand.value=brand.value;
-  f_model.value=model.value;
-  f_serial.value=serial.value;
-  f_assigned.value=assigned.value;
-  f_critical.value=critical.value;
-  f_status.value=status.value;
-  f_windows.value=windows.value;
+  const formData = new FormData();
 
-  document.getElementById("inventoryForm").submit();
+  formData.append("solid", solid.value);
+  formData.append("solname", solname.value);
+  formData.append("asset", asset.value);
+  formData.append("brand", brand.value);
+  formData.append("model", model.value);
+  formData.append("serial", serial.value);
+  formData.append("assigned", assigned.value);
+  formData.append("critical", critical.value);
+  formData.append("ip", ip.value);
+  formData.append("host", host.value);
+  formData.append("os", os.value);
+  formData.append("mac", mac.value);
+  formData.append("status", status.value);
+  formData.append("windows", windows.value);
 
-  alert("Hardware Asset Saved Successfully");
-  location.reload();
+  fetch(API_URL,{
+    method:"POST",
+    body:formData
+  })
+  .then(res=>res.text())
+  .then(res=>{
+    if(res.includes("success")){
+      alert("Asset Saved Successfully");
+      location.reload();
+    }else{
+      alert("Server Error: "+res);
+    }
+  })
+  .catch(err=>{
+    alert("Network Error: "+err);
+  });
+
 }
 
 loadBranches();
