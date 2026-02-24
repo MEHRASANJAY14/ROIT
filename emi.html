@@ -109,16 +109,18 @@ MPGB RO Jabalpur - Advanced EMI Calculator
 <div class="grid">
 <input type="number" id="amount" placeholder="Loan Amount (₹)">
 <input type="number" id="rate" placeholder="Annual Interest Rate (%)">
-<input type="number" id="tenure" placeholder="Tenure (Years)">
+<input type="number" id="tenure" placeholder="Tenure (Months)">
 <input type="number" id="fee" placeholder="Processing Fee (%)">
 <input type="number" id="prepay" placeholder="Prepayment Amount (Optional)">
 </div>
 
 <button onclick="calculate()">Calculate</button>
-  <hr style="margin:25px 0;">
+
+<hr style="margin:25px 0;">
+
 <div style="text-align:center;">
   <p style="font-weight:bold;color:#006400;">
-    Staff Loan (2:1 Structure - Simple Reducing)?
+    Staff Loan (3:1 Structure - Simple Reducing)?
   </p>
   <a href="staff_emi.html" 
      style="display:inline-block;
@@ -131,6 +133,7 @@ MPGB RO Jabalpur - Advanced EMI Calculator
     Click Here for Staff EMI Calculator
   </a>
 </div>
+
 <button onclick="window.print()">Print</button>
 
 <div class="result" id="result" style="display:none;">
@@ -158,17 +161,17 @@ function calculate(){
 
 let P=parseFloat(amount.value);
 let annual=parseFloat(rate.value);
-let years=parseFloat(tenure.value);
+let months=parseFloat(tenure.value);   // NOW IN MONTHS
 let fee=parseFloat(document.getElementById("fee").value)||0;
 let prepay=parseFloat(document.getElementById("prepay").value)||0;
 
-if(!P||!annual||!years){
+if(!P||!annual||!months){
   alert("Fill required fields");
   return;
 }
 
 let r=annual/12/100;
-let n=years*12;
+let n=months;   // DIRECT MONTHS USED
 
 let EMI=(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
 
@@ -221,4 +224,3 @@ if(balance<=0) break;
 
 </body>
 </html>
-
