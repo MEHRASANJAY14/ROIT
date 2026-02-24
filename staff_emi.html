@@ -16,24 +16,23 @@ body{
   color:white;
   text-align:center;
   padding:12px;
-  font-size:17px;
+  font-size:16px;
   font-weight:bold;
 }
 
 .container{
-  max-width:1350px;   /* Wider container */
+  max-width:1400px;
   margin:15px auto;
   background:white;
-  padding:20px;
+  padding:18px;
   border-radius:6px;
   box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
-/* Wider Input */
 input{
   padding:8px;
   width:100%;
-  max-width:550px;
+  max-width:600px;
   margin-bottom:10px;
   border:1px solid #ccc;
   border-radius:4px;
@@ -67,40 +66,59 @@ button:hover{background:#004d00;}
   overflow-x:auto;
 }
 
-/* COMPACT COLUMNS ONLY */
+/* TABLE COMPACT */
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:14px;      /* Font unchanged */
-  table-layout:fixed;  /* Key for compact */
+  font-size:14px;
+  table-layout:fixed;
 }
 
 th,td{
   border:1px solid #ddd;
-  padding:8px 10px;    /* Row height SAME */
+  padding:8px 8px;   /* Row height same */
   text-align:center;
-  word-wrap:break-word;
 }
 
-/* Column Width Control */
-th:nth-child(1), td:nth-child(1){ width:70px; }
-th:nth-child(2), td:nth-child(2){ width:140px; }
-th:nth-child(3), td:nth-child(3){ width:130px; }
-th:nth-child(4), td:nth-child(4){ width:130px; }
-th:nth-child(5), td:nth-child(5){ width:140px; }
-th:nth-child(6), td:nth-child(6){ width:160px; }
+/* COLUMN WIDTH MORE COMPACT */
+th:nth-child(1), td:nth-child(1){ width:60px; }
+th:nth-child(2), td:nth-child(2){ width:120px; }
+th:nth-child(3), td:nth-child(3){ width:110px; }
+th:nth-child(4), td:nth-child(4){ width:110px; }
+th:nth-child(5), td:nth-child(5){ width:120px; }
+th:nth-child(6), td:nth-child(6){ width:140px; }
 
 th{
   background:#006400;
   color:white;
-  position:sticky;
-  top:0;
 }
 
+/* PRINT SETTINGS */
 @media print{
-  button{display:none}
-  body{background:white}
-  .container{box-shadow:none;margin:0}
+
+  @page{
+    size: A4 landscape;
+    margin:10mm;
+  }
+
+  body{
+    background:white;
+  }
+
+  button{
+    display:none;
+  }
+
+  .container{
+    box-shadow:none;
+    margin:0;
+    padding:0;
+  }
+
+  table{
+    font-size:12px;  /* Slightly smaller only in print */
+  }
+
 }
 </style>
 </head>
@@ -173,7 +191,7 @@ headerRow.innerHTML=
 "<th>Principal EMI</th>"+
 "<th>5.5%</th>"+
 "<th>6%</th>"+
-"<th>Total Interest</th>"+
+"<th>Total Int</th>"+
 "<th>Outstanding</th>";
 
 /* Phase 1 */
