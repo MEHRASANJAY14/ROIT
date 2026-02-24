@@ -15,73 +15,84 @@ body{
   background:#006400;
   color:white;
   text-align:center;
-  padding:10px;
-  font-size:16px;
+  padding:12px;
+  font-size:17px;
   font-weight:bold;
 }
 
 .container{
-  max-width:1100px;
+  max-width:1350px;   /* Wider container */
   margin:15px auto;
   background:white;
-  padding:12px;
+  padding:20px;
   border-radius:6px;
-  box-shadow:0 3px 8px rgba(0,0,0,0.08);
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
+/* Wider Input */
 input{
-  padding:5px;
+  padding:8px;
   width:100%;
-  margin-bottom:6px;
+  max-width:550px;
+  margin-bottom:10px;
   border:1px solid #ccc;
-  border-radius:3px;
-  font-size:12px;
+  border-radius:4px;
+  font-size:14px;
 }
 
 button{
   background:#006400;
   color:white;
   border:none;
-  padding:5px 8px;
-  border-radius:3px;
+  padding:7px 12px;
+  border-radius:4px;
   cursor:pointer;
-  font-size:11px;
-  margin-right:4px;
+  font-size:13px;
+  margin-right:6px;
 }
 
 button:hover{background:#004d00;}
 
 .result{
-  margin-top:8px;
-  margin-bottom:10px;
+  margin-top:12px;
+  margin-bottom:15px;
   background:#eef9f1;
-  padding:8px;
-  border-radius:4px;
-  font-size:11px;
-  line-height:1.4em;
+  padding:14px;
+  border-radius:6px;
+  font-size:14px;
+  line-height:1.6em;
 }
 
 .table-wrapper{
   overflow-x:auto;
 }
 
+/* COMPACT COLUMNS ONLY */
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:9.5px;  /* Very compact */
-  min-width:900px;
+  font-size:14px;      /* Font unchanged */
+  table-layout:fixed;  /* Key for compact */
 }
 
 th,td{
   border:1px solid #ddd;
-  padding:2px 3px;   /* Compact */
+  padding:8px 10px;    /* Row height SAME */
   text-align:center;
+  word-wrap:break-word;
 }
+
+/* Column Width Control */
+th:nth-child(1), td:nth-child(1){ width:70px; }
+th:nth-child(2), td:nth-child(2){ width:140px; }
+th:nth-child(3), td:nth-child(3){ width:130px; }
+th:nth-child(4), td:nth-child(4){ width:130px; }
+th:nth-child(5), td:nth-child(5){ width:140px; }
+th:nth-child(6), td:nth-child(6){ width:160px; }
 
 th{
   background:#006400;
   color:white;
-  font-size:9.5px;
   position:sticky;
   top:0;
 }
@@ -158,15 +169,14 @@ table.innerHTML="";
 /* Header */
 let headerRow=table.insertRow();
 headerRow.innerHTML=
-"<th>M</th>"+
-"<th>Prin EMI</th>"+
+"<th>Month</th>"+
+"<th>Principal EMI</th>"+
 "<th>5.5%</th>"+
 "<th>6%</th>"+
-"<th>Total Int</th>"+
+"<th>Total Interest</th>"+
 "<th>Outstanding</th>";
 
 /* Phase 1 */
-
 for(let i=1;i<=principalMonths;i++){
 
   let reductionRatio = monthlyPrincipal / P;
@@ -199,7 +209,6 @@ for(let i=1;i<=principalMonths;i++){
 }
 
 /* Phase 2 */
-
 let monthlyInterestRecovery=accumulatedInterest/interestMonths;
 let remainingInterest=accumulatedInterest;
 
@@ -218,7 +227,6 @@ for(let i=1;i<=interestMonths;i++){
 }
 
 /* Summary */
-
 document.getElementById("summary").innerHTML=
 "<b>Loan Amount:</b> "+format(P)+"<br>"+
 "<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
