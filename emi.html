@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EMI Calculator - MPGB RO Jabalpur</title>
+<title>Advanced EMI Calculator - MPGB RO Jabalpur</title>
 
 <style>
 body{
@@ -15,63 +15,74 @@ body{
   background:#006400;
   color:white;
   text-align:center;
-  padding:20px;
+  padding:18px;
   font-size:20px;
   font-weight:bold;
 }
 
 .container{
-  max-width:600px;
-  margin:40px auto;
+  max-width:900px;
+  margin:30px auto;
   background:white;
-  padding:30px;
-  border-radius:15px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
 
 h2{
   text-align:center;
   color:#006400;
-  margin-bottom:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px;
 }
 
 input{
-  width:100%;
-  padding:10px;
-  margin:10px 0;
+  padding:8px;
   border:1px solid #ccc;
   border-radius:6px;
-  font-size:14px;
+  width:100%;
 }
 
 button{
-  width:100%;
-  padding:12px;
   background:#006400;
   color:white;
   border:none;
-  border-radius:8px;
-  font-size:16px;
+  padding:10px;
+  border-radius:6px;
   font-weight:bold;
   cursor:pointer;
   margin-top:10px;
 }
 
-button:hover{
-  background:#004d00;
-}
+button:hover{background:#004d00;}
 
 .result{
-  margin-top:25px;
+  margin-top:20px;
   background:#f1f8f4;
   padding:15px;
-  border-radius:10px;
-  font-size:14px;
+  border-radius:8px;
 }
 
-.result h3{
-  margin-top:0;
-  color:#006400;
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+  font-size:12px;
+}
+
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:center;
+}
+
+th{
+  background:#006400;
+  color:white;
 }
 
 .back{
@@ -82,80 +93,112 @@ button:hover{
   color:#006400;
   font-weight:bold;
 }
-
-.footer{
-  margin-top:40px;
-  text-align:center;
-  font-size:12px;
-  color:#666;
-}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-MPGB RO Jabalpur - EMI Calculator
+MPGB RO Jabalpur - Advanced EMI Calculator
 </div>
 
 <div class="container">
 
 <h2>Loan EMI Calculator</h2>
 
+<div class="grid">
 <input type="number" id="amount" placeholder="Loan Amount (₹)">
 <input type="number" id="rate" placeholder="Annual Interest Rate (%)">
-<input type="number" id="tenure" placeholder="Loan Tenure (Years)">
+<input type="number" id="tenure" placeholder="Tenure (Years)">
+<input type="number" id="fee" placeholder="Processing Fee (%)">
+<input type="number" id="prepay" placeholder="Prepayment Amount (Optional)">
+</div>
 
-<button onclick="calculateEMI()">Calculate EMI</button>
+<button onclick="calculate()">Calculate</button>
+<button onclick="window.print()">Print</button>
 
 <div class="result" id="result" style="display:none;">
-<h3>Calculation Result</h3>
 <p><strong>Monthly EMI:</strong> ₹ <span id="emi"></span></p>
 <p><strong>Total Interest:</strong> ₹ <span id="interest"></span></p>
 <p><strong>Total Payment:</strong> ₹ <span id="total"></span></p>
+<p><strong>Processing Fee:</strong> ₹ <span id="processing"></span></p>
+<p><strong>Net Disbursement:</strong> ₹ <span id="net"></span></p>
 </div>
+
+<h3 style="color:#006400;">Amortization Schedule</h3>
+<table id="schedule"></table>
 
 <a href="index.html" class="back">⬅ Back to Dashboard</a>
 
 </div>
 
-<div class="footer">
-© Madhya Pradesh Gramin Bank | RO Jabalpur
-</div>
-
 <script>
 
-function formatNumber(num){
-  return num.toLocaleString("en-IN",{
-    minimumFractionDigits:2,
-    maximumFractionDigits:2
-  });
+function format(n){
+  return n.toLocaleString("en-IN",{maximumFractionDigits:2});
 }
 
-function calculateEMI(){
+function calculate(){
 
-  let P = parseFloat(document.getElementById("amount").value);
-  let annualRate = parseFloat(document.getElementById("rate").value);
-  let years = parseFloat(document.getElementById("tenure").value);
+let P=parseFloat(amount.value);
+let annual=parseFloat(rate.value);
+let years=parseFloat(tenure.value);
+let fee=parseFloat(document.getElementById("fee").value)||0;
+let prepay=parseFloat(document.getElementById("prepay").value)||0;
 
-  if(!P || !annualRate || !years){
-    alert("Please fill all fields correctly");
-    return;
-  }
+if(!P||!annual||!years){
+  alert("Fill required fields");
+  return;
+}
 
-  let r = annualRate / 12 / 100;
-  let n = years * 12;
+let r=annual/12/100;
+let n=years*12;
 
-  let EMI = (P * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
+let EMI=(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
 
-  let totalPayment = EMI * n;
-  let totalInterest = totalPayment - P;
+let totalPayment=EMI*n;
+let totalInterest=totalPayment-P;
 
-  document.getElementById("emi").innerText = formatNumber(EMI);
-  document.getElementById("interest").innerText = formatNumber(totalInterest);
-  document.getElementById("total").innerText = formatNumber(totalPayment);
+let processing=P*(fee/100);
+let net=P-processing;
 
-  document.getElementById("result").style.display="block";
+document.getElementById("emi").innerText=format(EMI);
+document.getElementById("interest").innerText=format(totalInterest);
+document.getElementById("total").innerText=format(totalPayment);
+document.getElementById("processing").innerText=format(processing);
+document.getElementById("net").innerText=format(net);
+
+document.getElementById("result").style.display="block";
+
+generateSchedule(P,r,n,EMI);
+
+}
+
+function generateSchedule(P,r,n,EMI){
+
+let table=document.getElementById("schedule");
+table.innerHTML="<tr><th>Month</th><th>EMI</th><th>Interest</th><th>Principal</th><th>Balance</th></tr>";
+
+let balance=P;
+
+for(let i=1;i<=n;i++){
+
+let interest=balance*r;
+let principal=EMI-interest;
+balance-=principal;
+
+table.innerHTML+=`<tr>
+<td>${i}</td>
+<td>${format(EMI)}</td>
+<td>${format(interest)}</td>
+<td>${format(principal)}</td>
+<td>${format(balance>0?balance:0)}</td>
+</tr>`;
+
+if(balance<=0) break;
+
+}
+
 }
 
 </script>
