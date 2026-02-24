@@ -41,7 +41,6 @@ th{
     background:#ffeeba;
     font-weight:bold;
 }
-
 </style>
 </head>
 
@@ -56,36 +55,41 @@ th{
 
 <script>
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/1P_fY12UDjVvFgO-cfHtFEqBhBIWYGMjyloCuSIF9eMs/export?format=csv&gid=0";
+const sheetID = "1P_fY12UDjVvFgO-cfHtFEqBhBIWYGMjyloCuSIF9eMs";
+const sheetName = "Sheet1";   // Agar sheet ka naam alag hai to yaha change karein
 
-fetch(sheetURL)
-.then(response => response.text())
-.then(data => {
+const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
-    const rows = data.trim().split("\n").map(r => r.split(","));
+fetch(url)
+.then(res => res.text())
+.then(rep => {
+
+    const json = JSON.parse(rep.substr(47).slice(0, -2));
+    const rows = json.table.rows;
+    const cols = json.table.cols;
+
     const thead = document.querySelector("#data-table thead");
     const tbody = document.querySelector("#data-table tbody");
 
-    // HEADER
+    // Header
     let header = "<tr>";
-    rows[0].forEach(col => {
-        header += `<th>${col}</th>`;
+    cols.forEach(col=>{
+        header += `<th>${col.label}</th>`;
     });
     header += "</tr>";
     thead.innerHTML = header;
 
-    // DATA
-    rows.slice(1).forEach(row => {
+    // Data
+    rows.forEach(row=>{
+        if(!row.c) return;
 
-        // Skip completely blank rows
-        if(row.every(cell => cell.trim() === "")) return;
-
-        let isTotal = row[0].toLowerCase().includes("grand");
+        let firstCell = row.c[0] ? row.c[0].v : "";
+        let isTotal = firstCell && firstCell.toString().toLowerCase().includes("grand");
 
         let tr = `<tr class="${isTotal ? 'total-row' : ''}">`;
 
-        row.forEach(col => {
-            tr += `<td>${col}</td>`;
+        row.c.forEach(cell=>{
+            tr += `<td>${cell ? cell.v : ""}</td>`;
         });
 
         tr += "</tr>";
