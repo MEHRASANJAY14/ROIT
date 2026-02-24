@@ -5,31 +5,32 @@
 <title>MPGB RO Jabalpur - Dashboard</title>
 
 <style>
+
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:#f4f6f9;
+  font-family:'Segoe UI',Arial;
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
 }
 
-/* Logo Section */
+/* Header */
 .header{
   background:white;
   text-align:center;
-  padding:10px;
+  padding:15px;
   border-bottom:4px solid #006400;
+  box-shadow:0 4px 8px rgba(0,0,0,0.05);
 }
 
 .logo{
-  max-width:250px;
-  height:auto;
+  max-width:260px;
 }
 
-/* Main Heading Section */
+/* Title */
 .title-bar{
   background:#006400;
   color:white;
   text-align:center;
-  padding:18px;
+  padding:25px 15px;
 }
 
 .title-bar h1{
@@ -39,62 +40,125 @@ body{
 }
 
 .title-bar h2{
-  margin:5px 0 0 0;
+  margin:5px 0;
   font-size:16px;
   font-weight:normal;
 }
 
 .title-bar h3{
   margin:5px 0 0 0;
-  font-size:15px;
-  font-weight:bold;
-  letter-spacing:1px;
+  font-size:14px;
+  letter-spacing:2px;
+}
+
+/* Container */
+.container{
+  max-width:1000px;
+  margin:30px auto;
+  padding:0 20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:25px;
 }
 
 /* Cards */
-.container{
-  padding:20px;
-}
-
 .card{
   background:white;
-  padding:20px;
-  margin-bottom:20px;
-  border-radius:10px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
   text-align:center;
+  transition:0.3s;
+  position:relative;
+  overflow:hidden;
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:5px;
+  background:#006400;
+}
+
+.card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.15);
 }
 
 .card h3{
   color:#006400;
   margin-bottom:10px;
+  font-size:18px;
+}
+
+.card p{
+  font-size:14px;
+  color:#555;
+  min-height:45px;
 }
 
 .btn{
   display:inline-block;
-  padding:10px 20px;
-  background:#008000;
+  padding:10px 22px;
+  background:#006400;
   color:white;
   text-decoration:none;
-  border-radius:5px;
+  border-radius:30px;
   margin-top:10px;
+  font-weight:bold;
+  transition:0.3s;
 }
 
 .btn:hover{
   background:#004d00;
 }
 
+/* Stats Bar */
+.stats{
+  max-width:1000px;
+  margin:0 auto 20px auto;
+  padding:0 20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+}
+
+.stat-card{
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.stat-card h4{
+  margin:0;
+  color:#555;
+  font-size:13px;
+}
+
+.stat-card h2{
+  margin:5px 0 0 0;
+  color:#006400;
+}
+
 /* Footer */
 .footer{
+  margin-top:40px;
   background:#006400;
   color:white;
   text-align:center;
-  padding:10px;
+  padding:12px;
   font-size:12px;
-  position:fixed;
-  bottom:0;
-  width:100%;
 }
+
+@media(max-width:600px){
+  .title-bar h1{font-size:18px}
+}
+
 </style>
 </head>
 
@@ -102,29 +166,45 @@ body{
 
 <!-- Logo -->
 <div class="header">
- <img src="mpgb_header_small.png" class="logo" alt="MPGB Logo">
+ <img src="mpgb_header_small.png" class="logo">
 </div>
 
-<!-- Heading -->
+<!-- Title -->
 <div class="title-bar">
   <h1>MADHYA PRADESH GRAMIN BANK</h1>
   <h2>REGIONAL OFFICE JABALPUR</h2>
   <h3>DASHBOARD</h3>
 </div>
 
-<!-- Content -->
+<!-- Dynamic Stats -->
+<div class="stats">
+  <div class="stat-card">
+    <h4>Total Branches</h4>
+    <h2 id="branchCount">--</h2>
+  </div>
+  <div class="stat-card">
+    <h4>Total Assets</h4>
+    <h2 id="assetCount">--</h2>
+  </div>
+  <div class="stat-card">
+    <h4>Working Assets</h4>
+    <h2 id="workingCount">--</h2>
+  </div>
+</div>
+
+<!-- Cards -->
 <div class="container">
 
   <div class="card">
     <h3>Asset Entry</h3>
-    <p>Add and manage branch assets securely.</p>
+    <p>Add and manage branch hardware assets securely.</p>
     <a href="inventory.html" class="btn">Go to Entry</a>
   </div>
 
   <div class="card">
-    <h3>Branch Buiesness</h3>
-    <p>Check all registered assets branch-wise.</p>
-    <a href="business.html" class="btn">View Buiesness</a>
+    <h3>Branch Business</h3>
+    <p>View branch-wise business performance dashboard.</p>
+    <a href="business.html" class="btn">View Business</a>
   </div>
 
   <div class="card">
@@ -136,8 +216,31 @@ body{
 </div>
 
 <div class="footer">
-  © Madhya Pradesh Gramin Bank | RO Jabalpur
+  © Madhya Pradesh Gramin Bank | RO Jabalpur IT Cell
 </div>
+
+<script>
+
+/* Optional Dynamic Animation Counter */
+function animateValue(id, start, end, duration) {
+  let range = end - start;
+  let current = start;
+  let increment = end > start ? 1 : -1;
+  let stepTime = Math.abs(Math.floor(duration / range));
+  let obj = document.getElementById(id);
+  let timer = setInterval(function() {
+    current += increment;
+    obj.innerHTML = current;
+    if (current == end) clearInterval(timer);
+  }, stepTime);
+}
+
+/* Demo Numbers (Replace with real API later) */
+animateValue("branchCount", 0, 54, 1000);
+animateValue("assetCount", 0, 325, 1200);
+animateValue("workingCount", 0, 290, 1500);
+
+</script>
 
 </body>
 </html>
