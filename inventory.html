@@ -2,72 +2,132 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RO Jabalpur Inventory</title>
+<title>RO Jabalpur Hardware Inventory</title>
 
 <style>
+
 body{
-  font-family:Arial;
-  background:#f4f6f9;
-  padding:20px;
+  font-family:'Segoe UI',Arial;
+  margin:0;
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
 }
 
-h2{
+.header{
+  background:#006400;
+  color:white;
+  padding:18px;
   text-align:center;
-  color:#006400;
+  font-size:20px;
+  font-weight:bold;
+  letter-spacing:1px;
 }
 
-.card{
+.container{
+  max-width:900px;
+  margin:20px auto;
   background:white;
-  padding:20px;
-  border-radius:10px;
-  box-shadow:0 4px 8px rgba(0,0,0,0.1);
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+.section{
+  margin-bottom:20px;
+}
+
+.section h3{
+  margin-bottom:8px;
+  color:#006400;
+  border-left:4px solid #006400;
+  padding-left:8px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:12px;
 }
 
 input,select{
-  width:100%;
-  padding:8px;
-  margin:6px 0;
+  padding:10px;
   border:1px solid #ccc;
-  border-radius:4px;
+  border-radius:6px;
+  font-size:14px;
+  transition:0.3s;
+}
+
+input:focus,select:focus{
+  border-color:#006400;
+  outline:none;
+  box-shadow:0 0 5px rgba(0,100,0,0.3);
 }
 
 button{
-  padding:10px;
+  width:100%;
+  padding:12px;
   background:#006400;
   color:white;
   border:none;
-  width:100%;
-  border-radius:5px;
-  margin-top:10px;
+  border-radius:8px;
+  font-size:16px;
   font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
 }
-</style>
 
+button:hover{
+  background:#004d00;
+}
+
+.footer{
+  text-align:center;
+  font-size:12px;
+  margin-top:15px;
+  color:#777;
+}
+
+@media(max-width:600px){
+  .container{padding:15px}
+}
+
+</style>
 </head>
+
 <body>
 
-<h2>RO Jabalpur Hardware Inventory</h2>
+<div class="header">
+RO Jabalpur Hardware Inventory System
+</div>
 
-<div class="card">
+<div class="container">
 
+<div class="section">
+<h3>Branch Details</h3>
+<div class="grid">
 <select id="branch"></select>
 <input id="solid" placeholder="SOL ID" readonly>
 <input id="solname" placeholder="SOL Name" readonly>
+<input id="entrydate" readonly>
+</div>
+</div>
 
+<div class="section">
+<h3>Asset Information</h3>
+<div class="grid">
 <select id="asset">
-  <option value="">Select Asset Type</option>
-  <option>CPU</option>
-  <option>MONITOR</option>
-  <option>SCANNER</option>
-  <option>PASSBOOK PRINTER</option>
-  <option>LASER PRINTER</option>
-  <option>BIOMETRIC DEVICE</option>
-  <option>MODEM</option>
-  <option>ROUTER</option>
-  <option>VC DEVICE</option>
-  <option>LED PROJECTOR</option>
-  <option>PROJECTOR SCREEN</option>
-  <option>SPEAKER</option>
+<option value="">Select Asset Type</option>
+<option>CPU</option>
+<option>MONITOR</option>
+<option>SCANNER</option>
+<option>PASSBOOK PRINTER</option>
+<option>LASER PRINTER</option>
+<option>BIOMETRIC DEVICE</option>
+<option>MODEM</option>
+<option>ROUTER</option>
+<option>VC DEVICE</option>
+<option>LED PROJECTOR</option>
+<option>PROJECTOR SCREEN</option>
+<option>SPEAKER</option>
 </select>
 
 <input id="brand" placeholder="Brand">
@@ -76,113 +136,115 @@ button{
 <input id="assigned" placeholder="Assigned To">
 
 <select id="critical">
-  <option>LOW</option>
-  <option>MEDIUM</option>
-  <option>HIGH</option>
+<option>LOW</option>
+<option>MEDIUM</option>
+<option>HIGH</option>
 </select>
 
+<select id="status">
+<option value="">Select Status</option>
+<option>WORKING</option>
+<option>FAULTY</option>
+<option>UNDER REPAIR</option>
+<option>SCRAP</option>
+</select>
+
+<select id="windows">
+<option value="">Windows Activated?</option>
+<option>YES</option>
+<option>NO</option>
+</select>
+</div>
+</div>
+
+<div class="section">
+<h3>Network Details</h3>
+<div class="grid">
 <input id="ip" placeholder="IP Address">
 <input id="host" placeholder="Hostname">
 <input id="os" placeholder="Operating System">
 <input id="mac" placeholder="MAC Address">
-
-<select id="status">
-  <option value="">Select Status</option>
-  <option>WORKING</option>
-  <option>FAULTY</option>
-  <option>UNDER REPAIR</option>
-  <option>SCRAP</option>
-</select>
-
-<select id="windows">
-  <option value="">Windows Activated?</option>
-  <option>YES</option>
-  <option>NO</option>
-</select>
+</div>
+</div>
 
 <button onclick="saveData()">Save Asset</button>
+
+<div class="footer">
+© Madhya Pradesh Gramin Bank - RO Jabalpur
+</div>
 
 </div>
 
 <script>
 
-// 🔵 IMPORTANT: Your Apps Script URL
-const API_URL = "https://script.google.com/macros/s/AKfycbyLQTvwbvI8kDG_ONaAHg0Aj9U6uBp7yWFxUjcgL8RqhDvI5Qr_q3Us1y9mrmsCq0ye/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbyLQTvwbvI8kDG_ONaAHg0Aj9U6uBp7yWFxUjcgL8RqhDvI5Qr_q3Us1y9mrmsCq0ye/exec";
 
-// Load Branch List
+entrydate.value=new Date().toLocaleString("en-IN");
+
+// Load Branch
 function loadBranches(){
-
-  fetch(API_URL + "?type=branches")
-  .then(res=>res.json())
-  .then(data=>{
-
-    const select=document.getElementById("branch");
-    select.innerHTML="<option value=''>Select Branch</option>";
-
-    data.forEach(row=>{
-      let option=document.createElement("option");
-      option.value=row[0];
-      option.text=row[0]+" - "+row[1];
-      select.appendChild(option);
-    });
-
-  }).catch(()=>{
-    alert("Error loading branches");
+fetch(API_URL+"?type=branches")
+.then(res=>res.json())
+.then(data=>{
+  branch.innerHTML="<option value=''>Select Branch</option>";
+  data.forEach(row=>{
+    let opt=document.createElement("option");
+    opt.value=row[0];
+    opt.text=row[0]+" - "+row[1];
+    branch.appendChild(opt);
   });
+});
 }
 
 // Set SOL
-document.getElementById("branch").addEventListener("change",function(){
-
+branch.addEventListener("change",function(){
   const text=this.options[this.selectedIndex].text;
-
   solid.value=this.value;
-  solname.value=text.includes(" - ") ? text.split(" - ")[1] : "";
+  solname.value=text.includes(" - ")?text.split(" - ")[1]:"";
 });
 
-
-// Save Data
+// Save
 function saveData(){
 
-  if(!branch.value) return alert("Select Branch");
-  if(!asset.value) return alert("Select Asset Type");
-  if(!serial.value.trim()) return alert("Serial Number required");
-  if(!status.value) return alert("Select Status");
-  if(!windows.value) return alert("Select Windows Activated");
+if(!branch.value) return alert("Select Branch");
+if(!asset.value) return alert("Select Asset Type");
+if(!serial.value.trim()) return alert("Serial Required");
+if(!status.value) return alert("Select Status");
+if(!windows.value) return alert("Select Windows Activated");
 
-  const formData = new FormData();
+const formData=new FormData();
 
-  formData.append("solid", solid.value);
-  formData.append("solname", solname.value);
-  formData.append("asset", asset.value);
-  formData.append("brand", brand.value);
-  formData.append("model", model.value);
-  formData.append("serial", serial.value);
-  formData.append("assigned", assigned.value);
-  formData.append("critical", critical.value);
-  formData.append("ip", ip.value);
-  formData.append("host", host.value);
-  formData.append("os", os.value);
-  formData.append("mac", mac.value);
-  formData.append("status", status.value);
-  formData.append("windows", windows.value);
+formData.append("solid",solid.value);
+formData.append("solname",solname.value);
+formData.append("asset",asset.value);
+formData.append("brand",brand.value);
+formData.append("model",model.value);
+formData.append("serial",serial.value);
+formData.append("assigned",assigned.value);
+formData.append("critical",critical.value);
+formData.append("ip",ip.value);
+formData.append("host",host.value);
+formData.append("os",os.value);
+formData.append("mac",mac.value);
+formData.append("status",status.value);
+formData.append("windows",windows.value);
 
-  fetch(API_URL,{
-    method:"POST",
-    body:formData
-  })
-  .then(res=>res.text())
-  .then(res=>{
-    if(res.includes("success")){
-      alert("Asset Saved Successfully");
-      location.reload();
-    }else{
-      alert("Server Error: "+res);
-    }
-  })
-  .catch(err=>{
-    alert("Network Error: "+err);
-  });
+fetch(API_URL,{
+method:"POST",
+body:formData
+})
+.then(res=>res.text())
+.then(res=>{
+if(res.includes("success")){
+alert("Asset Saved Successfully");
+location.reload();
+}else{
+alert("Error: "+res);
+}
+})
+.catch(err=>{
+alert("Network Error: "+err);
+});
 
 }
 
