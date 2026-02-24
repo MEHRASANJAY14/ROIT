@@ -6,22 +6,10 @@
 <title>Mandate Followup</title>
 
 <style>
-body{
-    font-family: Arial;
-    background:#f4f6f9;
-    padding:8px;
-}
+body{font-family:Arial;background:#f4f6f9;padding:8px;}
+h2{text-align:center;color:#003366;font-size:16px;margin-bottom:8px;}
 
-h2{
-    text-align:center;
-    color:#003366;
-    font-size:16px;
-    margin-bottom:8px;
-}
-
-.table-container{
-    overflow-x:auto;
-}
+.table-container{overflow-x:auto;}
 
 table{
     border-collapse:collapse;
@@ -42,12 +30,10 @@ th{
     text-align:center;
 }
 
-td{
-    text-align:center;
-}
+td{text-align:center;}
 
 td:nth-child(2),
-td:nth-child(11){
+td:last-child{
     text-align:left;
 }
 
@@ -63,46 +49,55 @@ td:nth-child(11){
 <h2>Mandate Followup - Branch Wise List</h2>
 
 <div class="table-container">
-<table id="data-table"></table>
+<table id="data-table">
+<thead></thead>
+<tbody></tbody>
+</table>
 </div>
 
 <script>
 
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTUB6XuAsO2n5NvYuyq1cp6Iq8Q50ZnHEa4Lf6QvWNq_XILqmKzDrWFp13FhLTdMcFKHsX5gZKRbRSB/pub?output=csv";
+const sheetID = "1P_fY12UDjVvFgO-cfHtFEqBhBIWYGMjyloCuSIF9eMs";
+const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
-fetch(csvURL)
-.then(response => response.text())
+fetch(url)
+.then(res => res.text())
 .then(data => {
 
-    let rows = data.split("\n").map(r => r.split(","));
-    let tableHTML = "";
+    const json = JSON.parse(data.substring(47).slice(0, -2));
+    const cols = json.table.cols;
+    const rows = json.table.rows;
 
-    rows.forEach((row, index) => {
+    let headerHTML = "<tr>";
+    cols.forEach(col=>{
+        headerHTML += `<th>${col.label}</th>`;
+    });
+    headerHTML += "</tr>";
+    document.querySelector("#data-table thead").innerHTML = headerHTML;
 
-        // skip blank rows
-        if(row.every(cell => cell.trim() === "")) return;
+    let bodyHTML = "";
 
-        // check for Grand Total
-        let isTotal = row[0].toLowerCase().includes("grand");
+    rows.forEach(row=>{
 
-        tableHTML += `<tr class="${isTotal?'total-row':''}">`;
+        if(!row.c) return;
 
-        row.forEach(cell => {
-            if(index === 0){
-                tableHTML += `<th>${cell}</th>`;
-            } else {
-                tableHTML += `<td>${cell}</td>`;
-            }
+        let firstCell = row.c[0]?.v || "";
+        let isTotal = firstCell.toString().toLowerCase().includes("grand");
+
+        bodyHTML += `<tr class="${isTotal?'total-row':''}">`;
+
+        row.c.forEach(cell=>{
+            bodyHTML += `<td>${cell ? cell.v : ""}</td>`;
         });
 
-        tableHTML += "</tr>";
+        bodyHTML += "</tr>";
     });
 
-    document.getElementById("data-table").innerHTML = tableHTML;
+    document.querySelector("#data-table tbody").innerHTML = bodyHTML;
 
 })
-.catch(() => {
-    document.body.innerHTML += "<p style='color:red;text-align:center;'>⚠ Data load failed. Check CSV publish link.</p>";
+.catch(()=>{
+    document.body.innerHTML += "<p style='color:red;text-align:center;'>⚠ Sheet not accessible. Check public setting.</p>";
 });
 
 </script>
