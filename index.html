@@ -5,7 +5,6 @@
 <title>MPGB RO Jabalpur - Dashboard</title>
 
 <style>
-
 body{
   margin:0;
   font-family:'Segoe UI',Arial;
@@ -33,25 +32,29 @@ body{
   padding:25px 15px;
 }
 
-.title-bar h1{
-  margin:0;
-  font-size:22px;
-  letter-spacing:1px;
+.title-bar h1{margin:0;font-size:22px;}
+.title-bar h2{margin:5px 0;font-size:16px;font-weight:normal;}
+.title-bar h3{margin:5px 0 0 0;font-size:14px;letter-spacing:2px;}
+
+/* Stats */
+.stats{
+  max-width:600px;
+  margin:25px auto;
+  padding:0 20px;
 }
 
-.title-bar h2{
-  margin:5px 0;
-  font-size:16px;
-  font-weight:normal;
+.stat-card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
 }
 
-.title-bar h3{
-  margin:5px 0 0 0;
-  font-size:14px;
-  letter-spacing:2px;
-}
+.stat-card h4{margin:0;color:#555;font-size:14px;}
+.stat-card h2{margin:8px 0 0 0;color:#006400;font-size:28px;}
 
-/* Container */
+/* Cards */
 .container{
   max-width:1000px;
   margin:30px auto;
@@ -61,7 +64,6 @@ body{
   gap:25px;
 }
 
-/* Cards */
 .card{
   background:white;
   padding:25px;
@@ -70,7 +72,6 @@ body{
   text-align:center;
   transition:0.3s;
   position:relative;
-  overflow:hidden;
 }
 
 .card::before{
@@ -84,20 +85,19 @@ body{
 }
 
 .card:hover{
-  transform:translateY(-8px);
+  transform:translateY(-6px);
   box-shadow:0 15px 35px rgba(0,0,0,0.15);
 }
 
 .card h3{
   color:#006400;
   margin-bottom:10px;
-  font-size:18px;
 }
 
 .card p{
   font-size:14px;
   color:#555;
-  min-height:45px;
+  min-height:40px;
 }
 
 .btn{
@@ -116,35 +116,6 @@ body{
   background:#004d00;
 }
 
-/* Stats Bar */
-.stats{
-  max-width:1000px;
-  margin:0 auto 20px auto;
-  padding:0 20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:15px;
-}
-
-.stat-card{
-  background:white;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
-  box-shadow:0 5px 15px rgba(0,0,0,0.08);
-}
-
-.stat-card h4{
-  margin:0;
-  color:#555;
-  font-size:13px;
-}
-
-.stat-card h2{
-  margin:5px 0 0 0;
-  color:#006400;
-}
-
 /* Footer */
 .footer{
   margin-top:40px;
@@ -158,41 +129,30 @@ body{
 @media(max-width:600px){
   .title-bar h1{font-size:18px}
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- Logo -->
 <div class="header">
  <img src="mpgb_header_small.png" class="logo">
 </div>
 
-<!-- Title -->
 <div class="title-bar">
   <h1>MADHYA PRADESH GRAMIN BANK</h1>
   <h2>REGIONAL OFFICE JABALPUR</h2>
   <h3>DASHBOARD</h3>
 </div>
 
-<!-- Dynamic Stats -->
+<!-- Only Total Branches -->
 <div class="stats">
   <div class="stat-card">
     <h4>Total Branches</h4>
-    <h2 id="branchCount">--</h2>
-  </div>
-  <div class="stat-card">
-    <h4>Total Assets</h4>
-    <h2 id="assetCount">--</h2>
-  </div>
-  <div class="stat-card">
-    <h4>Working Assets</h4>
-    <h2 id="workingCount">--</h2>
+    <h2 id="branchCount">0</h2>
   </div>
 </div>
 
-<!-- Cards -->
+<!-- Main Cards -->
 <div class="container">
 
   <div class="card">
@@ -207,10 +167,17 @@ body{
     <a href="business.html" class="btn">View Business</a>
   </div>
 
+  <!-- ✅ NEW ECS MANDATE CARD -->
   <div class="card">
-    <h3>Reports</h3>
-    <p>Monitor Working / Faulty / Under Repair Assets.</p>
-    <a href="inventory.html" class="btn">Open Reports</a>
+    <h3>ECS Mandate Monitoring</h3>
+    <p>Track ECS mandate progress branch-wise.</p>
+    <a href="ecs.html" class="btn">Open ECS Dashboard</a>
+  </div>
+
+  <div class="card">
+    <h3>EMI Calculator</h3>
+    <p>Calculate loan EMI quickly and accurately.</p>
+    <a href="emi.html" class="btn">Open EMI Calculator</a>
   </div>
 
 </div>
@@ -220,26 +187,19 @@ body{
 </div>
 
 <script>
-
-/* Optional Dynamic Animation Counter */
 function animateValue(id, start, end, duration) {
   let range = end - start;
   let current = start;
-  let increment = end > start ? 1 : -1;
+  let increment = 1;
   let stepTime = Math.abs(Math.floor(duration / range));
   let obj = document.getElementById(id);
   let timer = setInterval(function() {
     current += increment;
     obj.innerHTML = current;
-    if (current == end) clearInterval(timer);
+    if (current >= end) clearInterval(timer);
   }, stepTime);
 }
-
-/* Demo Numbers (Replace with real API later) */
-animateValue("branchCount", 0, 54, 1000);
-animateValue("assetCount", 0, 325, 1200);
-animateValue("workingCount", 0, 290, 1500);
-
+animateValue("branchCount", 0, 53, 800);
 </script>
 
 </body>
