@@ -5,217 +5,265 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MPGB Holiday Calendar 2026</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
+*{box-sizing:border-box;}
 
 body{
-    font-family:'Poppins',sans-serif;
-    margin:0;
-    background:linear-gradient(to right,#e8f5e9,#f4f6f9);
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:linear-gradient(to right,#e8f5e9,#f4f6f9);
 }
 
-/* ===== HEADER ===== */
-
+/* HEADER */
 .header{
-    display:flex;
-    align-items:center;
-    justify-content:flex-start;
-    background:linear-gradient(135deg,#006400,#009933);
-    color:white;
-    padding:15px 25px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+display:flex;
+align-items:center;
+justify-content:center;
+position:relative;
+background:linear-gradient(135deg,#006400,#009933);
+color:white;
+padding:15px 20px;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
 }
 
 .logo{
-    height:65px;
-    margin-right:20px;
+position:absolute;
+right:20px;
+height:55px;
 }
 
-.header-text h2{
-    margin:0;
-    font-size:22px;
-}
+.header-text{text-align:center;}
+.header-text h2{margin:0;font-size:22px;}
+.header-text p{margin:2px 0 0;font-size:13px;}
 
-.header-text p{
-    margin:0;
-    font-size:14px;
-    opacity:0.9;
-}
-
-/* ===== CONTAINER ===== */
-
+/* CONTAINER */
 .container{
-    max-width:1100px;
-    margin:25px auto;
-    background:white;
-    border-radius:14px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.1);
-    padding:25px;
+width:95%;
+max-width:1100px;
+margin:25px auto;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.1);
 }
 
-select{
-    padding:8px 12px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    margin-bottom:20px;
-    font-size:14px;
+/* MONTH NAV */
+.month-nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
 }
 
-/* ===== CALENDAR GRID ===== */
+.month-btn{
+background:#006400;
+color:white;
+border:none;
+padding:8px 14px;
+border-radius:6px;
+cursor:pointer;
+}
 
+.month-title{
+font-size:18px;
+font-weight:bold;
+color:#006400;
+}
+
+/* CALENDAR */
 .calendar{
-    display:grid;
-    grid-template-columns:repeat(7,1fr);
-    gap:10px;
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:8px;
 }
 
 .day{
-    background:#006400;
-    color:white;
-    padding:10px;
-    text-align:center;
-    border-radius:8px;
-    font-weight:600;
+background:#006400;
+color:white;
+padding:10px;
+text-align:center;
+border-radius:6px;
+font-weight:bold;
 }
 
 .date{
-    padding:14px;
-    text-align:center;
-    border-radius:10px;
-    background:#f8f9fa;
-    cursor:pointer;
-    transition:all 0.3s ease;
-    font-weight:500;
+padding:14px 5px;
+text-align:center;
+border-radius:8px;
+background:#f9f9f9;
+cursor:pointer;
+transition:0.3s;
 }
 
-.date:hover{
-    background:#e0f2f1;
-    transform:translateY(-3px);
-}
-
-/* Weekend */
+.date:hover{background:#e0f2f1;}
 
 .holiday{
-    background:#ffebee !important;
-    color:#c62828;
-    font-weight:600;
+background:#ffebee !important;
+color:#c62828;
+font-weight:bold;
 }
-
-/* Additional Holiday */
 
 .extra{
-    background:#fff3cd !important;
-    color:#856404;
-    font-weight:600;
+background:#fff3cd !important;
+color:#856404;
+font-weight:bold;
 }
 
-/* Today */
-
-.today{
-    border:2px solid #006400;
+/* DESCRIPTION SECTION */
+.description-box{
+margin-top:25px;
+padding:15px;
+background:#f1f8e9;
+border-left:5px solid #006400;
+border-radius:8px;
 }
 
-/* Legend */
-
-.legend{
-    margin-bottom:15px;
-    font-size:14px;
+.description-box h3{
+margin-top:0;
+color:#006400;
 }
 
-.legend span{
-    padding:6px 12px;
-    border-radius:6px;
-    margin-right:10px;
+/* MODAL */
+.modal{
+display:none;
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,0.5);
+justify-content:center;
+align-items:center;
 }
 
-/* Footer */
+.modal-content{
+background:white;
+padding:20px;
+border-radius:10px;
+width:90%;
+max-width:400px;
+text-align:center;
+}
+
+.close{
+float:right;
+cursor:pointer;
+font-weight:bold;
+color:red;
+}
+
+.reminder-btn{
+margin-top:10px;
+padding:6px 12px;
+background:#006400;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
 
 .footer{
-    text-align:center;
-    margin-top:20px;
-    color:#666;
-    font-size:13px;
+text-align:center;
+margin-top:20px;
+font-size:12px;
+color:#666;
 }
 
 @media(max-width:768px){
-    .header{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-    .logo{
-        margin-bottom:10px;
-    }
+.logo{height:45px;right:10px;}
+.day,.date{font-size:12px;padding:8px 3px;}
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- ===== HEADER ===== -->
-
 <div class="header">
-    <img src="logo.png" class="logo" alt="MPGB Logo">
-    <div class="header-text">
-        <h2>Madhya Pradesh Gramin Bank</h2>
-        <p>Holiday Calendar 2026 (HRD Department)</p>
-    </div>
+<div class="header-text">
+<h2>Madhya Pradesh Gramin Bank</h2>
+<p>Holiday Calendar 2026 | HRD Department</p>
 </div>
-
-<!-- ===== MAIN CONTAINER ===== -->
+<img src="mpgb_header_small.png" class="logo" onerror="this.style.display='none'">
+</div>
 
 <div class="container">
 
-<center>
-<select id="month"></select>
-</center>
-
-<div class="legend">
-<span style="background:#ffebee;color:#c62828;">Weekend Holiday</span>
-<span style="background:#fff3cd;color:#856404;">Additional Holiday</span>
+<div class="month-nav">
+<button class="month-btn" onclick="changeMonth(-1)">◀</button>
+<div class="month-title" id="monthTitle"></div>
+<button class="month-btn" onclick="changeMonth(1)">▶</button>
 </div>
 
 <div class="calendar" id="calendar"></div>
 
-<div class="footer">
-© 2026 MPGB | Human Resource Development Department
+<div class="description-box">
+<h3>Additional Holiday Descriptions 2026</h3>
+<div id="holidayList"></div>
 </div>
 
+<div class="footer">
+© 2026 MPGB | All Rights Reserved
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="holidayModal">
+<div class="modal-content">
+<span class="close" onclick="closeModal()">✖</span>
+<h3 id="modalDate"></h3>
+<p id="modalText"></p>
+<button class="reminder-btn" onclick="setReminder()">Set Reminder</button>
+</div>
 </div>
 
 <script>
 
 const year=2026;
 const calendar=document.getElementById("calendar");
-const monthSelect=document.getElementById("month");
+const monthTitle=document.getElementById("monthTitle");
+const holidayList=document.getElementById("holidayList");
+
+let selectedDate=null;
+let currentMonth=new Date().getMonth();
 
 const months=["January","February","March","April","May","June",
 "July","August","September","October","November","December"];
 
-months.forEach((m,i)=>{
-    monthSelect.innerHTML+=`<option value="${i}">${m}</option>`;
-});
+const holidayDescriptions={
+"2026-01-26":"Republic Day - Constitution adopted in 1950.",
+"2026-03-03":"Holi - Festival of colors.",
+"2026-03-21":"Eid-ul-Fitr - Celebration after Ramadan.",
+"2026-03-27":"Ram Navami - Birth of Lord Ram.",
+"2026-03-31":"Mahavir Jayanti - Birth of Lord Mahavir.",
+"2026-04-01":"Bank Closing - Financial year closing.",
+"2026-04-03":"Good Friday - Christian holy day.",
+"2026-05-01":"Labour Day - Workers' Day.",
+"2026-05-27":"Buddha Purnima - Birth of Gautam Buddha.",
+"2026-06-26":"Moharram - Islamic observance.",
+"2026-08-15":"Independence Day - India independence 1947.",
+"2026-08-26":"Milad-un-Nabi - Birth of Prophet Muhammad.",
+"2026-08-28":"Raksha Bandhan - Festival of siblings.",
+"2026-09-04":"Janmashtami - Birth of Lord Krishna.",
+"2026-10-02":"Gandhi Jayanti - Birth of Mahatma Gandhi.",
+"2026-10-20":"Dussehra - Victory of good over evil.",
+"2026-11-09":"Diwali - Festival of lights.",
+"2026-11-24":"Guru Nanak Jayanti - Birth of Guru Nanak.",
+"2026-12-25":"Christmas - Birth of Jesus Christ."
+};
 
-monthSelect.onchange=generateCalendar;
-monthSelect.value=new Date().getMonth();
-
-/* Additional Holidays 2026 */
-
-const extraHolidays=[
-"2026-01-26","2026-03-03","2026-03-21","2026-03-27","2026-03-31",
-"2026-04-01","2026-04-03","2026-05-01","2026-05-27","2026-06-26",
-"2026-08-15","2026-08-26","2026-08-28","2026-09-04","2026-10-02",
-"2026-10-20","2026-11-09","2026-11-24","2026-12-25"
-];
+function changeMonth(step){
+currentMonth+=step;
+if(currentMonth<0) currentMonth=11;
+if(currentMonth>11) currentMonth=0;
+generateCalendar();
+}
 
 function generateCalendar(){
 
 calendar.innerHTML="";
-const month=parseInt(monthSelect.value);
+monthTitle.innerText=months[currentMonth]+" "+year;
 
-const firstDay=new Date(year,month,1).getDay();
-const lastDate=new Date(year,month+1,0).getDate();
+const firstDay=new Date(year,currentMonth,1).getDay();
+const lastDate=new Date(year,currentMonth+1,0).getDate();
 
 const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 days.forEach(d=>calendar.innerHTML+=`<div class="day">${d}</div>`);
@@ -226,36 +274,63 @@ let saturdayCount=0;
 
 for(let date=1;date<=lastDate;date++){
 
-let current=new Date(year,month,date);
+let current=new Date(year,currentMonth,date);
 let day=current.getDay();
 let className="date";
 
-let formatted=year+"-"+String(month+1).padStart(2,'0')+"-"+String(date).padStart(2,'0');
+let formatted=year+"-"+String(currentMonth+1).padStart(2,'0')+"-"+String(date).padStart(2,'0');
 
 if(day===0){className+=" holiday";}
-
 if(day===6){
 saturdayCount++;
-if(saturdayCount===2||saturdayCount===4){
-className+=" holiday";
-}
+if(saturdayCount===2||saturdayCount===4){className+=" holiday";}
 }
 
-if(extraHolidays.includes(formatted)){
+if(holidayDescriptions[formatted]){
 className+=" extra";
-}
-
-let today=new Date();
-if(today.getFullYear()===year && today.getMonth()===month && today.getDate()===date){
-className+=" today";
-}
-
+calendar.innerHTML+=`<div class="${className}" onclick="showHoliday('${formatted}')">${date}</div>`;
+}else{
 calendar.innerHTML+=`<div class="${className}">${date}</div>`;
 }
+}
 
+generateHolidayList();
+}
+
+function generateHolidayList(){
+holidayList.innerHTML="";
+for(const date in holidayDescriptions){
+holidayList.innerHTML+=`<p><strong>${date}</strong> - ${holidayDescriptions[date]}</p>`;
+}
+}
+
+function showHoliday(date){
+selectedDate=date;
+document.getElementById("holidayModal").style.display="flex";
+document.getElementById("modalDate").innerText=date;
+document.getElementById("modalText").innerText=holidayDescriptions[date];
+}
+
+function closeModal(){
+document.getElementById("holidayModal").style.display="none";
+}
+
+function setReminder(){
+if(!selectedDate) return;
+localStorage.setItem("mpgbReminder",selectedDate);
+alert("Reminder set for "+selectedDate);
+}
+
+function checkReminder(){
+let today=new Date();
+let formatted=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,'0')+"-"+String(today.getDate()).padStart(2,'0');
+if(localStorage.getItem("mpgbReminder")===formatted){
+alert("Reminder: Today is "+formatted);
+}
 }
 
 generateCalendar();
+checkReminder();
 
 </script>
 
