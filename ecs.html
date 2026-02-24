@@ -35,7 +35,6 @@ table{
 th, td{
     border:1px solid #d0e7db;
     padding:3px 5px;
-    white-space:nowrap;
 }
 
 th{
@@ -47,19 +46,33 @@ th{
     text-align:center;
 }
 
+/* Default center */
 td{
     text-align:center;
 }
 
-td:nth-child(2),
-td:last-child{
+/* SOL DESC column wrap */
+td:nth-child(2){
     text-align:left;
+    white-space:normal;
+    max-width:120px;
+    word-break:break-word;
 }
 
+/* BM NAME column wrap */
+td:last-child{
+    text-align:left;
+    white-space:normal;
+    max-width:120px;
+    word-break:break-word;
+}
+
+/* Alternate row light green */
 tr:nth-child(even){
     background:#f3fbf7;
 }
 
+/* Grand Total highlight */
 .total-row{
     background:#c6f2df !important;
     font-weight:bold;
