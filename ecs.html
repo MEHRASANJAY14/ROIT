@@ -6,41 +6,65 @@
 <title>Mandate Followup</title>
 
 <style>
-body{font-family:Arial;background:#f4f6f9;padding:8px;}
-h2{text-align:center;color:#003366;font-size:16px;margin-bottom:8px;}
+body{
+    font-family: Arial;
+    background:#eef7f1;
+    padding:6px;
+}
 
-.table-container{overflow-x:auto;}
+h2{
+    text-align:center;
+    color:#0a5c36;
+    font-size:15px;
+    margin-bottom:6px;
+}
+
+.table-container{
+    max-height:85vh;
+    overflow:auto;
+    border:1px solid #b7e1cd;
+}
 
 table{
     border-collapse:collapse;
-    background:white;
-    font-size:11px;
     width:100%;
+    font-size:11px;
+    background:white;
 }
 
 th, td{
-    border:1px solid #ccc;
-    padding:3px 4px;
+    border:1px solid #d0e7db;
+    padding:3px 5px;
     white-space:nowrap;
 }
 
 th{
-    background:#003366;
+    background:#1e7f4f;
     color:white;
+    position:sticky;
+    top:0;
+    z-index:2;
     text-align:center;
 }
 
-td{text-align:center;}
+td{
+    text-align:center;
+}
 
 td:nth-child(2),
 td:last-child{
     text-align:left;
 }
 
+tr:nth-child(even){
+    background:#f3fbf7;
+}
+
 .total-row{
-    background:#ffeeba;
+    background:#c6f2df !important;
     font-weight:bold;
 }
+
 </style>
 </head>
 
@@ -68,11 +92,27 @@ fetch(url)
     const cols = json.table.cols;
     const rows = json.table.rows;
 
+    // Compact Column Names
+    const shortNames = {
+        "Sol Id":"SOL",
+        "SOL DESC":"BRANCH",
+        "Personal Loan":"PL",
+        "Car Loan":"CL",
+        "LAP":"LAP",
+        "House Loan":"HL",
+        "Grand Total":"TOTAL",
+        "Total branch RequestedMandate":"REQ",
+        "Total Accepted":"ACC",
+        "BM_NAME":"BM"
+    };
+
     let headerHTML = "<tr>";
     cols.forEach(col=>{
-        headerHTML += `<th>${col.label}</th>`;
+        let label = col.label.trim();
+        headerHTML += `<th>${shortNames[label] || label}</th>`;
     });
     headerHTML += "</tr>";
+
     document.querySelector("#data-table thead").innerHTML = headerHTML;
 
     let bodyHTML = "";
@@ -97,7 +137,7 @@ fetch(url)
 
 })
 .catch(()=>{
-    document.body.innerHTML += "<p style='color:red;text-align:center;'>⚠ Sheet not accessible. Check public setting.</p>";
+    document.body.innerHTML += "<p style='color:red;text-align:center;'>⚠ Sheet access error</p>";
 });
 
 </script>
