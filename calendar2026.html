@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MPGB Full Year Calendar 2026</title>
+<title>MPGB Monthly Calendar 2026</title>
 
 <style>
 *{box-sizing:border-box;}
@@ -20,11 +20,11 @@ content:"";
 position:fixed;
 top:50%;
 left:50%;
-width:900px;
-height:900px;
+width:800px;
+height:800px;
 background:url('mpgb_header_small.png') no-repeat center;
 background-size:contain;
-opacity:0.06;
+opacity:0.05;
 transform:translate(-50%,-50%) rotate(-30deg);
 z-index:0;
 pointer-events:none;
@@ -40,14 +40,47 @@ position:relative;
 z-index:1;
 }
 
-.header h1{
-margin:0;
-font-size:26px;
+.header h1{margin:0;font-size:24px;}
+.header p{margin:5px 0 0;font-size:14px;}
+
+/* CONTAINER */
+.container{
+max-width:900px;
+margin:30px auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 6px 18px rgba(0,104,55,0.15);
+position:relative;
+z-index:1;
 }
 
-.header p{
-margin:5px 0 0;
-font-size:14px;
+/* NAVIGATION */
+.month-nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.month-btn{
+background:#006837;
+color:white;
+border:none;
+padding:8px 16px;
+border-radius:6px;
+cursor:pointer;
+font-size:16px;
+}
+
+.month-btn:hover{
+background:#004d29;
+}
+
+.month-title{
+font-size:20px;
+font-weight:bold;
+color:#006837;
 }
 
 /* LEGEND */
@@ -55,12 +88,8 @@ font-size:14px;
 display:flex;
 justify-content:center;
 gap:20px;
-padding:10px;
-background:white;
+margin-bottom:15px;
 font-size:13px;
-position:relative;
-z-index:1;
-border-bottom:2px solid #006837;
 }
 
 .legend span{
@@ -76,47 +105,25 @@ border-radius:3px;
 display:inline-block;
 }
 
-/* GRID */
-.year-grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-padding:20px;
-position:relative;
-z-index:1;
-}
-
-.month{
-background:white;
-padding:10px;
-border-radius:8px;
-box-shadow:0 4px 10px rgba(0,104,55,0.15);
-}
-
-.month h3{
-text-align:center;
-margin:5px 0 10px;
-color:#006837;
-}
-
-.days{
+/* CALENDAR */
+.calendar{
 display:grid;
 grid-template-columns:repeat(7,1fr);
-font-size:12px;
+gap:8px;
 }
 
 .day-name{
 font-weight:bold;
 text-align:center;
-padding:3px;
 color:#006837;
+padding:5px;
 }
 
 .date{
 text-align:center;
-padding:4px;
-margin:1px;
-border-radius:4px;
+padding:10px;
+border-radius:6px;
+background:#f9f9f9;
 }
 
 .sunday{
@@ -136,40 +143,33 @@ color:#856404;
 font-weight:bold;
 }
 
+/* DESCRIPTION */
+.description{
+margin-top:20px;
+padding:12px;
+background:#f0faf5;
+border-left:4px solid #006837;
+font-size:13px;
+}
+
+/* FOOTER */
 .footer{
 text-align:center;
-padding:10px;
+margin-top:20px;
 font-size:12px;
 color:#004d29;
-position:relative;
-z-index:1;
 }
 
 /* PRINT */
 @media print{
-body{
-background:white;
-}
-.legend{
-border:none;
-}
-.year-grid{
-gap:10px;
-}
-}
-
-@media(max-width:900px){
-.year-grid{
-grid-template-columns:repeat(2,1fr);
-}
+.month-nav{display:none;}
+body{background:white;}
 }
 
 @media(max-width:600px){
-.year-grid{
-grid-template-columns:1fr;
+.calendar{gap:4px;}
+.date{padding:6px;font-size:12px;}
 }
-}
-
 </style>
 </head>
 
@@ -177,96 +177,125 @@ grid-template-columns:1fr;
 
 <div class="header">
 <h1>Madhya Pradesh Gramin Bank</h1>
-<p>Holiday Calendar - Full Year 2026 | HRD Department</p>
+<p>Monthly Holiday Calendar 2026 | HRD Department</p>
 </div>
 
-<!-- LEGEND SECTION -->
+<div class="container">
+
+<div class="month-nav">
+<button class="month-btn" onclick="changeMonth(-1)">◀</button>
+<div class="month-title" id="monthTitle"></div>
+<button class="month-btn" onclick="changeMonth(1)">▶</button>
+</div>
+
 <div class="legend">
 <span><span class="legend-box" style="background:#ffebee;"></span> 2nd & 4th Saturday</span>
 <span><span class="legend-box" style="background:#fff3cd;"></span> Additional Holiday</span>
-<span style="color:#c62828;font-weight:bold;">Red Text = Sunday</span>
+<span style="color:#c62828;font-weight:bold;">Red = Sunday</span>
 </div>
 
-<div class="year-grid" id="yearGrid"></div>
+<div class="calendar" id="calendar"></div>
+
+<div class="description" id="holidayDesc"></div>
 
 <div class="footer">
 © 2026 MPGB | Official HRD Calendar
 </div>
 
+</div>
+
 <script>
 
 const year=2026;
+let currentMonth=new Date().getMonth();
+
 const months=["January","February","March","April","May","June",
 "July","August","September","October","November","December"];
 
-const extraHolidays=[
-"2026-01-26","2026-03-03","2026-03-21","2026-03-27","2026-03-31",
-"2026-04-01","2026-04-03","2026-05-01","2026-05-27","2026-06-26",
-"2026-08-15","2026-08-26","2026-08-28","2026-09-04","2026-10-02",
-"2026-10-20","2026-11-09","2026-11-24","2026-12-25"
-];
+const extraHolidays={
+"2026-01-26":"Republic Day",
+"2026-03-03":"Holi",
+"2026-03-21":"Eid-ul-Fitr",
+"2026-03-27":"Ram Navami",
+"2026-03-31":"Mahavir Jayanti",
+"2026-04-01":"Bank Closing",
+"2026-04-03":"Good Friday",
+"2026-05-01":"Labour Day",
+"2026-05-27":"Buddha Purnima",
+"2026-06-26":"Moharram",
+"2026-08-15":"Independence Day",
+"2026-08-26":"Milad-un-Nabi",
+"2026-08-28":"Raksha Bandhan",
+"2026-09-04":"Janmashtami",
+"2026-10-02":"Gandhi Jayanti",
+"2026-10-20":"Dussehra",
+"2026-11-09":"Diwali",
+"2026-11-24":"Guru Nanak Jayanti",
+"2026-12-25":"Christmas"
+};
 
-const yearGrid=document.getElementById("yearGrid");
+function changeMonth(step){
+currentMonth+=step;
+if(currentMonth<0) currentMonth=11;
+if(currentMonth>11) currentMonth=0;
+generateCalendar();
+}
 
-months.forEach((monthName,monthIndex)=>{
+function generateCalendar(){
 
-let monthDiv=document.createElement("div");
-monthDiv.className="month";
-monthDiv.innerHTML="<h3>"+monthName+"</h3>";
+const calendar=document.getElementById("calendar");
+const monthTitle=document.getElementById("monthTitle");
+const holidayDesc=document.getElementById("holidayDesc");
 
-let daysDiv=document.createElement("div");
-daysDiv.className="days";
+calendar.innerHTML="";
+holidayDesc.innerHTML="";
+monthTitle.innerText=months[currentMonth]+" "+year;
 
 const dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 dayNames.forEach(d=>{
-let dn=document.createElement("div");
-dn.className="day-name";
-dn.innerText=d;
-daysDiv.appendChild(dn);
+calendar.innerHTML+=`<div class="day-name">${d}</div>`;
 });
 
-const firstDay=new Date(year,monthIndex,1).getDay();
-const lastDate=new Date(year,monthIndex+1,0).getDate();
+const firstDay=new Date(year,currentMonth,1).getDay();
+const lastDate=new Date(year,currentMonth+1,0).getDate();
 
 for(let i=0;i<firstDay;i++){
-daysDiv.appendChild(document.createElement("div"));
+calendar.innerHTML+=`<div></div>`;
 }
 
 let saturdayCount=0;
 
 for(let date=1;date<=lastDate;date++){
 
-let current=new Date(year,monthIndex,date);
+let current=new Date(year,currentMonth,date);
 let day=current.getDay();
+let className="date";
 
-let dateDiv=document.createElement("div");
-dateDiv.className="date";
-dateDiv.innerText=date;
+let formatted=year+"-"+String(currentMonth+1).padStart(2,'0')+"-"+String(date).padStart(2,'0');
 
-let formatted=year+"-"+String(monthIndex+1).padStart(2,'0')+"-"+String(date).padStart(2,'0');
-
-if(day===0){
-dateDiv.classList.add("sunday");
-}
+if(day===0){className+=" sunday";}
 
 if(day===6){
 saturdayCount++;
 if(saturdayCount===2||saturdayCount===4){
-dateDiv.classList.add("saturday-holiday");
+className+=" saturday-holiday";
 }
 }
 
-if(extraHolidays.includes(formatted)){
-dateDiv.classList.add("extra-holiday");
+if(extraHolidays[formatted]){
+className+=" extra-holiday";
+holidayDesc.innerHTML+=`<p><strong>${formatted}</strong> - ${extraHolidays[formatted]}</p>`;
 }
 
-daysDiv.appendChild(dateDiv);
+calendar.innerHTML+=`<div class="${className}">${date}</div>`;
 }
 
-monthDiv.appendChild(daysDiv);
-yearGrid.appendChild(monthDiv);
+if(holidayDesc.innerHTML===""){
+holidayDesc.innerHTML="<p>No additional holidays this month.</p>";
+}
+}
 
-});
+generateCalendar();
 
 </script>
 
