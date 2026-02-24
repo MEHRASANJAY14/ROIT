@@ -9,38 +9,53 @@
 body{
     font-family: Arial;
     background:#f4f6f9;
-    padding:15px;
+    padding:6px;
 }
 
 h2{
     text-align:center;
     color:#003366;
+    font-size:15px;
+    margin-bottom:6px;
+}
+
+.table-container{
+    overflow-x:auto;
 }
 
 table{
-    width:100%;
     border-collapse:collapse;
     background:white;
+    font-size:11px;
+    width:100%;
 }
 
 th, td{
-    border:1px solid #ddd;
-    padding:6px;
-    text-align:center;
-    font-size:13px;
+    border:1px solid #ccc;
+    padding:3px 4px;
+    white-space:nowrap;
 }
 
 th{
     background:#003366;
     color:white;
-    position:sticky;
-    top:0;
+    text-align:center;
+}
+
+td{
+    text-align:center;
+}
+
+td:nth-child(2),
+td:nth-child(11){
+    text-align:left;
 }
 
 .total-row{
     background:#ffeeba;
     font-weight:bold;
 }
+
 </style>
 </head>
 
@@ -48,57 +63,42 @@ th{
 
 <h2>Mandate Followup - Branch Wise List</h2>
 
-<table id="data-table">
-<thead></thead>
-<tbody></tbody>
-</table>
+<div class="table-container">
+<table id="data-table"></table>
+</div>
 
 <script>
 
-const sheetID = "1P_fY12UDjVvFgO-cfHtFEqBhBIWYGMjyloCuSIF9eMs";
-const sheetName = "ecs-sheet";
+const csvURL = "PASTE_YOUR_PUBLISH_TO_WEB_CSV_LINK_HERE";
 
-const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-
-fetch(url)
+fetch(csvURL)
 .then(res => res.text())
-.then(rep => {
+.then(data => {
 
-    const json = JSON.parse(rep.substr(47).slice(0, -2));
-    const rows = json.table.rows;
-    const cols = json.table.cols;
+    let rows = data.split("\n").map(r => r.split(","));
+    let tableHTML = "";
 
-    const thead = document.querySelector("#data-table thead");
-    const tbody = document.querySelector("#data-table tbody");
+    rows.forEach((row,index)=>{
 
-    // HEADER
-    let header = "<tr>";
-    cols.forEach(col=>{
-        header += `<th>${col.label}</th>`;
-    });
-    header += "</tr>";
-    thead.innerHTML = header;
+        if(row.every(cell => cell.trim()==="")) return;
 
-    // DATA
-    rows.forEach(row=>{
-        if(!row.c) return;
+        let isTotal = row[0].toLowerCase().includes("grand");
 
-        let firstCell = row.c[0] ? row.c[0].v : "";
-        let isTotal = firstCell && firstCell.toString().toLowerCase().includes("grand");
+        tableHTML += `<tr class="${isTotal?'total-row':''}">`;
 
-        let tr = `<tr class="${isTotal ? 'total-row' : ''}">`;
-
-        row.c.forEach(cell=>{
-            tr += `<td>${cell ? cell.v : ""}</td>`;
+        row.forEach(cell=>{
+            if(index===0){
+                tableHTML += `<th>${cell}</th>`;
+            }else{
+                tableHTML += `<td>${cell}</td>`;
+            }
         });
 
-        tr += "</tr>";
-        tbody.innerHTML += tr;
+        tableHTML += "</tr>";
     });
 
-})
-.catch(error=>{
-    document.body.innerHTML += "<p style='color:red;text-align:center;'>⚠ Data load nahi ho raha. Sheet public karein.</p>";
+    document.getElementById("data-table").innerHTML = tableHTML;
+
 });
 
 </script>
