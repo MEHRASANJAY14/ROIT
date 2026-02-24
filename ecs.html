@@ -9,14 +9,14 @@
 body{
     font-family: Arial;
     background:#f4f6f9;
-    padding:6px;
+    padding:8px;
 }
 
 h2{
     text-align:center;
     color:#003366;
-    font-size:15px;
-    margin-bottom:6px;
+    font-size:16px;
+    margin-bottom:8px;
 }
 
 .table-container{
@@ -55,7 +55,6 @@ td:nth-child(11){
     background:#ffeeba;
     font-weight:bold;
 }
-
 </style>
 </head>
 
@@ -69,27 +68,29 @@ td:nth-child(11){
 
 <script>
 
-const csvURL = "PASTE_YOUR_PUBLISH_TO_WEB_CSV_LINK_HERE";
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTUB6XuAsO2n5NvYuyq1cp6Iq8Q50ZnHEa4Lf6QvWNq_XILqmKzDrWFp13FhLTdMcFKHsX5gZKRbRSB/pub?output=csv";
 
 fetch(csvURL)
-.then(res => res.text())
+.then(response => response.text())
 .then(data => {
 
     let rows = data.split("\n").map(r => r.split(","));
     let tableHTML = "";
 
-    rows.forEach((row,index)=>{
+    rows.forEach((row, index) => {
 
-        if(row.every(cell => cell.trim()==="")) return;
+        // skip blank rows
+        if(row.every(cell => cell.trim() === "")) return;
 
+        // check for Grand Total
         let isTotal = row[0].toLowerCase().includes("grand");
 
         tableHTML += `<tr class="${isTotal?'total-row':''}">`;
 
-        row.forEach(cell=>{
-            if(index===0){
+        row.forEach(cell => {
+            if(index === 0){
                 tableHTML += `<th>${cell}</th>`;
-            }else{
+            } else {
                 tableHTML += `<td>${cell}</td>`;
             }
         });
@@ -99,6 +100,9 @@ fetch(csvURL)
 
     document.getElementById("data-table").innerHTML = tableHTML;
 
+})
+.catch(() => {
+    document.body.innerHTML += "<p style='color:red;text-align:center;'>⚠ Data load failed. Check CSV publish link.</p>";
 });
 
 </script>
