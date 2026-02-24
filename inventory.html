@@ -125,7 +125,28 @@ button{
   <option>NO</option>
 </select>
 
-<button type="button" onclick="saveData()">Save Hardware Asset</button>
+<form id="inventoryForm"
+      method="POST"
+      action="PASTE_YOUR_EXEC_URL_HERE"
+      target="hiddenFrame">
+
+  <input type="hidden" name="solid" id="f_solid">
+  <input type="hidden" name="solname" id="f_solname">
+  <input type="hidden" name="asset" id="f_asset">
+  <input type="hidden" name="brand" id="f_brand">
+  <input type="hidden" name="model" id="f_model">
+  <input type="hidden" name="serial" id="f_serial">
+  <input type="hidden" name="assigned" id="f_assigned">
+  <input type="hidden" name="critical" id="f_critical">
+  <input type="hidden" name="status" id="f_status">
+  <input type="hidden" name="windows" id="f_windows">
+
+  <button type="button" onclick="submitForm()">
+    Save Hardware Asset
+  </button>
+</form>
+
+<iframe name="hiddenFrame" style="display:none;"></iframe>
 
 </div>
 
@@ -206,3 +227,4 @@ loadBranches();
 
 </body>
 </html>
+
