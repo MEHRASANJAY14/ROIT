@@ -99,37 +99,49 @@ select{
   overflow-x:auto;
 }
 
-.table-wrapper{
-  width:100%;
-  overflow-x:auto;
-}
-
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:480px;        /* 🔥 reduced more */
-  table-layout:fixed;     /* 🔥 equal column width */
+  min-width:480px;
+  table-layout:fixed;
 }
 
-th,td{
-  border:1px solid #ddd;
-  padding:2px 3px;        /* 🔥 very tight */
-  text-align:center;
-  font-size:10px;         /* 🔥 smaller */
-}
-
+/* 🔥 Header */
 th{
+  border:1px solid #ddd;
   background:#2e7d32;
   color:white;
-  line-height:1;          /* 🔥 reduce header height */
+  font-size:11px;
+  padding:5px 2px;          /* compact header */
+  line-height:1.1;
   position:sticky;
   top:0;
   z-index:2;
 }
 
+/* 🔥 Data row height bigger */
+td{
+  border:1px solid #ddd;
+  padding:10px 3px;         /* 🔥 increase row height */
+  font-size:12px;           /* slightly bigger value */
+  font-weight:500;
+}
+
+/* 🔥 First 4 columns (date columns) */
+table th:nth-child(-n+4),
+table td:nth-child(-n+4){
+  width:75px;
+}
+
+/* 🔥 FTD MTD YTD more compact */
+table th:nth-child(n+5),
+table td:nth-child(n+5){
+  width:45px;               /* 🔥 narrow growth columns */
+}
+
 .header-date{
   font-weight:bold;
-  font-size:9px;          /* 🔥 smaller date */
+  font-size:10px;
   display:inline-block;
   white-space:nowrap;
 }
@@ -293,5 +305,6 @@ loadBranches();
 
 </body>
 </html>
+
 
 
