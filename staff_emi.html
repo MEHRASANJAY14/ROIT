@@ -66,7 +66,6 @@ button:hover{background:#004d00;}
   overflow-x:auto;
 }
 
-/* TABLE COMPACT */
 table{
   width:100%;
   border-collapse:collapse;
@@ -76,11 +75,10 @@ table{
 
 th,td{
   border:1px solid #ddd;
-  padding:8px 8px;   /* Row height same */
+  padding:8px 8px;
   text-align:center;
 }
 
-/* COLUMN WIDTH MORE COMPACT */
 th:nth-child(1), td:nth-child(1){ width:60px; }
 th:nth-child(2), td:nth-child(2){ width:120px; }
 th:nth-child(3), td:nth-child(3){ width:110px; }
@@ -93,11 +91,11 @@ th{
   color:white;
 }
 
-/* PRINT SETTINGS */
+/* PRINT ONLY TABLE */
 @media print{
 
   @page{
-    size: A4 landscape;
+    size:A4 landscape;
     margin:10mm;
   }
 
@@ -105,18 +103,17 @@ th{
     background:white;
   }
 
-  button{
-    display:none;
+  .header,
+  input,
+  button,
+  .result{
+    display:none !important;
   }
 
   .container{
     box-shadow:none;
     margin:0;
     padding:0;
-  }
-
-  table{
-    font-size:12px;  /* Slightly smaller only in print */
   }
 
 }
@@ -244,7 +241,8 @@ for(let i=1;i<=interestMonths;i++){
   row.insertCell(5).innerText=format(remainingInterest);
 }
 
-/* Summary */
+/* UPDATED SUMMARY */
+
 document.getElementById("summary").innerHTML=
 "<b>Loan Amount:</b> "+format(P)+"<br>"+
 "<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
@@ -254,8 +252,8 @@ document.getElementById("summary").innerHTML=
 "<b>Monthly Principal EMI:</b> "+format(monthlyPrincipal)+"<br>"+
 "<b>Monthly Interest EMI:</b> "+format(monthlyInterestRecovery)+"<br><hr>"+
 
-"<b>5.5% Interest Total:</b> "+format(slab1InterestTotal)+"<br>"+
-"<b>6% Interest Total:</b> "+format(slab2InterestTotal)+"<br><hr>"+
+"<b>5.5% on "+format(slab1)+" :</b> "+format(slab1InterestTotal)+"<br>"+
+"<b>6% on "+format(slab2)+" :</b> "+format(slab2InterestTotal)+"<br><hr>"+
 
 "<b>Total Interest:</b> "+format(accumulatedInterest)+"<br>"+
 "<b>Total Payment:</b> "+format(P+accumulatedInterest);
