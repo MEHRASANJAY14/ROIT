@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branch Mandate Dashboard</title>
+
+<style>
+body{
+    font-family: Arial;
+    margin:0;
+    padding:10px;
+    background:#f4f6f9;
+}
+
+h2{
+    text-align:center;
+    color:#003366;
+}
+
+input{
+    padding:8px;
+    width:100%;
+    margin-bottom:10px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+table{
+    border-collapse:collapse;
+    width:100%;
+    background:white;
+    font-size:14px;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th{
+    background:#003366;
+    color:white;
+    cursor:pointer;
+    position:sticky;
+    top:0;
+}
+
+.green{background:#c6f6d5;}
+.yellow{background:#fefcbf;}
+.red{background:#fed7d7;}
+
+@media(max-width:768px){
+    table{font-size:12px;}
+}
+</style>
+</head>
+
+<body>
+
+<h2>Branch Wise Loan & Mandate Dashboard</h2>
+
+<input type="text" id="search" placeholder="Search Branch...">
+
+<table id="data-table">
+<thead></thead>
+<tbody></tbody>
+</table>
+
+<script>
+
+const sheetURL = "https://docs.google.com/spreadsheets/d/1P_fY12UDjVvFgO-cfHtFEqBhBIWYGMjyloCuSIF9eMs/export?format=csv&gid=0";
+
+fetch(sheetURL)
+.then(response => response.text())
+.then(data => {
+
+    const rows = data.trim().split("\n").map(r => r.split(","));
+    const thead = document.querySelector("#data-table thead");
+    const tbody = document.querySelector("#data-table tbody");
+
+    // HEADER
+    let header = "<tr>";
+    rows[0].forEach(col => {
+        header += `<th onclick="sortTable(this)">${col}</th>`;
+    });
+    header += "<th>Mandate %</th></tr>";
+    thead.innerHTML = header;
+
+    // DATA
+    rows.slice(1).forEach(row => {
+
+        let requested = parseFloat(row[8]) || 0;   // TotalBranchRequestedMandate
+        let accepted = parseFloat(row[9]) || 0;    // TotalAccepted
+
+        let percent = requested > 0 ? ((accepted/requested)*100).toFixed(1) : 0;
+
+        let colorClass = "";
+        if(percent >= 75) colorClass="green";
+        else if(percent >=50) colorClass="yellow";
+        else colorClass="red";
+
+        let tr = "<tr>";
+        row.forEach(col => {
+            tr += `<td>${col}</td>`;
+        });
+
+        tr += `<td class="${colorClass}">${percent}%</td>`;
+        tr += "</tr>";
+
+        tbody.innerHTML += tr;
+    });
+
+});
+
+// SEARCH FUNCTION
+document.getElementById("search").addEventListener("keyup", function(){
+    let value = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#data-table tbody tr");
+
+    rows.forEach(row=>{
+        row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+    });
+});
+
+// SORT FUNCTION
+function sortTable(th){
+    const table = th.closest("table");
+    const index = Array.from(th.parentNode.children).indexOf(th);
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    const asc = th.classList.toggle("asc");
+
+    rows.sort((a,b)=>{
+        let A = a.children[index].innerText;
+        let B = b.children[index].innerText;
+        return asc ? A.localeCompare(B,undefined,{numeric:true}) : B.localeCompare(A,undefined,{numeric:true});
+    });
+
+    rows.forEach(row=>table.querySelector("tbody").appendChild(row));
+}
+
+</script>
+
+</body>
+</html>
