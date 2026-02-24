@@ -7,34 +7,33 @@
 <style>
 body{
   margin:0;
-  font-family:'Segoe UI',Arial;
-  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+  font-family:Arial;
+  background:#f4f6f9;
 }
 
 .header{
   background:#006400;
   color:white;
   text-align:center;
-  padding:18px;
-  font-size:20px;
+  padding:15px;
+  font-size:18px;
   font-weight:bold;
 }
 
 .container{
   max-width:1300px;
-  margin:30px auto;
+  margin:20px auto;
   background:white;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  padding:20px;
+  border-radius:8px;
 }
 
 input{
   padding:8px;
   width:100%;
-  border:1px solid #ccc;
-  border-radius:6px;
   margin-bottom:10px;
+  border:1px solid #ccc;
+  border-radius:4px;
 }
 
 button{
@@ -42,25 +41,22 @@ button{
   color:white;
   border:none;
   padding:10px;
-  border-radius:6px;
-  font-weight:bold;
+  border-radius:5px;
   cursor:pointer;
+  margin-bottom:10px;
 }
-
-button:hover{background:#004d00;}
 
 table{
   width:100%;
   border-collapse:collapse;
   margin-top:15px;
-  font-size:11px;
+  font-size:12px;
 }
 
 th,td{
   border:1px solid #ccc;
   padding:6px;
   text-align:center;
-  vertical-align:top;
 }
 
 th{
@@ -69,10 +65,10 @@ th{
 }
 
 .result{
-  margin-top:20px;
-  background:#f1f8f4;
-  padding:15px;
-  border-radius:8px;
+  margin-top:15px;
+  background:#e9f7ef;
+  padding:10px;
+  border-radius:6px;
 }
 </style>
 </head>
@@ -84,8 +80,6 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 </div>
 
 <div class="container">
-
-<h2>Staff Loan Calculator</h2>
 
 <input type="number" id="amount" placeholder="Loan Amount (₹)">
 <input type="number" id="tenure" placeholder="Tenure (Months)">
@@ -101,7 +95,7 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <script>
 
 function format(n){
-  return n.toLocaleString("en-IN",{maximumFractionDigits:2});
+  return Number(n).toLocaleString("en-IN",{maximumFractionDigits:2});
 }
 
 function calculateStaff(){
@@ -136,15 +130,18 @@ let slab2InterestTotal=0;
 
 let table=document.getElementById("schedule");
 
-table.innerHTML=
-"<tr>\
-<th>Month</th>\
-<th>Principal Repayment</th>\
-<th>Interest (Slab1 @5.5% + Slab2 @6%)</th>\
-<th>Outstanding Breakup</th>\
-</tr>";
+/* CLEAR TABLE */
+table.innerHTML="";
 
-/* -------- Phase 1 : Principal Repayment -------- */
+/* HEADER ROW */
+let headerRow=table.insertRow();
+headerRow.innerHTML=
+"<th>Month</th>"+
+"<th>Principal Repayment</th>"+
+"<th>Interest (Slab1 + Slab2)</th>"+
+"<th>Outstanding</th>";
+
+/* -------- Phase 1 -------- */
 
 for(let i=1;i<=principalMonths;i++){
 
@@ -169,20 +166,17 @@ for(let i=1;i<=principalMonths;i++){
   let principalOutstanding = balance1 + balance2;
   let totalOutstanding = principalOutstanding + accumulatedInterest;
 
-  table.innerHTML+=
-  "<tr>\
-  <td>"+i+"</td>\
-  <td>"+format(monthlyPrincipal)+"</td>\
-  <td>"+format(interest1)+" + "+format(interest2)+" = <b>"+format(totalInterestMonth)+"</b></td>\
-  <td>\
-    Principal: "+format(principalOutstanding)+"<br>\
-    + Interest: "+format(accumulatedInterest)+"<br>\
-    = <b>"+format(totalOutstanding)+"</b>\
-  </td>\
-  </tr>";
+  let row=table.insertRow();
+
+  row.insertCell(0).innerText=i;
+  row.insertCell(1).innerText=format(monthlyPrincipal);
+  row.insertCell(2).innerText=
+    format(interest1)+" + "+format(interest2)+" = "+format(totalInterestMonth);
+  row.insertCell(3).innerText=
+    "P: "+format(principalOutstanding)+" | I: "+format(accumulatedInterest)+" | T: "+format(totalOutstanding);
 }
 
-/* -------- Phase 2 : Interest Repayment -------- */
+/* -------- Phase 2 -------- */
 
 let monthlyInterestRecovery=accumulatedInterest/interestMonths;
 let remainingInterest=accumulatedInterest;
@@ -191,30 +185,24 @@ for(let i=1;i<=interestMonths;i++){
 
   remainingInterest-=monthlyInterestRecovery;
 
-  table.innerHTML+=
-  "<tr>\
-  <td>"+(principalMonths+i)+"</td>\
-  <td>0</td>\
-  <td>"+format(monthlyInterestRecovery)+"</td>\
-  <td>\
-    Principal: 0<br>\
-    + Interest: "+format(remainingInterest>0?remainingInterest:0)+"<br>\
-    = <b>"+format(remainingInterest>0?remainingInterest:0)+"</b>\
-  </td>\
-  </tr>";
+  let row=table.insertRow();
+
+  row.insertCell(0).innerText=principalMonths+i;
+  row.insertCell(1).innerText="0";
+  row.insertCell(2).innerText=format(monthlyInterestRecovery);
+  row.insertCell(3).innerText=
+    "P: 0 | I: "+format(remainingInterest>0?remainingInterest:0)+" | T: "+format(remainingInterest>0?remainingInterest:0);
 }
 
 /* -------- Summary -------- */
 
 document.getElementById("summary").innerHTML=
-"<h3>Summary</h3>\
-<p><strong>Slab 1:</strong> ₹ "+format(slab1)+" @ 5.5%</p>\
-<p><strong>Slab 2:</strong> ₹ "+format(slab2)+" @ 6%</p>\
-<hr>\
-<p><strong>Slab 1 Total Interest:</strong> ₹ "+format(slab1InterestTotal)+"</p>\
-<p><strong>Slab 2 Total Interest:</strong> ₹ "+format(slab2InterestTotal)+"</p>\
-<p><strong>Total Accumulated Interest:</strong> ₹ "+format(accumulatedInterest)+"</p>\
-<p><strong>Total Payment (Principal + Interest):</strong> ₹ "+format(P+accumulatedInterest)+"</p>";
+"<b>Slab 1:</b> ₹ "+format(slab1)+" @ 5.5%<br>"+
+"<b>Slab 2:</b> ₹ "+format(slab2)+" @ 6%<br><hr>"+
+"<b>Slab 1 Total Interest:</b> ₹ "+format(slab1InterestTotal)+"<br>"+
+"<b>Slab 2 Total Interest:</b> ₹ "+format(slab2InterestTotal)+"<br>"+
+"<b>Total Interest:</b> ₹ "+format(accumulatedInterest)+"<br>"+
+"<b>Total Payment:</b> ₹ "+format(P+accumulatedInterest);
 
 document.getElementById("summary").style.display="block";
 
