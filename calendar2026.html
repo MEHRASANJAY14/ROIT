@@ -27,23 +27,6 @@ padding:10px 0;
 height:110px;
 width:auto;
 max-width:95%;
-display:inline-block;
-}
-
-/* WATERMARK */
-body::before{
-content:"";
-position:fixed;
-top:50%;
-left:50%;
-width:800px;
-height:800px;
-background:url('mpgb_header_small.png') no-repeat center;
-background-size:contain;
-opacity:0.05;
-transform:translate(-50%,-50%) rotate(-30deg);
-z-index:0;
-pointer-events:none;
 }
 
 /* HEADER */
@@ -52,9 +35,10 @@ text-align:center;
 background:#006837;
 color:white;
 padding:10px;
-position:relative;
-z-index:1;
 }
+
+.header h1{margin:0;font-size:22px;}
+.header p{margin:4px 0 0;font-size:13px;}
 
 /* CONTAINER */
 .container{
@@ -64,11 +48,9 @@ background:white;
 padding:20px;
 border-radius:8px;
 box-shadow:0 4px 12px rgba(0,104,55,0.15);
-position:relative;
-z-index:1;
 }
 
-/* MONTH NAV */
+/* NAVIGATION */
 .month-nav{
 display:flex;
 justify-content:space-between;
@@ -97,6 +79,10 @@ cursor:pointer;
 margin:0 8px;
 }
 
+.month-btn:hover{
+background:#004d29;
+}
+
 /* CALENDAR */
 .calendar{
 display:grid;
@@ -116,6 +102,11 @@ text-align:center;
 padding:8px;
 border-radius:5px;
 background:#f9f9f9;
+cursor:pointer;
+}
+
+.date:hover{
+background:#e0f2e9;
 }
 
 .sunday{
@@ -142,6 +133,7 @@ border-left:4px solid #006837;
 font-size:13px;
 }
 
+/* BUTTON */
 .reminder-btn{
 margin-top:10px;
 padding:6px 12px;
@@ -152,6 +144,11 @@ border-radius:4px;
 cursor:pointer;
 }
 
+.reminder-btn:hover{
+background:#004d29;
+}
+
+/* FOOTER */
 .footer{
 text-align:center;
 margin-top:15px;
@@ -160,7 +157,7 @@ color:#004d29;
 }
 
 @media print{
-.month-nav,.reminder-btn{display:none;}
+.month-nav{display:none;}
 body{background:white;}
 }
 </style>
@@ -173,7 +170,7 @@ body{background:white;}
 </div>
 
 <div class="header">
-<h2>Madhya Pradesh Gramin Bank</h2>
+<h1>Madhya Pradesh Gramin Bank</h1>
 <p>Monthly Holiday Calendar 2026 | HRD Department</p>
 </div>
 
@@ -189,7 +186,7 @@ body{background:white;}
 
 <div class="description" id="holidayDesc"></div>
 
-<button class="reminder-btn" onclick="requestNotification()">Enable Reminder</button>
+<button class="reminder-btn" onclick="enableReminder()">Enable Holiday Reminder</button>
 
 <div class="footer">
 © 2026 MPGB | Official HRD Calendar
@@ -280,42 +277,84 @@ className+=" extra-holiday";
 holidayDesc.innerHTML+=`<p><strong>${displayDate}</strong> - ${extraHolidays[formatted]}</p>`;
 }
 
-calendar.innerHTML+=`<div class="${className}">${date}</div>`;
+calendar.innerHTML+=`<div class="${className}" onclick="setPersonalReminder('${formatted}')">${date}</div>`;
 }
 
 if(holidayDesc.innerHTML===""){
 holidayDesc.innerHTML="<p>No additional holidays this month.</p>";
 }
+
+checkReminders();
 }
 
-/* ===== REMINDER SYSTEM ===== */
-
-function requestNotification(){
+function enableReminder(){
 if(Notification.permission!=="granted"){
 Notification.requestPermission().then(permission=>{
 if(permission==="granted"){
 alert("Reminder Enabled Successfully");
-checkTodayHoliday();
 }
 });
-}else{
-checkTodayHoliday();
 }
 }
 
-function checkTodayHoliday(){
-let today=new Date();
-let todayFormatted=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,'0')+"-"+String(today.getDate()).padStart(2,'0');
+/* PERSONAL REMINDER */
+function setPersonalReminder(date){
+localStorage.setItem("personalReminder",date);
+alert("Personal reminder set for "+date.split("-").reverse().join("-"));
+}
 
-if(extraHolidays[todayFormatted]){
-new Notification("MPGB Holiday Reminder",{
-body:"Today is "+extraHolidays[todayFormatted]
+/* REMINDER SYSTEM (8 AM + 1 Day Before) */
+function checkReminders(){
+
+if(Notification.permission!=="granted") return;
+
+let now=new Date();
+let hour=now.getHours();
+let todayStr=formatDate(now);
+
+if(hour!==8) return;
+
+for(let holiday in extraHolidays){
+
+let holidayDate=new Date(holiday);
+let beforeDay=new Date(holidayDate);
+beforeDay.setDate(holidayDate.getDate()-1);
+
+let beforeStr=formatDate(beforeDay);
+let holidayStr=formatDate(holidayDate);
+
+if(todayStr===beforeStr){
+new Notification("MPGB Holiday Tomorrow",{
+body: extraHolidays[holiday]+" is tomorrow ("+formatDisplayDate(holidayDate)+")"
 });
 }
+
+if(todayStr===holidayStr){
+new Notification("MPGB Holiday Today",{
+body: extraHolidays[holiday]+" Today ("+formatDisplayDate(holidayDate)+")"
+});
+}
+}
+
+/* Personal Reminder */
+let personal=localStorage.getItem("personalReminder");
+if(personal===todayStr){
+new Notification("Personal Reminder",{
+body:"Reminder for "+formatDisplayDate(new Date(personal))
+});
+}
+}
+
+function formatDate(date){
+return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,'0')+"-"+String(date.getDate()).padStart(2,'0');
+}
+
+function formatDisplayDate(date){
+return String(date.getDate()).padStart(2,'0')+"-"+String(date.getMonth()+1).padStart(2,'0')+"-"+date.getFullYear();
 }
 
 generateCalendar();
-checkTodayHoliday();
+setInterval(checkReminders,60000);
 
 </script>
 
