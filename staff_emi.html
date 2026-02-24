@@ -7,34 +7,34 @@
 <style>
 body{
   margin:0;
-  font-family:'Segoe UI',Arial;
-  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+  font-family:Arial;
+  background:#f4f6f9;
 }
 
 .header{
   background:#006400;
   color:white;
   text-align:center;
-  padding:16px;
-  font-size:19px;
+  padding:14px;
+  font-size:18px;
   font-weight:bold;
 }
 
 .container{
-  max-width:1250px;
-  margin:25px auto;
+  max-width:1200px;
+  margin:20px auto;
   background:white;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  padding:20px;
+  border-radius:8px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
 }
 
 input{
-  padding:8px;
+  padding:7px;
   width:100%;
-  margin-bottom:10px;
+  margin-bottom:8px;
   border:1px solid #ccc;
-  border-radius:5px;
+  border-radius:4px;
   font-size:13px;
 }
 
@@ -42,25 +42,22 @@ button{
   background:#006400;
   color:white;
   border:none;
-  padding:8px 14px;
-  border-radius:5px;
+  padding:7px 12px;
+  border-radius:4px;
   cursor:pointer;
-  font-weight:600;
-  margin-right:8px;
   font-size:13px;
+  margin-right:6px;
 }
 
-button:hover{
-  background:#004d00;
-}
+button:hover{background:#004d00;}
 
 .result{
-  margin-top:20px;
-  margin-bottom:25px;
-  background:#f4fbf6;
-  padding:18px;
-  border-radius:8px;
-  font-size:14px;
+  margin-top:15px;
+  margin-bottom:18px;
+  background:#eef9f1;
+  padding:15px;
+  border-radius:6px;
+  font-size:13px;
   line-height:1.6em;
 }
 
@@ -72,14 +69,13 @@ table{
   width:100%;
   border-collapse:collapse;
   font-size:11px;
-  min-width:1000px;
+  min-width:900px;
 }
 
 th,td{
   border:1px solid #ddd;
-  padding:5px 6px;
+  padding:4px 5px;
   text-align:center;
-  vertical-align:top;
 }
 
 th{
@@ -88,18 +84,6 @@ th{
   position:sticky;
   top:0;
   font-size:11px;
-}
-
-.breakup{
-  text-align:left;
-  line-height:1.2em;
-}
-
-.highlight{
-  font-weight:bold;
-  color:#006400;
-  display:block;
-  margin-top:2px;
 }
 
 @media print{
@@ -122,7 +106,7 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <input type="number" id="tenure" placeholder="Tenure (Months)">
 
 <button onclick="calculateStaff()">Calculate</button>
-<button onclick="window.print()">Print Schedule</button>
+<button onclick="window.print()">Print</button>
 
 <div class="result" id="summary" style="display:none;"></div>
 
@@ -135,13 +119,13 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <script>
 
 function format(n){
-  return Number(n).toLocaleString("en-IN",{maximumFractionDigits:2});
+  return Number(n).toFixed(2);
 }
 
 function calculateStaff(){
 
-let P=parseFloat(document.getElementById("amount").value);
-let totalMonths=parseInt(document.getElementById("tenure").value);
+let P=parseFloat(amount.value);
+let totalMonths=parseInt(tenure.value);
 
 if(!P||!totalMonths){
   alert("Fill all fields");
@@ -165,8 +149,6 @@ let r1=5.5/12/100;
 let r2=6/12/100;
 
 let accumulatedInterest=0;
-let slab1InterestTotal=0;
-let slab2InterestTotal=0;
 
 let table=document.getElementById("schedule");
 table.innerHTML="";
@@ -175,11 +157,11 @@ table.innerHTML="";
 let headerRow=table.insertRow();
 headerRow.innerHTML=
 "<th>Month</th>"+
-"<th>Principal</th>"+
-"<th>Interest (5.5% + 6%)</th>"+
+"<th>Principal EMI</th>"+
+"<th>Interest EMI</th>"+
 "<th>Outstanding (Principal + Interest)</th>";
 
-/* Phase 1 - Principal Repayment */
+/* Phase 1 */
 
 for(let i=1;i<=principalMonths;i++){
 
@@ -193,9 +175,6 @@ for(let i=1;i<=principalMonths;i++){
 
   let totalInterestMonth = interest1 + interest2;
 
-  slab1InterestTotal += interest1;
-  slab2InterestTotal += interest2;
-
   accumulatedInterest += totalInterestMonth;
 
   balance1 -= principal1;
@@ -208,23 +187,12 @@ for(let i=1;i<=principalMonths;i++){
 
   row.insertCell(0).innerText=i;
   row.insertCell(1).innerText=format(monthlyPrincipal);
-
-  row.insertCell(2).innerHTML=
-  "<div class='breakup'>"+
-  "5.5%: "+format(interest1)+"<br>"+
-  "6%: "+format(interest2)+"<br>"+
-  "<span class='highlight'>Total: "+format(totalInterestMonth)+"</span>"+
-  "</div>";
-
-  row.insertCell(3).innerHTML=
-  "<div class='breakup'>"+
-  "Principal: "+format(principalOutstanding)+"<br>"+
-  "Interest: "+format(accumulatedInterest)+"<br>"+
-  "<span class='highlight'>Total: "+format(totalOutstanding)+"</span>"+
-  "</div>";
+  row.insertCell(2).innerText=format(totalInterestMonth);
+  row.insertCell(3).innerText=
+    format(principalOutstanding)+" + "+format(accumulatedInterest)+" = "+format(totalOutstanding);
 }
 
-/* Phase 2 - Interest Recovery */
+/* Phase 2 */
 
 let monthlyInterestRecovery=accumulatedInterest/interestMonths;
 let remainingInterest=accumulatedInterest;
@@ -237,27 +205,22 @@ for(let i=1;i<=interestMonths;i++){
 
   row.insertCell(0).innerText=principalMonths+i;
   row.insertCell(1).innerText="0";
-
-  row.insertCell(2).innerHTML=
-  "<div class='breakup'>Interest Recovery: "+format(monthlyInterestRecovery)+"</div>";
-
-  row.insertCell(3).innerHTML=
-  "<div class='breakup'>"+
-  "Principal: 0<br>"+
-  "Interest: "+format(remainingInterest>0?remainingInterest:0)+"<br>"+
-  "<span class='highlight'>Total: "+format(remainingInterest>0?remainingInterest:0)+"</span>"+
-  "</div>";
+  row.insertCell(2).innerText=format(monthlyInterestRecovery);
+  row.insertCell(3).innerText=
+    "0 + "+format(remainingInterest)+" = "+format(remainingInterest);
 }
 
-/* Summary */
+/* Summary Enhanced */
 
 document.getElementById("summary").innerHTML=
-"<b>Slab 1:</b> ₹ "+format(slab1)+" @ 5.5%<br>"+
-"<b>Slab 2:</b> ₹ "+format(slab2)+" @ 6%<br><hr>"+
-"<b>Slab 1 Total Interest:</b> ₹ "+format(slab1InterestTotal)+"<br>"+
-"<b>Slab 2 Total Interest:</b> ₹ "+format(slab2InterestTotal)+"<br>"+
-"<b>Total Interest:</b> ₹ "+format(accumulatedInterest)+"<br>"+
-"<b>Total Payment:</b> ₹ "+format(P+accumulatedInterest);
+"<b>Loan Amount:</b> "+format(P)+"<br>"+
+"<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
+"<b>Principal Phase:</b> "+principalMonths+" Months<br>"+
+"<b>Interest Phase:</b> "+interestMonths+" Months<br><hr>"+
+"<b>Monthly Principal EMI:</b> "+format(monthlyPrincipal)+"<br>"+
+"<b>Monthly Interest EMI (After Principal Phase):</b> "+format(monthlyInterestRecovery)+"<br><hr>"+
+"<b>Total Interest:</b> "+format(accumulatedInterest)+"<br>"+
+"<b>Total Payment:</b> "+format(P+accumulatedInterest);
 
 document.getElementById("summary").style.display="block";
 
