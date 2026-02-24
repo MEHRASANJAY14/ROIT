@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff Loan EMI - MPGB RO Jabalpur</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',Arial;
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+}
+
+.header{
+  background:#006400;
+  color:white;
+  text-align:center;
+  padding:18px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.container{
+  max-width:900px;
+  margin:30px auto;
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+h2{
+  text-align:center;
+  color:#006400;
+}
+
+input{
+  padding:8px;
+  margin:8px 0;
+  width:100%;
+  border:1px solid #ccc;
+  border-radius:6px;
+}
+
+button{
+  background:#006400;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+  width:100%;
+}
+
+button:hover{background:#004d00;}
+
+.result{
+  margin-top:20px;
+  background:#f1f8f4;
+  padding:15px;
+  border-radius:8px;
+}
+
+.back{
+  display:block;
+  text-align:center;
+  margin-top:20px;
+  text-decoration:none;
+  color:#006400;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+MPGB RO Jabalpur - Staff Loan EMI (2:1 Model)
+</div>
+
+<div class="container">
+
+<h2>Staff Loan Calculator</h2>
+
+<input type="number" id="amount" placeholder="Loan Amount (₹)">
+<input type="number" id="rate" placeholder="Annual Interest Rate (%)">
+<input type="number" id="tenure" placeholder="Tenure (Years)">
+
+<button onclick="calculateStaff()">Calculate</button>
+
+<div class="result" id="result" style="display:none;"></div>
+
+<a href="emi.html" class="back">⬅ Back to Normal EMI</a>
+
+</div>
+
+<script>
+
+function format(n){
+  return n.toLocaleString("en-IN",{maximumFractionDigits:2});
+}
+
+function calculateStaff(){
+
+let P=parseFloat(amount.value);
+let annual=parseFloat(rate.value);
+let years=parseFloat(tenure.value);
+
+if(!P||!annual||!years){
+  alert("Fill all fields");
+  return;
+}
+
+let principalYears=(2/3)*years;
+let interestYears=(1/3)*years;
+
+let principalMonths=principalYears*12;
+let interestMonths=interestYears*12;
+
+let monthlyPrincipal=P/principalMonths;
+let r=annual/12/100;
+
+let balance=P;
+let totalInterest=0;
+
+for(let i=1;i<=principalMonths;i++){
+  let interest=balance*r;
+  totalInterest+=interest;
+  balance-=monthlyPrincipal;
+}
+
+let monthlyInterestRecovery=totalInterest/interestMonths;
+
+document.getElementById("result").innerHTML=`
+<h3>Result Summary</h3>
+<p><strong>Principal Phase:</strong> ${principalYears.toFixed(0)} Years</p>
+<p><strong>Interest Phase:</strong> ${interestYears.toFixed(0)} Years</p>
+<p><strong>Monthly Principal (Phase 1):</strong> ₹ ${format(monthlyPrincipal)}</p>
+<p><strong>Total Accumulated Interest:</strong> ₹ ${format(totalInterest)}</p>
+<p><strong>Monthly Interest (Phase 2):</strong> ₹ ${format(monthlyInterestRecovery)}</p>
+`;
+
+document.getElementById("result").style.display="block";
+}
+
+</script>
+
+</body>
+</html>
