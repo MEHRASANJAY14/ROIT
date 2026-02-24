@@ -56,7 +56,7 @@ th{
 <script>
 
 const sheetID = "1P_fY12UDjVvFgO-cfHtFEqBhBIWYGMjyloCuSIF9eMs";
-const sheetName = "Sheet1";   // Agar sheet ka naam alag hai to yaha change karein
+const sheetName = "ecs-sheet";
 
 const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
@@ -71,7 +71,7 @@ fetch(url)
     const thead = document.querySelector("#data-table thead");
     const tbody = document.querySelector("#data-table tbody");
 
-    // Header
+    // HEADER
     let header = "<tr>";
     cols.forEach(col=>{
         header += `<th>${col.label}</th>`;
@@ -79,7 +79,7 @@ fetch(url)
     header += "</tr>";
     thead.innerHTML = header;
 
-    // Data
+    // DATA
     rows.forEach(row=>{
         if(!row.c) return;
 
@@ -96,6 +96,9 @@ fetch(url)
         tbody.innerHTML += tr;
     });
 
+})
+.catch(error=>{
+    document.body.innerHTML += "<p style='color:red;text-align:center;'>⚠ Data load nahi ho raha. Sheet public karein.</p>";
 });
 
 </script>
