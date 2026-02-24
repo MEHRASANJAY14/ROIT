@@ -46,11 +46,16 @@ button{
   margin-bottom:10px;
 }
 
+.table-wrapper{
+  overflow-x:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
   margin-top:15px;
   font-size:12px;
+  min-width:900px;
 }
 
 th,td{
@@ -62,6 +67,8 @@ th,td{
 th{
   background:#006400;
   color:white;
+  position:sticky;
+  top:0;
 }
 
 .result{
@@ -88,7 +95,9 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 
 <div class="result" id="summary" style="display:none;"></div>
 
+<div class="table-wrapper">
 <table id="schedule"></table>
+</div>
 
 </div>
 
@@ -100,8 +109,8 @@ function format(n){
 
 function calculateStaff(){
 
-let P=parseFloat(document.getElementById("amount").value);
-let totalMonths=parseInt(document.getElementById("tenure").value);
+let P=parseFloat(amount.value);
+let totalMonths=parseInt(tenure.value);
 
 if(!P||!totalMonths){
   alert("Fill all fields");
@@ -129,17 +138,15 @@ let slab1InterestTotal=0;
 let slab2InterestTotal=0;
 
 let table=document.getElementById("schedule");
-
-/* CLEAR TABLE */
 table.innerHTML="";
 
-/* HEADER ROW */
+/* HEADER */
 let headerRow=table.insertRow();
 headerRow.innerHTML=
 "<th>Month</th>"+
-"<th>Principal Repayment</th>"+
-"<th>Interest (Slab1 + Slab2)</th>"+
-"<th>Outstanding</th>";
+"<th>Principal</th>"+
+"<th>Interest (5.5% Slab + 6% Slab)</th>"+
+"<th>Outstanding (Principal + Interest)</th>";
 
 /* -------- Phase 1 -------- */
 
@@ -170,10 +177,8 @@ for(let i=1;i<=principalMonths;i++){
 
   row.insertCell(0).innerText=i;
   row.insertCell(1).innerText=format(monthlyPrincipal);
-  row.insertCell(2).innerText=
-    format(interest1)+" + "+format(interest2)+" = "+format(totalInterestMonth);
-  row.insertCell(3).innerText=
-    "P: "+format(principalOutstanding)+" | I: "+format(accumulatedInterest)+" | T: "+format(totalOutstanding);
+  row.insertCell(2).innerText=format(totalInterestMonth);
+  row.insertCell(3).innerText=format(totalOutstanding);
 }
 
 /* -------- Phase 2 -------- */
@@ -190,8 +195,7 @@ for(let i=1;i<=interestMonths;i++){
   row.insertCell(0).innerText=principalMonths+i;
   row.insertCell(1).innerText="0";
   row.insertCell(2).innerText=format(monthlyInterestRecovery);
-  row.insertCell(3).innerText=
-    "P: 0 | I: "+format(remainingInterest>0?remainingInterest:0)+" | T: "+format(remainingInterest>0?remainingInterest:0);
+  row.insertCell(3).innerText=format(remainingInterest>0?remainingInterest:0);
 }
 
 /* -------- Summary -------- */
