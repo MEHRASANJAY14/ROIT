@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPGB 2026 Smart Calendar</title>
+
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f9;}
+.header{background:#006400;color:white;padding:15px;text-align:center;}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:10px;}
+.day,.date{background:white;padding:10px;text-align:center;border-radius:6px;cursor:pointer;}
+.day{background:#006400;color:white;font-weight:bold;}
+.holiday{background:#ffcccc !important;color:red;font-weight:bold;}
+.extra{background:#ffd700 !important;color:black;font-weight:bold;}
+.today{border:2px solid blue;}
+select,button{padding:8px;margin:5px;}
+.reminder-box{padding:10px;text-align:center;}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>MPGB Holiday Calendar 2026</h2>
+<p>Sunday + 2nd & 4th Saturday + Additional Holidays</p>
+</div>
+
+<center>
+<select id="month"></select>
+<button onclick="requestNotification()">Enable Reminder</button>
+</center>
+
+<div class="calendar" id="calendar"></div>
+
+<div class="reminder-box">
+<h3 id="selectedDate"></h3>
+<button onclick="setReminder()">Set Reminder</button>
+</div>
+
+<script>
+
+const year = 2026;
+const calendar = document.getElementById("calendar");
+const monthSelect = document.getElementById("month");
+const selectedDateText = document.getElementById("selectedDate");
+
+const months=["January","February","March","April","May","June",
+"July","August","September","October","November","December"];
+
+months.forEach((m,i)=>{
+    monthSelect.innerHTML+=`<option value="${i}">${m}</option>`;
+});
+
+monthSelect.onchange=generateCalendar;
+monthSelect.value=new Date().getMonth();
+
+let selectedDate=null;
+
+const holidayNames={
+"2026-01-26":"Republic Day",
+"2026-03-03":"Holi",
+"2026-03-21":"Eid-ul-Fitr",
+"2026-03-27":"Ram Navami",
+"2026-03-31":"Mahavir Jayanti",
+"2026-04-01":"Bank Closing",
+"2026-04-03":"Good Friday",
+"2026-05-01":"Labour Day",
+"2026-05-27":"Buddha Purnima",
+"2026-06-26":"Moharram",
+"2026-08-15":"Independence Day",
+"2026-08-26":"Milad-un-Nabi",
+"2026-08-28":"Raksha Bandhan",
+"2026-09-04":"Janmashtami",
+"2026-10-02":"Gandhi Jayanti",
+"2026-10-20":"Dussehra",
+"2026-11-09":"Diwali",
+"2026-11-24":"Guru Nanak Jayanti",
+"2026-12-25":"Christmas"
+};
+
+function generateCalendar(){
+
+calendar.innerHTML="";
+const month=parseInt(monthSelect.value);
+const firstDay=new Date(year,month,1).getDay();
+const lastDate=new Date(year,month+1,0).getDate();
+
+const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+days.forEach(d=>calendar.innerHTML+=`<div class="day">${d}</div>`);
+
+for(let i=0;i<firstDay;i++){calendar.innerHTML+=`<div></div>`;}
+
+let saturdayCount=0;
+
+for(let date=1;date<=lastDate;date++){
+
+let current=new Date(year,month,date);
+let day=current.getDay();
+let className="date";
+let formatted=year+"-"+String(month+1).padStart(2,'0')+"-"+String(date).padStart(2,'0');
+
+if(day===0){className+=" holiday";}
+if(day===6){
+saturdayCount++;
+if(saturdayCount===2||saturdayCount===4){className+=" holiday";}
+}
+
+if(holidayNames[formatted]){className+=" extra";}
+
+calendar.innerHTML+=`<div class="${className}" 
+title="${holidayNames[formatted] || ''}"
+onclick="selectDate('${formatted}')">${date}</div>`;
+}
+}
+
+function selectDate(date){
+selectedDate=date;
+selectedDateText.innerHTML="Selected Date: "+date;
+}
+
+function requestNotification(){
+if(Notification.permission!=="granted"){
+Notification.requestPermission();
+alert("Notification Permission Granted");
+}
+}
+
+function setReminder(){
+if(!selectedDate){alert("Please select a date first");return;}
+localStorage.setItem("reminderDate",selectedDate);
+alert("Reminder set for "+selectedDate);
+}
+
+function checkReminder(){
+let today=new Date();
+let formatted=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,'0')+"-"+String(today.getDate()).padStart(2,'0');
+let reminder=localStorage.getItem("reminderDate");
+
+if(reminder===formatted){
+if(Notification.permission==="granted"){
+new Notification("MPGB Holiday Reminder Today!");
+}
+alert("Reminder: Today is marked date!");
+}
+}
+
+generateCalendar();
+checkReminder();
+
+</script>
+
+</body>
+</html>
