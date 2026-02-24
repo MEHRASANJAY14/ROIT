@@ -15,8 +15,8 @@ body{
 h2{
     text-align:center;
     color:#0a5c36;
-    font-size:15px;
-    margin-bottom:6px;
+    font-size:16px;
+    margin-bottom:8px;
 }
 
 .table-container{
@@ -28,13 +28,13 @@ h2{
 table{
     border-collapse:collapse;
     width:100%;
-    font-size:11px;
+    font-size:12px;
     background:white;
 }
 
 th, td{
     border:1px solid #d0e7db;
-    padding:3px 5px;
+    padding:5px 6px;
 }
 
 th{
@@ -46,28 +46,25 @@ th{
     text-align:center;
 }
 
-/* Default center */
+/* Default center for numbers */
 td{
     text-align:center;
 }
 
-/* SOL DESC column wrap */
+/* SOL DESC full readable */
 td:nth-child(2){
     text-align:left;
-    white-space:normal;
-    max-width:120px;
-    word-break:break-word;
+    min-width:180px;
+    font-weight:500;
 }
 
-/* BM NAME column wrap */
+/* BM NAME full readable */
 td:last-child{
     text-align:left;
-    white-space:normal;
-    max-width:120px;
-    word-break:break-word;
+    min-width:170px;
 }
 
-/* Alternate row light green */
+/* Alternate row color */
 tr:nth-child(even){
     background:#f3fbf7;
 }
@@ -105,7 +102,6 @@ fetch(url)
     const cols = json.table.cols;
     const rows = json.table.rows;
 
-    // Compact Column Names
     const shortNames = {
         "Sol Id":"SOL",
         "SOL DESC":"BRANCH",
@@ -131,7 +127,6 @@ fetch(url)
     let bodyHTML = "";
 
     rows.forEach(row=>{
-
         if(!row.c) return;
 
         let firstCell = row.c[0]?.v || "";
