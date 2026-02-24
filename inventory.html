@@ -152,13 +152,11 @@ button{
 
 <script>
 
-const API_URL="PASTE_YOUR_NEW_EXEC_URL_HERE";
+const API_URL="PASTE_YOUR_EXEC_URL_HERE";
 
-// Auto Entry Date
 document.getElementById("entryDate").value =
   new Date().toLocaleString("en-IN");
 
-// Load Branch
 function loadBranches(){
   fetch(API_URL+"?type=branches")
   .then(res=>res.json())
@@ -176,13 +174,11 @@ function loadBranches(){
 
 document.getElementById("branch").addEventListener("change",function(){
   const text=this.options[this.selectedIndex].text;
-  document.getElementById("solid").value=this.value;
-  document.getElementById("solname").value=text.includes(" - ")
-    ? text.split(" - ")[1] : "";
+  solid.value=this.value;
+  solname.value=text.split(" - ")[1];
 });
 
-// Save
-function saveData(){
+function submitForm(){
 
   if(!branch.value) return alert("Select Branch");
   if(!asset.value) return alert("Select Hardware Type");
@@ -190,35 +186,21 @@ function saveData(){
   if(!status.value) return alert("Select Status");
   if(!windows.value) return alert("Select Windows Activated Status");
 
-  const formData=new FormData();
+  f_solid.value=solid.value;
+  f_solname.value=solname.value;
+  f_asset.value=asset.value;
+  f_brand.value=brand.value;
+  f_model.value=model.value;
+  f_serial.value=serial.value;
+  f_assigned.value=assigned.value;
+  f_critical.value=critical.value;
+  f_status.value=status.value;
+  f_windows.value=windows.value;
 
-  formData.append("solid",solid.value);
-  formData.append("solname",solname.value);
-  formData.append("asset",asset.value);
-  formData.append("brand",brand.value);
-  formData.append("model",model.value);
-  formData.append("serial",serial.value.trim());
-  formData.append("assigned",assigned.value);
-  formData.append("critical",critical.value);
-  formData.append("status",status.value);
-  formData.append("windows",windows.value);
+  document.getElementById("inventoryForm").submit();
 
-  fetch(API_URL,{
-    method:"POST",
-    body:formData
-  })
-  .then(res=>res.text())
-  .then(res=>{
-    if(res==="success"){
-      alert("Hardware Asset Saved Successfully");
-      location.reload();
-    }else{
-      alert("Server Error: "+res);
-    }
-  })
-  .catch(err=>{
-    alert("Network Error: "+err);
-  });
+  alert("Hardware Asset Saved Successfully");
+  location.reload();
 }
 
 loadBranches();
@@ -227,4 +209,3 @@ loadBranches();
 
 </body>
 </html>
-
