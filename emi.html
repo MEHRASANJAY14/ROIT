@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMI Calculator - MPGB RO Jabalpur</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',Arial;
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+}
+
+.header{
+  background:#006400;
+  color:white;
+  text-align:center;
+  padding:20px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.container{
+  max-width:600px;
+  margin:40px auto;
+  background:white;
+  padding:30px;
+  border-radius:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+h2{
+  text-align:center;
+  color:#006400;
+  margin-bottom:20px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border:1px solid #ccc;
+  border-radius:6px;
+  font-size:14px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#006400;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:hover{
+  background:#004d00;
+}
+
+.result{
+  margin-top:25px;
+  background:#f1f8f4;
+  padding:15px;
+  border-radius:10px;
+  font-size:14px;
+}
+
+.result h3{
+  margin-top:0;
+  color:#006400;
+}
+
+.back{
+  display:block;
+  text-align:center;
+  margin-top:20px;
+  text-decoration:none;
+  color:#006400;
+  font-weight:bold;
+}
+
+.footer{
+  margin-top:40px;
+  text-align:center;
+  font-size:12px;
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+MPGB RO Jabalpur - EMI Calculator
+</div>
+
+<div class="container">
+
+<h2>Loan EMI Calculator</h2>
+
+<input type="number" id="amount" placeholder="Loan Amount (₹)">
+<input type="number" id="rate" placeholder="Annual Interest Rate (%)">
+<input type="number" id="tenure" placeholder="Loan Tenure (Years)">
+
+<button onclick="calculateEMI()">Calculate EMI</button>
+
+<div class="result" id="result" style="display:none;">
+<h3>Calculation Result</h3>
+<p><strong>Monthly EMI:</strong> ₹ <span id="emi"></span></p>
+<p><strong>Total Interest:</strong> ₹ <span id="interest"></span></p>
+<p><strong>Total Payment:</strong> ₹ <span id="total"></span></p>
+</div>
+
+<a href="index.html" class="back">⬅ Back to Dashboard</a>
+
+</div>
+
+<div class="footer">
+© Madhya Pradesh Gramin Bank | RO Jabalpur
+</div>
+
+<script>
+
+function formatNumber(num){
+  return num.toLocaleString("en-IN",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+function calculateEMI(){
+
+  let P = parseFloat(document.getElementById("amount").value);
+  let annualRate = parseFloat(document.getElementById("rate").value);
+  let years = parseFloat(document.getElementById("tenure").value);
+
+  if(!P || !annualRate || !years){
+    alert("Please fill all fields correctly");
+    return;
+  }
+
+  let r = annualRate / 12 / 100;
+  let n = years * 12;
+
+  let EMI = (P * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
+
+  let totalPayment = EMI * n;
+  let totalInterest = totalPayment - P;
+
+  document.getElementById("emi").innerText = formatNumber(EMI);
+  document.getElementById("interest").innerText = formatNumber(totalInterest);
+  document.getElementById("total").innerText = formatNumber(totalPayment);
+
+  document.getElementById("result").style.display="block";
+}
+
+</script>
+
+</body>
+</html>
