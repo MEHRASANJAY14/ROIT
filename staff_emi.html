@@ -29,22 +29,12 @@ body{
   box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
 
-h2{
-  text-align:center;
-  color:#006400;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:10px;
-}
-
 input{
   padding:8px;
   width:100%;
   border:1px solid #ccc;
   border-radius:6px;
+  margin-bottom:10px;
 }
 
 button{
@@ -56,15 +46,6 @@ button{
   font-weight:bold;
   cursor:pointer;
   margin-top:10px;
-}
-
-button:hover{background:#004d00;}
-
-.result{
-  margin-top:20px;
-  background:#f1f8f4;
-  padding:15px;
-  border-radius:8px;
 }
 
 table{
@@ -85,19 +66,11 @@ th{
   color:white;
 }
 
-.back{
-  display:block;
-  text-align:center;
+.result{
   margin-top:20px;
-  text-decoration:none;
-  color:#006400;
-  font-weight:bold;
-}
-
-@media print {
-  button,.back{display:none}
-  body{background:white}
-  .container{box-shadow:none;margin:0}
+  background:#f1f8f4;
+  padding:15px;
+  border-radius:8px;
 }
 </style>
 </head>
@@ -105,33 +78,23 @@ th{
 <body>
 
 <div class="header">
-MPGB RO Jabalpur - Staff Loan EMI (2:1 Simple Reducing)
+MPGB RO Jabalpur - Staff Loan EMI (Tier Based Interest)
 </div>
 
 <div class="container">
 
-<h2>Staff Loan Calculator</h2>
+<h2>Staff Loan Calculator (3:1 Ratio)</h2>
 
-<div class="grid">
 <input type="number" id="amount" placeholder="Loan Amount (₹)">
-<input type="number" id="rate" placeholder="Annual Interest Rate (%)">
-<input type="number" id="tenure" placeholder="Tenure (Years)">
-</div>
+<input type="number" id="tenure" placeholder="Tenure (Months)">
 
 <button onclick="calculateStaff()">Calculate</button>
-<button onclick="window.print()">Print</button>
-<button onclick="downloadPDF()">Download PDF</button>
 
 <div class="result" id="summary" style="display:none;"></div>
 
-<h3 style="color:#006400;">Monthly Amortization Schedule</h3>
 <table id="schedule"></table>
 
-<a href="emi.html" class="back">⬅ Back to Normal EMI</a>
-
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 
@@ -139,43 +102,56 @@ function format(n){
   return n.toLocaleString("en-IN",{maximumFractionDigits:2});
 }
 
-let savedData={};
-
 function calculateStaff(){
 
 let P=parseFloat(amount.value);
-let annual=parseFloat(rate.value);
-let years=parseFloat(tenure.value);
+let totalMonths=parseInt(tenure.value);
 
-if(!P||!annual||!years){
+if(!P||!totalMonths){
   alert("Fill all fields");
   return;
 }
 
-let principalYears=(2/3)*years;
-let interestYears=(1/3)*years;
+/* 3:1 Ratio */
+let principalMonths=Math.round((3/4)*totalMonths);
+let interestMonths=totalMonths-principalMonths;
 
-let principalMonths=Math.round(principalYears*12);
-let interestMonths=Math.round(interestYears*12);
+/* Split Principal */
+let slab1 = Math.min(P,4000000);
+let slab2 = P>4000000 ? P-4000000 : 0;
+
+let balance1=slab1;
+let balance2=slab2;
 
 let monthlyPrincipal=P/principalMonths;
-let r=annual/12/100;
 
-let balance=P;
+/* Monthly interest rates */
+let r1=5.5/12/100;
+let r2=6/12/100;
+
 let accumulatedInterest=0;
 
 let table=document.getElementById("schedule");
-table.innerHTML="<tr><th>Month</th><th>Principal Repayment</th><th>Interest Repayment</th><th>Outstanding (Principal + Accrued Interest)</th></tr>";
+table.innerHTML="<tr><th>Month</th><th>Principal</th><th>Interest</th><th>Outstanding</th></tr>";
 
-/* Phase 1 – Principal Repayment */
+/* Phase 1 */
 for(let i=1;i<=principalMonths;i++){
 
-  let interest=balance*r;
-  accumulatedInterest+=interest;
+  /* Proportionally reduce both slabs */
+  let reductionRatio = monthlyPrincipal / P;
 
-  balance-=monthlyPrincipal;
+  let principal1 = balance1 * reductionRatio;
+  let principal2 = balance2 * reductionRatio;
 
-  let outstanding=balance+accumulatedInterest;
+  let interest = (balance1*r1)+(balance2*r2);
+
+  accumulatedInterest += interest;
+
+  balance1 -= principal1;
+  balance2 -= principal2;
+
+  let totalBalance = balance1 + balance2;
+  let outstanding = totalBalance + accumulatedInterest;
 
   table.innerHTML+=`<tr>
   <td>${i}</td>
@@ -185,14 +161,13 @@ for(let i=1;i<=principalMonths;i++){
   </tr>`;
 }
 
-/* Phase 2 – Interest Repayment */
-
+/* Phase 2 */
 let monthlyInterestRecovery=accumulatedInterest/interestMonths;
 let remainingInterest=accumulatedInterest;
 
 for(let i=1;i<=interestMonths;i++){
 
-  remainingInterest-=monthlyInterestRecovery;
+  remainingInterest -= monthlyInterestRecovery;
 
   table.innerHTML+=`<tr>
   <td>${principalMonths+i}</td>
@@ -202,52 +177,16 @@ for(let i=1;i<=interestMonths;i++){
   </tr>`;
 }
 
+/* Summary */
 document.getElementById("summary").innerHTML=`
 <h3>Summary</h3>
-<p><strong>Principal Phase:</strong> ${principalYears.toFixed(0)} Years</p>
-<p><strong>Interest Phase:</strong> ${interestYears.toFixed(0)} Years</p>
-<p><strong>Monthly Principal (Phase 1):</strong> ₹ ${format(monthlyPrincipal)}</p>
+<p><strong>Slab 1:</strong> ₹ ${format(slab1)} @ 5.5%</p>
+<p><strong>Slab 2:</strong> ₹ ${format(slab2)} @ 6%</p>
 <p><strong>Total Accumulated Interest:</strong> ₹ ${format(accumulatedInterest)}</p>
-<p><strong>Monthly Interest Recovery (Phase 2):</strong> ₹ ${format(monthlyInterestRecovery)}</p>
 <p><strong>Total Payment:</strong> ₹ ${format(P+accumulatedInterest)}</p>
 `;
 
 document.getElementById("summary").style.display="block";
-
-savedData={
-  P,annual,years,principalYears,interestYears,
-  monthlyPrincipal,accumulatedInterest,monthlyInterestRecovery
-};
-
-}
-
-async function downloadPDF(){
-
-if(!savedData.P){
-  alert("Please calculate first");
-  return;
-}
-
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-
-doc.setFontSize(14);
-doc.text("Madhya Pradesh Gramin Bank",20,20);
-doc.text("RO Jabalpur - Staff Loan EMI Report",20,30);
-
-doc.setFontSize(11);
-let y=45;
-
-doc.text("Loan Amount: ₹ "+format(savedData.P),20,y); y+=8;
-doc.text("Interest Rate: "+savedData.annual+" %",20,y); y+=8;
-doc.text("Tenure: "+savedData.years+" Years",20,y); y+=10;
-
-doc.text("Principal Phase: "+savedData.principalYears.toFixed(0)+" Years",20,y); y+=8;
-doc.text("Interest Phase: "+savedData.interestYears.toFixed(0)+" Years",20,y); y+=8;
-doc.text("Total Accumulated Interest: ₹ "+format(savedData.accumulatedInterest),20,y); y+=8;
-doc.text("Total Payment: ₹ "+format(savedData.P+savedData.accumulatedInterest),20,y);
-
-doc.save("MPGB_Staff_Loan_EMI_Report.pdf");
 
 }
 
