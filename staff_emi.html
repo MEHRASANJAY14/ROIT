@@ -15,50 +15,50 @@ body{
   background:#006400;
   color:white;
   text-align:center;
-  padding:14px;
-  font-size:18px;
+  padding:10px;
+  font-size:16px;
   font-weight:bold;
 }
 
 .container{
-  max-width:1300px;
-  margin:20px auto;
+  max-width:1100px;
+  margin:15px auto;
   background:white;
-  padding:20px;
-  border-radius:8px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+  padding:12px;
+  border-radius:6px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.08);
 }
 
 input{
-  padding:7px;
+  padding:5px;
   width:100%;
-  margin-bottom:8px;
+  margin-bottom:6px;
   border:1px solid #ccc;
-  border-radius:4px;
-  font-size:13px;
+  border-radius:3px;
+  font-size:12px;
 }
 
 button{
   background:#006400;
   color:white;
   border:none;
-  padding:7px 12px;
-  border-radius:4px;
+  padding:5px 8px;
+  border-radius:3px;
   cursor:pointer;
-  font-size:13px;
-  margin-right:6px;
+  font-size:11px;
+  margin-right:4px;
 }
 
 button:hover{background:#004d00;}
 
 .result{
-  margin-top:15px;
-  margin-bottom:18px;
+  margin-top:8px;
+  margin-bottom:10px;
   background:#eef9f1;
-  padding:15px;
-  border-radius:6px;
-  font-size:13px;
-  line-height:1.6em;
+  padding:8px;
+  border-radius:4px;
+  font-size:11px;
+  line-height:1.4em;
 }
 
 .table-wrapper{
@@ -68,22 +68,22 @@ button:hover{background:#004d00;}
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:11px;
-  min-width:1100px;
+  font-size:9.5px;  /* Very compact */
+  min-width:900px;
 }
 
 th,td{
   border:1px solid #ddd;
-  padding:4px 5px;
+  padding:2px 3px;   /* Compact */
   text-align:center;
 }
 
 th{
   background:#006400;
   color:white;
+  font-size:9.5px;
   position:sticky;
   top:0;
-  font-size:11px;
 }
 
 @media print{
@@ -149,8 +149,8 @@ let r1=5.5/12/100;
 let r2=6/12/100;
 
 let accumulatedInterest=0;
-let principalPhaseInterest=0;
-let interestPhaseInterest=0;
+let slab1InterestTotal=0;
+let slab2InterestTotal=0;
 
 let table=document.getElementById("schedule");
 table.innerHTML="";
@@ -158,14 +158,14 @@ table.innerHTML="";
 /* Header */
 let headerRow=table.insertRow();
 headerRow.innerHTML=
-"<th>Month</th>"+
-"<th>Principal EMI</th>"+
-"<th>5.5% Interest</th>"+
-"<th>6% Interest</th>"+
-"<th>Total Interest</th>"+
+"<th>M</th>"+
+"<th>Prin EMI</th>"+
+"<th>5.5%</th>"+
+"<th>6%</th>"+
+"<th>Total Int</th>"+
 "<th>Outstanding</th>";
 
-/* -------- Phase 1 -------- */
+/* Phase 1 */
 
 for(let i=1;i<=principalMonths;i++){
 
@@ -179,7 +179,8 @@ for(let i=1;i<=principalMonths;i++){
 
   let totalInterestMonth = interest1 + interest2;
 
-  principalPhaseInterest += totalInterestMonth;
+  slab1InterestTotal += interest1;
+  slab2InterestTotal += interest2;
   accumulatedInterest += totalInterestMonth;
 
   balance1 -= principal1;
@@ -197,7 +198,7 @@ for(let i=1;i<=principalMonths;i++){
   row.insertCell(5).innerText=format(totalOutstanding);
 }
 
-/* -------- Phase 2 -------- */
+/* Phase 2 */
 
 let monthlyInterestRecovery=accumulatedInterest/interestMonths;
 let remainingInterest=accumulatedInterest;
@@ -205,7 +206,6 @@ let remainingInterest=accumulatedInterest;
 for(let i=1;i<=interestMonths;i++){
 
   remainingInterest-=monthlyInterestRecovery;
-  interestPhaseInterest+=monthlyInterestRecovery;
 
   let row=table.insertRow();
 
@@ -217,18 +217,21 @@ for(let i=1;i<=interestMonths;i++){
   row.insertCell(5).innerText=format(remainingInterest);
 }
 
-/* -------- Summary -------- */
+/* Summary */
 
 document.getElementById("summary").innerHTML=
 "<b>Loan Amount:</b> "+format(P)+"<br>"+
 "<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
 "<b>Principal Phase:</b> "+principalMonths+" Months<br>"+
 "<b>Interest Phase:</b> "+interestMonths+" Months<br><hr>"+
+
 "<b>Monthly Principal EMI:</b> "+format(monthlyPrincipal)+"<br>"+
 "<b>Monthly Interest EMI:</b> "+format(monthlyInterestRecovery)+"<br><hr>"+
-"<b>Principal Phase Interest:</b> "+format(principalPhaseInterest)+"<br>"+
-"<b>Interest Phase Recovery:</b> "+format(interestPhaseInterest)+"<br>"+
-"<b>Grand Total Interest:</b> "+format(accumulatedInterest)+"<br>"+
+
+"<b>5.5% Interest Total:</b> "+format(slab1InterestTotal)+"<br>"+
+"<b>6% Interest Total:</b> "+format(slab2InterestTotal)+"<br><hr>"+
+
+"<b>Total Interest:</b> "+format(accumulatedInterest)+"<br>"+
 "<b>Total Payment:</b> "+format(P+accumulatedInterest);
 
 document.getElementById("summary").style.display="block";
