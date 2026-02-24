@@ -146,15 +146,29 @@ function loadBranches(){
   });
 }
 
-document.addEventListener("change",function(e){
-  if(e.target.id=="branch"){
-    const text=e.target.options[e.target.selectedIndex].text;
-    document.getElementById("solid").value=e.target.value;
-    document.getElementById("solname").value=text.split(" - ")[1];
-  }
+document.getElementById("branch").addEventListener("change",function(){
+
+  const text=this.options[this.selectedIndex].text;
+
+  document.getElementById("solid").value=this.value;
+  document.getElementById("solname").value=text.includes(" - ") 
+    ? text.split(" - ")[1] 
+    : "";
 });
 
 function saveData(){
+
+  const branch=document.getElementById("branch");
+  const asset=document.getElementById("asset");
+  const serial=document.getElementById("serial");
+  const status=document.getElementById("status");
+  const windows=document.getElementById("windows");
+  const solid=document.getElementById("solid");
+  const solname=document.getElementById("solname");
+  const brand=document.getElementById("brand");
+  const model=document.getElementById("model");
+  const assigned=document.getElementById("assigned");
+  const critical=document.getElementById("critical");
 
   if(!branch.value){
     alert("Select Branch");
@@ -166,7 +180,7 @@ function saveData(){
     return;
   }
 
-  if(!serial.value){
+  if(!serial.value.trim()){
     alert("Serial Number Mandatory");
     return;
   }
@@ -187,7 +201,7 @@ function saveData(){
     asset:asset.value,
     brand:brand.value,
     model:model.value,
-    serial:serial.value,
+    serial:serial.value.trim(),
     assigned:assigned.value,
     critical:critical.value,
     ip:"",
@@ -200,6 +214,9 @@ function saveData(){
 
   fetch(API_URL,{
     method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
     body:JSON.stringify(data)
   })
   .then(res=>res.json())
@@ -211,6 +228,9 @@ function saveData(){
     status.value="";
     windows.value="";
     branch.value="";
+  })
+  .catch(()=>{
+    alert("Error Saving Data");
   });
 }
 
@@ -220,3 +240,4 @@ loadBranches();
 
 </body>
 </html>
+
