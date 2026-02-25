@@ -13,7 +13,7 @@ padding:20px;
 }
 
 .container{
-max-width:900px;
+max-width:1000px;
 background:#ffffff;
 padding:30px;
 margin:auto;
@@ -24,11 +24,12 @@ box-shadow:0 15px 40px rgba(0,0,0,0.3);
 h2{
 text-align:center;
 color:#003300;
+margin-bottom:20px;
 }
 
 .form-grid{
 display:grid;
-grid-template-columns: 1fr 1fr;
+grid-template-columns:1fr 1fr;
 gap:15px;
 }
 
@@ -41,6 +42,218 @@ label{
 font-weight:bold;
 margin-bottom:5px;
 }
+
+input,select{
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#003300;
+color:white;
+border:none;
+border-radius:10px;
+margin-top:20px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{background:#001a00;}
+
+#resultSection{
+margin-top:30px;
+display:none;
+}
+
+.summary-box{
+border:2px solid #003300;
+padding:15px;
+background:#f9fff9;
+margin-bottom:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+font-size:13px;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:6px;
+text-align:center;
+}
+
+th{
+background:#003300;
+color:white;
+}
+
+.print-btn{
+background:#006600;
+margin-top:15px;
+}
+
+@media print{
+body{background:white;padding:0;}
+form, button{display:none;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🏦 HOME LOAN ELIGIBILITY & EMI AMORTIZATION</h2>
+
+<form id="loanForm">
+
+<div class="form-grid">
+
+<div class="form-group">
+<label>Applicant Name</label>
+<input type="text" id="name" required>
+</div>
+
+<div class="form-group">
+<label>Employment Type</label>
+<select id="employment" required>
+<option value="">Select</option>
+<option>Salaried</option>
+<option>Business</option>
+<option>Professional</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Loan Purpose</label>
+<select id="purpose" required>
+<option value="">Select</option>
+<option>Purchase</option>
+<option>Construction</option>
+<option>Top-Up</option>
+<option>Repair/Renovation</option>
+<option>Extension</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Monthly Gross Income (₹)</label>
+<input type="number" id="income" required>
+</div>
+
+<div class="form-group">
+<label>Existing EMI (₹)</label>
+<input type="number" id="existingEmi" required>
+</div>
+
+<div class="form-group">
+<label>Interest Rate (%)</label>
+<input type="number" id="roi" required>
+</div>
+
+<div class="form-group">
+<label>Requested Tenure (Years)</label>
+<input type="number" id="tenure" required>
+</div>
+
+<div class="form-group">
+<label>Applicant Age</label>
+<input type="number" id="age" required>
+</div>
+
+<div class="form-group">
+<label>Property Value (₹)</label>
+<input type="number" id="property" required>
+</div>
+
+<div class="form-group">
+<label>CIBIL Score</label>
+<input type="number" id="cibil" min="300" max="900" required>
+</div>
+
+</div>
+
+<button type="submit">Generate Eligibility & Schedule</button>
+
+</form>
+
+<div id="resultSection">
+
+<div class="summary-box" id="summaryBox"></div>
+
+<h3>📊 EMI Amortization Schedule</h3>
+
+<table>
+<thead>
+<tr>
+<th>Month</th>
+<th>Opening</th>
+<th>EMI</th>
+<th>Interest</th>
+<th>Principal</th>
+<th>Closing</th>
+</tr>
+</thead>
+<tbody id="scheduleBody"></tbody>
+</table>
+
+<button class="print-btn" onclick="window.print()">Print Report</button>
+
+</div>
+
+</div>
+
+<script>
+document.getElementById("loanForm").addEventListener("submit", function(e){
+
+e.preventDefault();
+
+let incomeVal = Number(document.getElementById("income").value);
+let existingEmiVal = Number(document.getElementById("existingEmi").value);
+let rateVal = Number(document.getElementById("roi").value);
+let tenureYearsVal = Number(document.getElementById("tenure").value);
+let ageVal = Number(document.getElementById("age").value);
+let propertyVal = Number(document.getElementById("property").value);
+let cibilVal = Number(document.getElementById("cibil").value);
+
+// CIBIL Check
+if(cibilVal < 650){
+alert("Not Eligible – CIBIL below 650");
+return;
+}
+
+// Age Check
+let retirementAge = 60;
+let maxTenure = retirementAge - ageVal;
+if(maxTenure <= 0){
+alert("Age beyond retirement");
+return;
+}
+
+let finalTenureYears = Math.min(tenureYearsVal, maxTenure, 30);
+let months = finalTenureYears * 12;
+
+// NTHP Rule
+let nthp = incomeVal <= 100000 ? 0.40 :
+incomeVal <= 500000 ? 0.30 : 0.25;
+
+let eligibleEmi = (incomeVal * nthp) - existingEmiVal;
+
+if(eligibleEmi <= 10000){
+alert("Minimum ₹10,000 balance not maintained");
+return;
+}
+
+// CIBIL Concession
+let finalRate = rateVal;
+if(cibilVal >= 800) finalRate -= 0.50;
+else if(cibilVal >= 725}
 
 input,select{
 padding:10px;
