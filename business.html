@@ -191,14 +191,18 @@ const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSn
 
 function growthClass(value, section){
 
-  let v = Number(value);
+  if(!value) return "";
+
+  // 🔥 Clean value (remove commas, % and spaces)
+  let clean = value.toString().replace(/,/g,"").replace("%","").trim();
+  let v = parseFloat(clean);
 
   if(isNaN(v)) return "";
 
-  // 🔥 NPA logic reverse
+  // 🔥 NPA reverse logic
   if(section.trim().toUpperCase() === "NPA"){
-      if(v < 0) return "positive";   // Negative is GOOD
-      if(v > 0) return "negative";   // Positive is BAD
+      if(v < 0) return "positive";   // Negative = GOOD
+      if(v > 0) return "negative";
   } 
   else {
       if(v > 0) return "positive";
@@ -270,7 +274,7 @@ function renderSection(title,start,row,headers){
         </tr>
         <tr>
           ${d.map((v,i)=>
-            `<td class="${i>=4 ? growthClass(v, title) : ''}">${v}</td>`
+            <td class="${i>=4 ? growthClass(v, title) : ''}">${v}</td>
           ).join("")}
         </tr>
       </table>
@@ -321,6 +325,7 @@ loadBranches();
 
 </body>
 </html>
+
 
 
 
