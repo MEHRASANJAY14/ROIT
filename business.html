@@ -1,4 +1,4 @@
-<!DOCTYPE html<!DOCTYPE html>
+<!DOCTYPE html<!DOCTYPE html> <html> <head> <meta name="viewport" content="width=device-width, initial-scale=1"> <title>RO Jabalpur Business Dashboard</title> <style> *{box-sizing:border-box} body{ margin:0; font-family:Segoe UI, Arial; background:#f4f6f8; } .topbar{ background:#006400; color:white; text-align:center; padding:10px; font-size:15px; font-weight:bold; } .container{padding:8px;} select{ width:100%; padding:6px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc; font-size:12px; } /* Branch Info */ .branch-card{ background:white; padding:6px; margin-bottom:10px; border-radius:6px; box-shadow:0 1px 6px rgba(0,0,0,0.1); text-align:center; font-weight:bold; color:#006400; font-size:12px; } /* Summary */ .summary{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:6px; margin-bottom:10px; } .summary-card{ background:white; padding:6px; border-radius:6px; box-shadow:0 1px 6px rgba(0,0,0,0.1); text-align:center; } .summary-card h4{ margin:0; font-size:11px; color:#555; } .summary-card h2{ margin:3px 0 0 0; color:#006400; font-size:14px; } /* Section */ .section{ background:white; padding:6px; margin-bottom:10px; border-radius:6px; box-shadow:0 1px 6px rgba(0,0,0,0.1); } .section-title{ background:#006400; color:white; padding:4px; text-align:center; font-weight:bold; border-radius:4px; margin-bottom:6px; font-size:12px; } .table-wrapper{ width:100%; overflow-x:auto; } table{ width:100%; border-collapse:collapse; min-width:480px; table-layout:fixed; } /* 🔥 Header */ th{ border:1px solid #ddd; background:#2e7d32; color:white; font-size:11px; padding:5px 2px; line-height:1.1; position:sticky; top:0; z-index:2; text-align:center; /* 🔥 horizontal center */ vertical-align:middle; /* 🔥 vertical center */ } td{ border:1px solid #ddd; padding:10px 3px; font-size:12px; font-weight:500; text-align:center; /* 🔥 horizontal center */ vertical-align:middle; /* 🔥 vertical center */ } /* 🔥 First 4 columns (date columns) */ table th:nth-child(-n+4), table td:nth-child(-n+4){ width:75px; } /* 🔥 FTD MTD YTD more compact */ table th:nth-child(n+5), table td:nth-child(n+5){ width:45px; /* 🔥 narrow growth columns */ } .header-date{ font-weight:bold; font-size:10px; display:inline-block; white-space:nowrap; } .positive{color:green;font-weight:bold} .negative{color:red;font-weight:bold} .footer{ text-align:center; padding:6px; font-size:11px; color:#555; } </style> </head> <body> <div class="topbar"> MADHYA PRADESH GRAMIN BANK RO JABALPUR BUSINESS DASHBOARD (₹ Lakhs) </div> <div class="container"> <select id="branch"> <option value="">Select Branch</option> </select> <div id="branchInfo"></div> <div id="summary"></div> <div id="dashboard"></div> </div> <div class="footer"> Powered by RO Jabalpur IT Cell </div> <script> const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec"; function growthClass(value,isNPA){ if(!value) return ""; let clean = value.toString().replace(/,/g,"").replace("%","").trim(); let v = parseFloat(clean); if(isNaN(v)) return ""; // 🔥 NPA reverse logic if(isNPA){ if(v < 0) return "positive<!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -6,160 +6,71 @@
 
 <style>
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Segoe UI, Arial;
-  background:#f4f6f8;
-}
-
-.topbar{
-  background:#006400;
-  color:white;
-  text-align:center;
-  padding:10px;
-  font-size:15px;
-  font-weight:bold;
-}
-
+body{margin:0;font-family:Segoe UI, Arial;background:#f4f6f8;}
+.topbar{background:#006400;color:white;text-align:center;padding:10px;font-size:15px;font-weight:bold;}
 .container{padding:8px;}
+select{width:100%;padding:6px;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;font-size:12px;}
 
-select{
-  width:100%;
-  padding:6px;
-  margin-bottom:10px;
-  border-radius:5px;
-  border:1px solid #ccc;
-  font-size:12px;
-}
-
-/* Branch Info */
 .branch-card{
-  background:white;
-  padding:6px;
-  margin-bottom:10px;
-  border-radius:6px;
+  background:white;padding:6px;margin-bottom:10px;border-radius:6px;
   box-shadow:0 1px 6px rgba(0,0,0,0.1);
-  text-align:center;
-  font-weight:bold;
-  color:#006400;
-  font-size:12px;
+  text-align:center;font-weight:bold;color:#006400;font-size:12px;
 }
 
-/* Summary */
 .summary{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-  gap:6px;
-  margin-bottom:10px;
+  gap:6px;margin-bottom:10px;
 }
 
 .summary-card{
-  background:white;
-  padding:6px;
-  border-radius:6px;
+  background:white;padding:6px;border-radius:6px;
   box-shadow:0 1px 6px rgba(0,0,0,0.1);
   text-align:center;
 }
 
-.summary-card h4{
-  margin:0;
-  font-size:11px;
-  color:#555;
-}
+.summary-card h4{margin:0;font-size:11px;color:#555;}
+.summary-card h2{margin:3px 0 0 0;color:#006400;font-size:14px;}
 
-.summary-card h2{
-  margin:3px 0 0 0;
-  color:#006400;
-  font-size:14px;
-}
-
-/* Section */
 .section{
-  background:white;
-  padding:6px;
-  margin-bottom:10px;
-  border-radius:6px;
+  background:white;padding:6px;margin-bottom:10px;border-radius:6px;
   box-shadow:0 1px 6px rgba(0,0,0,0.1);
 }
 
 .section-title{
-  background:#006400;
-  color:white;
-  padding:4px;
-  text-align:center;
-  font-weight:bold;
-  border-radius:4px;
-  margin-bottom:6px;
-  font-size:12px;
+  background:#006400;color:white;padding:4px;text-align:center;
+  font-weight:bold;border-radius:4px;margin-bottom:6px;font-size:12px;
 }
 
-.table-wrapper{
-  width:100%;
-  overflow-x:auto;
-}
+.table-wrapper{width:100%;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:480px;table-layout:fixed;}
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:480px;
-  table-layout:fixed;
-}
-
-/* 🔥 Header */
 th{
-  border:1px solid #ddd;
-  background:#2e7d32;
-  color:white;
-  font-size:11px;
-  padding:5px 2px;
-  line-height:1.1;
-  position:sticky;
-  top:0;
-  z-index:2;
-  text-align:center;         /* 🔥 horizontal center */
-  vertical-align:middle;     /* 🔥 vertical center */
+  border:1px solid #ddd;background:#2e7d32;color:white;
+  font-size:11px;padding:5px 2px;line-height:1.1;
+  position:sticky;top:0;z-index:2;text-align:center;vertical-align:middle;
 }
 
 td{
-  border:1px solid #ddd;
-  padding:10px 3px;
-  font-size:12px;
-  font-weight:500;
-  text-align:center;         /* 🔥 horizontal center */
-  vertical-align:middle;     /* 🔥 vertical center */
+  border:1px solid #ddd;padding:10px 3px;font-size:12px;
+  font-weight:500;text-align:center;vertical-align:middle;
 }
 
-/* 🔥 First 4 columns (date columns) */
 table th:nth-child(-n+4),
-table td:nth-child(-n+4){
-  width:75px;
-}
+table td:nth-child(-n+4){width:75px;}
 
-/* 🔥 FTD MTD YTD more compact */
 table th:nth-child(n+5),
-table td:nth-child(n+5){
-  width:45px;               /* 🔥 narrow growth columns */
-}
+table td:nth-child(n+5){width:45px;}
 
 .header-date{
-  font-weight:bold;
-  font-size:10px;
-  display:inline-block;
-  white-space:nowrap;
+  font-weight:bold;font-size:10px;display:inline-block;white-space:nowrap;
 }
 
 .positive{color:green;font-weight:bold}
 .negative{color:red;font-weight:bold}
 
-.footer{
-  text-align:center;
-  padding:6px;
-  font-size:11px;
-  color:#555;
-}
+.footer{text-align:center;padding:6px;font-size:11px;color:#555;}
 </style>
-
 </head>
 
 <body>
@@ -191,28 +102,30 @@ const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSn
 
 function growthClass(value,isNPA){
 
-  if(!value) return "";
+  if(value === null || value === undefined) return "";
 
-  let clean = value.toString().replace(/,/g,"").replace("%","").trim();
-  let v = parseFloat(clean);
+  // 🔥 Fix special minus sign + clean value
+  let cleaned = value.toString()
+      .replace(/−/g,"-")     // special minus fix
+      .replace(/,/g,"")
+      .replace("%","")
+      .trim();
 
+  let match = cleaned.match(/-?\d+(\.\d+)?/);
+  if(!match) return "";
+
+  let v = parseFloat(match[0]);
   if(isNaN(v)) return "";
 
-  // 🔥 NPA reverse logic
+  // 🔥 Reverse only for NPA
   if(isNPA){
-      if(v < 0) return "positive";   // Negative good
-      if(v > 0) return "negative";
-  } 
-  else{
-      if(v > 0) return "positive";
-      if(v < 0) return "negative";
+      return v < 0 ? "positive" : (v > 0 ? "negative" : "");
+  } else {
+      return v > 0 ? "positive" : (v < 0 ? "negative" : "");
   }
-
-  return "";
 }
 
 function formatHeader(text){
-
   if(!text) return "";
   text = text.trim();
 
@@ -220,21 +133,17 @@ function formatHeader(text){
     const date = text.replace("Previous as on","").trim();
     return "Previous<br>as on<br><span class='header-date'>"+date+"</span>";
   }
-
   if(text.includes("Current as on")){
     const date = text.replace("Current as on","").trim();
     return "Current<br>as on<br><span class='header-date'>"+date+"</span>";
   }
-
   if(text.includes("Last Month")){
     const date = text.replace("Last Month","").trim();
     return "Last<br>Month<br><span class='header-date'>"+date+"</span>";
   }
-
   if(/^\d{2}[-\/.]\d{2}[-\/.]\d{4}$/.test(text)){
     return "<span class='header-date'>"+text+"</span>";
   }
-
   return text;
 }
 
@@ -280,7 +189,7 @@ function renderSection(title,start,row,headers,isNPA=false){
     </div>
   </div>`;
 }
-    
+
 document.getElementById("branch").addEventListener("change",function(){
 
   fetch(API_URL+"?type=branchData&solid="+this.value)
@@ -307,9 +216,9 @@ document.getElementById("branch").addEventListener("change",function(){
 
     let html="";
     html+=renderSection("ADVANCE",2,row,headers,false);
-html+=renderSection("NPA",13,row,headers,true);   // 🔥 TRUE for NPA
-html+=renderSection("DEPOSIT",20,row,headers,false);
-html+=renderSection("CASA",27,row,headers,false);
+    html+=renderSection("NPA",13,row,headers,true);
+    html+=renderSection("DEPOSIT",20,row,headers,false);
+    html+=renderSection("CASA",27,row,headers,false);
 
     document.getElementById("dashboard").innerHTML=html;
 
@@ -323,11 +232,3 @@ loadBranches();
 
 </body>
 </html>
-
-
-
-
-
-
-
-
