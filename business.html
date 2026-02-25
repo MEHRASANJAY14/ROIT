@@ -1,190 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RO Jabalpur Business Dashboard</title>
-
-<style>
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Segoe UI, Arial;
-  background:#f4f6f8;
-}
-
-.topbar{
-  background:#006400;
-  color:white;
-  text-align:center;
-  padding:10px;
-  font-size:15px;
-  font-weight:bold;
-}
-
-.container{padding:8px;}
-
-select{
-  width:100%;
-  padding:6px;
-  margin-bottom:10px;
-  border-radius:5px;
-  border:1px solid #ccc;
-  font-size:12px;
-}
-
-/* Branch Info */
-.branch-card{
-  background:white;
-  padding:6px;
-  margin-bottom:10px;
-  border-radius:6px;
-  box-shadow:0 1px 6px rgba(0,0,0,0.1);
-  text-align:center;
-  font-weight:bold;
-  color:#006400;
-  font-size:12px;
-}
-
-/* Summary */
-.summary{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-  gap:6px;
-  margin-bottom:10px;
-}
-
-.summary-card{
-  background:white;
-  padding:6px;
-  border-radius:6px;
-  box-shadow:0 1px 6px rgba(0,0,0,0.1);
-  text-align:center;
-}
-
-.summary-card h4{
-  margin:0;
-  font-size:11px;
-  color:#555;
-}
-
-.summary-card h2{
-  margin:3px 0 0 0;
-  color:#006400;
-  font-size:14px;
-}
-
-/* Section */
-.section{
-  background:white;
-  padding:6px;
-  margin-bottom:10px;
-  border-radius:6px;
-  box-shadow:0 1px 6px rgba(0,0,0,0.1);
-}
-
-.section-title{
-  background:#006400;
-  color:white;
-  padding:4px;
-  text-align:center;
-  font-weight:bold;
-  border-radius:4px;
-  margin-bottom:6px;
-  font-size:12px;
-}
-
-.table-wrapper{
-  width:100%;
-  overflow-x:auto;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:480px;
-  table-layout:fixed;
-}
-
-th{
-  border:1px solid #ddd;
-  background:#2e7d32;
-  color:white;
-  font-size:11px;
-  padding:5px 2px;
-  line-height:1.1;
-  position:sticky;
-  top:0;
-  z-index:2;
-  text-align:center;
-  vertical-align:middle;
-}
-
-td{
-  border:1px solid #ddd;
-  padding:10px 3px;
-  font-size:12px;
-  font-weight:500;
-  text-align:center;
-  vertical-align:middle;
-}
-
-/* Date columns */
-table th:nth-child(-n+4),
-table td:nth-child(-n+4){
-  width:75px;
-}
-
-/* FTD MTD YTD compact */
-table th:nth-child(n+5),
-table td:nth-child(n+5){
-  width:45px;
-}
-
-.header-date{
-  font-weight:bold;
-  font-size:10px;
-  display:inline-block;
-  white-space:nowrap;
-}
-
-.positive{color:green;font-weight:bold}
-.negative{color:red;font-weight:bold}
-
-.footer{
-  text-align:center;
-  padding:6px;
-  font-size:11px;
-  color:#555;
-}
-</style>
-</head>
-
-<body>
-
-<div class="topbar">
-MADHYA PRADESH GRAMIN BANK  
-RO JABALPUR BUSINESS DASHBOARD (₹ Lakhs)
-</div>
-
-<div class="container">
-
-<select id="branch">
-<option value="">Select Branch</option>
-</select>
-
-<div id="branchInfo"></div>
-<div id="summary"></div>
-<div id="dashboard"></div>
-
-</div>
-
-<div class="footer">
-Powered by RO Jabalpur IT Cell
-</div>
-
-<script>
-
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
 function growthClass(value,isNPA){
@@ -192,7 +5,7 @@ function growthClass(value,isNPA){
   if(value === null || value === undefined) return "";
 
   let cleaned = value.toString()
-      .replace(/−/g,"-")     // fix special minus
+      .replace(/−/g,"-")
       .replace(/,/g,"")
       .replace("%","")
       .trim();
@@ -200,45 +13,30 @@ function growthClass(value,isNPA){
   let v = parseFloat(cleaned);
   if(isNaN(v)) return "";
 
-  // 🔥 NORMAL SECTIONS
-  if(!isNPA){
-      if(v > 0) return "positive";
-      if(v < 0) return "negative";
-  }
-
-  // 🔥 NPA REVERSE ONLY FOR FTD/MTD/YTD
   if(isNPA){
-      if(v < 0) return "positive";   // Negative = Good
-      if(v > 0) return "negative";
+      return v < 0 ? "positive" : (v > 0 ? "negative" : "");
+  }else{
+      return v > 0 ? "positive" : (v < 0 ? "negative" : "");
   }
-
-  return "";
 }
 
 function formatHeader(text){
   if(!text) return "";
-  text = text.trim();
-
-  if(text.includes("Previous as on")){
-    const date = text.replace("Previous as on","").trim();
-    return "Previous<br>as on<br><span class='header-date'>"+date+"</span>";
-  }
-
-  if(text.includes("Current as on")){
-    const date = text.replace("Current as on","").trim();
-    return "Current<br>as on<br><span class='header-date'>"+date+"</span>";
-  }
+  text=text.trim();
 
   if(text.includes("Last Month")){
-    const date = text.replace("Last Month","").trim();
-    return "Last<br>Month<br><span class='header-date'>"+date+"</span>";
+    let d=text.replace("Last Month","").trim();
+    return "Last<br>Month<br><span class='header-date'>"+d+"</span>";
   }
-
-  if(/^\d{2}[-\/.]\d{2}[-\/.]\d{4}$/.test(text)){
-    return "<span class='header-date'>"+text+"</span>";
+  if(text.includes("Previous as on")){
+    let d=text.replace("Previous as on","").trim();
+    return "Previous<br>as on<br><span class='header-date'>"+d+"</span>";
   }
-
-  return text;
+  if(text.includes("Current as on")){
+    let d=text.replace("Current as on","").trim();
+    return "Current<br>as on<br><span class='header-date'>"+d+"</span>";
+  }
+  return "<span class='header-date'>"+text+"</span>";
 }
 
 function loadBranches(){
@@ -246,16 +44,21 @@ function loadBranches(){
   .then(res=>res.json())
   .then(data=>{
     const select=document.getElementById("branch");
+    select.innerHTML='<option value="">Select Branch</option>';
     data.forEach(r=>{
       let o=document.createElement("option");
       o.value=r[0];
       o.text=r[0]+" - "+r[1];
       select.appendChild(o);
     });
+  })
+  .catch(err=>{
+    console.log("Branch Load Error:",err);
   });
 }
 
-function renderSection(title,start,row,headers){
+function renderSection(title,start,row,headers,isNPA){
+
   const h=headers.slice(start,start+7);
   const d=row.slice(start,start+7);
 
@@ -275,9 +78,7 @@ function renderSection(title,start,row,headers){
         </tr>
         <tr>
           ${d.map((v,i)=>
-            ${d.map((v,i)=>
-  `<td class="${i>=4 ? growthClass(v,isNPA) : ''}">${v}</td>`
-).join("")}
+            `<td class="${i>=4 ? growthClass(v,isNPA) : ''}">${v}</td>`
           ).join("")}
         </tr>
       </table>
@@ -286,6 +87,8 @@ function renderSection(title,start,row,headers){
 }
 
 document.getElementById("branch").addEventListener("change",function(){
+
+  if(!this.value) return;
 
   fetch(API_URL+"?type=branchData&solid="+this.value)
   .then(res=>res.json())
@@ -308,21 +111,18 @@ document.getElementById("branch").addEventListener("change",function(){
       </div>`;
 
     let html="";
-    html+=renderSection("ADVANCE",2,row,headers);
-    html+=renderSection("NPA",9,row,headers);
-    html+=renderSection("DEPOSIT",16,row,headers);
-    html+=renderSection("CASA",23,row,headers);
+    html+=renderSection("ADVANCE",3,row,headers,false);
+    html+=renderSection("NPA",10,row,headers,true);
+    html+=renderSection("DEPOSIT",17,row,headers,false);
+    html+=renderSection("CASA",24,row,headers,false);
 
     document.getElementById("dashboard").innerHTML=html;
 
+  })
+  .catch(err=>{
+    console.log("Branch Data Error:",err);
   });
 
 });
 
 loadBranches();
-
-</script>
-
-</body>
-</html>
-
