@@ -189,22 +189,21 @@ Powered by RO Jabalpur IT Cell
 
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-function growthClass(value, section){
+function growthClass(value,isNPA){
 
   if(!value) return "";
 
-  // 🔥 Clean value (remove commas, % and spaces)
   let clean = value.toString().replace(/,/g,"").replace("%","").trim();
   let v = parseFloat(clean);
 
   if(isNaN(v)) return "";
 
   // 🔥 NPA reverse logic
-  if(section.trim().toUpperCase() === "NPA"){
-      if(v < 0) return "positive";   // Negative = GOOD
+  if(isNPA){
+      if(v < 0) return "positive";   // Negative good
       if(v > 0) return "negative";
   } 
-  else {
+  else{
       if(v > 0) return "positive";
       if(v < 0) return "negative";
   }
@@ -253,7 +252,7 @@ function loadBranches(){
   });
 }
 
-function renderSection(title,start,row,headers){
+function renderSection(title,start,row,headers,isNPA=false){
 
   const h=headers.slice(start,start+7);
   const d=row.slice(start,start+7);
@@ -274,13 +273,12 @@ function renderSection(title,start,row,headers){
         </tr>
         <tr>
           ${d.map((v,i)=>
-            <td class="${i>=4 ? growthClass(v, title) : ''}">${v}</td>
+            `<td class="${i>=4 ? growthClass(v,isNPA) : ''}">${v}</td>`
           ).join("")}
         </tr>
       </table>
     </div>
-  </div>
-  `;
+  </div>`;
 }
     
 document.getElementById("branch").addEventListener("change",function(){
@@ -308,10 +306,10 @@ document.getElementById("branch").addEventListener("change",function(){
     `;
 
     let html="";
-    html+=renderSection("ADVANCE",2,row,headers);
-    html+=renderSection("NPA",9,row,headers);
-    html+=renderSection("DEPOSIT",16,row,headers);
-    html+=renderSection("CASA",23,row,headers);
+    html+=renderSection("ADVANCE",2,row,headers,false);
+html+=renderSection("NPA",13,row,headers,true);   // 🔥 TRUE for NPA
+html+=renderSection("DEPOSIT",20,row,headers,false);
+html+=renderSection("CASA",27,row,headers,false);
 
     document.getElementById("dashboard").innerHTML=html;
 
@@ -325,6 +323,7 @@ loadBranches();
 
 </body>
 </html>
+
 
 
 
