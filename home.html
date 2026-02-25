@@ -13,10 +13,10 @@ padding:15px;
 }
 
 .container{
-max-width:1000px;
+max-width:1100px;
 width:100%;
 background:#ffffff;
-padding:20px;
+padding:25px;
 margin:auto;
 border-radius:12px;
 box-shadow:0 10px 25px rgba(0,0,0,0.3);
@@ -29,7 +29,6 @@ color:#003300;
 margin-bottom:20px;
 }
 
-/* Responsive Grid */
 .form-grid{
 display:grid;
 grid-template-columns:repeat(auto-fit, minmax(250px,1fr));
@@ -44,6 +43,12 @@ flex-direction:column;
 label{
 font-weight:bold;
 margin-bottom:5px;
+}
+
+.small-note{
+font-size:11px;
+color:#666;
+margin-top:3px;
 }
 
 input,select{
@@ -73,7 +78,6 @@ margin-top:30px;
 display:none;
 }
 
-/* Summary */
 .summary-box{
 border:2px solid #003300;
 padding:15px;
@@ -82,7 +86,6 @@ margin-bottom:20px;
 border-radius:8px;
 }
 
-/* Table scroll fix */
 .table-wrapper{
 overflow-x:auto;
 }
@@ -105,13 +108,8 @@ background:#003300;
 color:white;
 }
 
-.print-btn{
-background:#006600;
-margin-top:15px;
-}
-
 @media print{
-body{background:white;}
+body{background:white;padding:0;}
 form, button{display:none;}
 }
 </style>
@@ -136,9 +134,9 @@ form, button{display:none;}
 <label>Employment Type</label>
 <select id="employment" required>
 <option value="">Select</option>
-<option>Salaried</option>
-<option>Business</option>
-<option>Professional</option>
+<option value="salaried">Salaried</option>
+<option value="business">Business</option>
+<option value="professional">Professional</option>
 </select>
 </div>
 
@@ -155,17 +153,20 @@ form, button{display:none;}
 </div>
 
 <div class="form-group">
-<label>Monthly Income (₹)</label>
+<label id="incomeLabel">Monthly Gross Income (As per Salary Slip) (₹)</label>
 <input type="number" id="income" required>
+<div class="small-note" id="incomeNote">
+Enter Gross Monthly Salary before deductions.
+</div>
 </div>
 
 <div class="form-group">
-<label>Existing EMI (₹)</label>
+<label>Existing EMI Obligations (₹)</label>
 <input type="number" id="existingEmi" required>
 </div>
 
 <div class="form-group">
-<label>Interest Rate (%)</label>
+<label>Base Interest Rate (%)</label>
 <input type="number" id="roi" required>
 </div>
 
@@ -217,13 +218,33 @@ form, button{display:none;}
 </table>
 </div>
 
-<button class="print-btn" onclick="window.print()">Print Report</button>
+<button onclick="window.print()">Print Report</button>
 
 </div>
 
 </div>
 
 <script>
+
+/* Income Label Auto Change */
+document.getElementById("employment").addEventListener("change", function(){
+
+let type = this.value;
+let label = document.getElementById("incomeLabel");
+let note = document.getElementById("incomeNote");
+
+if(type === "salaried"){
+label.innerHTML = "Monthly Gross Income (As per Salary Slip) (₹)";
+note.innerHTML = "Enter Gross Monthly Salary before deductions.";
+}
+else{
+label.innerHTML = "Average Monthly Income (As per ITR) (₹)";
+note.innerHTML = "Enter Average Monthly Income based on last 2–3 years ITR.";
+}
+});
+
+
+/* Eligibility Logic */
 document.getElementById("loanForm").addEventListener("submit", function(e){
 
 e.preventDefault();
@@ -236,11 +257,13 @@ let ageVal = Number(document.getElementById("age").value);
 let propertyVal = Number(document.getElementById("property").value);
 let cibilVal = Number(document.getElementById("cibil").value);
 
+/* CIBIL Check */
 if(cibilVal < 650){
 alert("Not Eligible – CIBIL below 650");
 return;
 }
 
+/* Age Based Tenure */
 let retirementAge = 60;
 let maxTenure = retirementAge - ageVal;
 if(maxTenure <= 0){
@@ -251,44 +274,53 @@ return;
 let finalTenureYears = Math.min(tenureYearsVal, maxTenure, 30);
 let months = finalTenureYears * 12;
 
-let nthp = incomeVal <= 100000 ? 0.40 :
-incomeVal <= 500000 ? 0.30 : 0.25;
+/* EMI Eligibility % (Circular Language Instead of FOIR) */
+let emiEligibilityPercent =
+incomeVal <= 100000 ? 40 :
+incomeVal <= 500000 ? 30 : 25;
 
-let eligibleEmi = (incomeVal * nthp) - existingEmiVal;
+let eligibleEmi = (incomeVal * emiEligibilityPercent / 100) - existingEmiVal;
 
 if(eligibleEmi <= 10000){
-alert("Minimum ₹10,000 balance not maintained");
+alert("Minimum ₹10,000 residual income not maintained");
 return;
 }
 
+/* CIBIL Concession */
 let finalRate = rateVal;
 if(cibilVal >= 800) finalRate -= 0.50;
 else if(cibilVal >= 725) finalRate -= 0.40;
 
 let monthlyRate = finalRate / 100 / 12;
 
+/* Loan based on Income */
 let loanIncome = eligibleEmi *
 ((Math.pow(1+monthlyRate, months)-1) /
 (monthlyRate*Math.pow(1+monthlyRate, months)));
 
+/* LTV Based on Property */
 let ltv = propertyVal <= 3000000 ? 0.90 :
 propertyVal <= 7500000 ? 0.80 : 0.75;
 
 let finalLoan = Math.min(loanIncome, propertyVal * ltv);
 
+/* EMI Calculation */
 let emi = finalLoan * monthlyRate *
 Math.pow(1+monthlyRate, months) /
 (Math.pow(1+monthlyRate, months)-1);
 
+/* Show Result */
 document.getElementById("resultSection").style.display="block";
 
 document.getElementById("summaryBox").innerHTML = `
-<b>Eligible Loan:</b> ₹ ${Math.round(finalLoan)} <br>
-<b>EMI:</b> ₹ ${Math.round(emi)} <br>
+<b>EMI Eligibility % Applied:</b> ${emiEligibilityPercent}% <br>
+<b>Eligible Loan Amount:</b> ₹ ${Math.round(finalLoan)} <br>
+<b>Estimated EMI:</b> ₹ ${Math.round(emi)} <br>
 <b>Interest Rate Applied:</b> ${finalRate.toFixed(2)}% <br>
 <b>Tenure Approved:</b> ${finalTenureYears} Years
 `;
 
+/* Amortization Schedule */
 let balance = finalLoan;
 let scheduleHTML = "";
 
