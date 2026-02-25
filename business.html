@@ -190,14 +190,19 @@ Powered by RO Jabalpur IT Cell
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
 function growthClass(value, section){
+
   let v = Number(value);
 
-  if(section === "NPA"){
-    if(v < 0) return "positive";  // Negative good for bank
-    if(v > 0) return "negative";
-  } else {
-    if(v > 0) return "positive";
-    if(v < 0) return "negative";
+  if(isNaN(v)) return "";
+
+  // 🔥 NPA logic reverse
+  if(section.trim().toUpperCase() === "NPA"){
+      if(v < 0) return "positive";   // Negative is GOOD
+      if(v > 0) return "negative";   // Positive is BAD
+  } 
+  else {
+      if(v > 0) return "positive";
+      if(v < 0) return "negative";
   }
 
   return "";
@@ -264,16 +269,16 @@ function renderSection(title,start,row,headers){
           <th>YTD</th>
         </tr>
         <tr>
-         ${d.map((v,i)=>
-  `<td class="${i>=4?growthClass(v,title):''}">${v}</td>`
-).join("")}
+          ${d.map((v,i)=>
+            `<td class="${i>=4 ? growthClass(v, title) : ''}">${v}</td>`
+          ).join("")}
         </tr>
       </table>
     </div>
   </div>
   `;
 }
-
+    
 document.getElementById("branch").addEventListener("change",function(){
 
   fetch(API_URL+"?type=branchData&solid="+this.value)
@@ -316,6 +321,7 @@ loadBranches();
 
 </body>
 </html>
+
 
 
 
