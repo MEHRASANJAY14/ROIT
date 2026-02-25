@@ -6,12 +6,7 @@
 
 <style>
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Segoe UI, Arial;
-  background:#f4f6f8;
-}
+body{margin:0;font-family:Segoe UI, Arial;background:#f4f6f8;}
 
 .topbar{
   background:#006400;
@@ -33,7 +28,6 @@ select{
   font-size:12px;
 }
 
-/* Branch Info */
 .branch-card{
   background:white;
   padding:6px;
@@ -46,7 +40,6 @@ select{
   font-size:12px;
 }
 
-/* Summary */
 .summary{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
@@ -62,19 +55,9 @@ select{
   text-align:center;
 }
 
-.summary-card h4{
-  margin:0;
-  font-size:11px;
-  color:#555;
-}
+.summary-card h4{margin:0;font-size:11px;color:#555;}
+.summary-card h2{margin:3px 0 0 0;color:#006400;font-size:14px;}
 
-.summary-card h2{
-  margin:3px 0 0 0;
-  color:#006400;
-  font-size:14px;
-}
-
-/* Section */
 .section{
   background:white;
   padding:6px;
@@ -94,10 +77,7 @@ select{
   font-size:12px;
 }
 
-.table-wrapper{
-  width:100%;
-  overflow-x:auto;
-}
+.table-wrapper{width:100%;overflow-x:auto;}
 
 table{
   width:100%;
@@ -113,9 +93,6 @@ th{
   font-size:11px;
   padding:5px 2px;
   line-height:1.1;
-  position:sticky;
-  top:0;
-  z-index:2;
   text-align:center;
   vertical-align:middle;
 }
@@ -129,17 +106,11 @@ td{
   vertical-align:middle;
 }
 
-/* Date columns */
 table th:nth-child(-n+4),
-table td:nth-child(-n+4){
-  width:75px;
-}
+table td:nth-child(-n+4){width:75px;}
 
-/* FTD MTD YTD compact */
 table th:nth-child(n+5),
-table td:nth-child(n+5){
-  width:45px;
-}
+table td:nth-child(n+5){width:45px;}
 
 .header-date{
   font-weight:bold;
@@ -187,53 +158,71 @@ Powered by RO Jabalpur IT Cell
 
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-function growthClass(v){
-  if(Number(v)>0) return "positive";
-  if(Number(v)<0) return "negative";
-  return "";
+/* Growth Color Logic */
+function growthClass(value,isNPA){
+
+  if(value===null||value===undefined) return "";
+
+  let cleaned=value.toString()
+    .replace(/−/g,"-")
+    .replace(/,/g,"")
+    .replace("%","")
+    .trim();
+
+  let v=parseFloat(cleaned);
+  if(isNaN(v)) return "";
+
+  if(isNPA){
+    return v<0 ? "positive" : (v>0 ? "negative" : "");
+  }else{
+    return v>0 ? "positive" : (v<0 ? "negative" : "");
+  }
 }
 
+/* Header Formatter */
 function formatHeader(text){
   if(!text) return "";
-  text = text.trim();
-
-  if(text.includes("Previous as on")){
-    const date = text.replace("Previous as on","").trim();
-    return "Previous<br>as on<br><span class='header-date'>"+date+"</span>";
-  }
-
-  if(text.includes("Current as on")){
-    const date = text.replace("Current as on","").trim();
-    return "Current<br>as on<br><span class='header-date'>"+date+"</span>";
-  }
+  text=text.trim();
 
   if(text.includes("Last Month")){
-    const date = text.replace("Last Month","").trim();
-    return "Last<br>Month<br><span class='header-date'>"+date+"</span>";
+    let d=text.replace("Last Month","").trim();
+    return "Last<br>Month<br><span class='header-date'>"+d+"</span>";
+  }
+  if(text.includes("Previous as on")){
+    let d=text.replace("Previous as on","").trim();
+    return "Previous<br>as on<br><span class='header-date'>"+d+"</span>";
+  }
+  if(text.includes("Current as on")){
+    let d=text.replace("Current as on","").trim();
+    return "Current<br>as on<br><span class='header-date'>"+d+"</span>";
   }
 
-  if(/^\d{2}[-\/.]\d{2}[-\/.]\d{4}$/.test(text)){
-    return "<span class='header-date'>"+text+"</span>";
-  }
-
-  return text;
+  return "<span class='header-date'>"+text+"</span>";
 }
 
+/* Load Branch Dropdown */
 function loadBranches(){
   fetch(API_URL+"?type=branches")
   .then(res=>res.json())
   .then(data=>{
     const select=document.getElementById("branch");
+    select.innerHTML='<option value="">Select Branch</option>';
+
     data.forEach(r=>{
       let o=document.createElement("option");
       o.value=r[0];
       o.text=r[0]+" - "+r[1];
       select.appendChild(o);
     });
+  })
+  .catch(err=>{
+    console.log("Branch Load Error:",err);
   });
 }
 
-function renderSection(title,start,row,headers){
+/* Render Section */
+function renderSection(title,start,row,headers,isNPA){
+
   const h=headers.slice(start,start+7);
   const d=row.slice(start,start+7);
 
@@ -253,7 +242,7 @@ function renderSection(title,start,row,headers){
         </tr>
         <tr>
           ${d.map((v,i)=>
-            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
+            `<td class="${i>=4 ? growthClass(v,isNPA) : ''}">${v}</td>`
           ).join("")}
         </tr>
       </table>
@@ -261,7 +250,10 @@ function renderSection(title,start,row,headers){
   </div>`;
 }
 
+/* On Branch Select */
 document.getElementById("branch").addEventListener("change",function(){
+
+  if(!this.value) return;
 
   fetch(API_URL+"?type=branchData&solid="+this.value)
   .then(res=>res.json())
@@ -284,13 +276,16 @@ document.getElementById("branch").addEventListener("change",function(){
       </div>`;
 
     let html="";
-    html+=renderSection("ADVANCE",2,row,headers);
-    html+=renderSection("NPA",9,row,headers);
-    html+=renderSection("DEPOSIT",16,row,headers);
-    html+=renderSection("CASA",23,row,headers);
+    html+=renderSection("ADVANCE",2,row,headers,false);
+    html+=renderSection("NPA",9,row,headers,true);
+    html+=renderSection("DEPOSIT",16,row,headers,false);
+    html+=renderSection("CASA",23,row,headers,false);
 
     document.getElementById("dashboard").innerHTML=html;
 
+  })
+  .catch(err=>{
+    console.log("Branch Data Error:",err);
   });
 
 });
