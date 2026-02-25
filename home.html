@@ -9,16 +9,18 @@ body{
 font-family:Arial, sans-serif;
 background:linear-gradient(135deg,#003300,#009933);
 margin:0;
-padding:20px;
+padding:15px;
 }
 
 .container{
 max-width:1000px;
+width:100%;
 background:#ffffff;
-padding:30px;
+padding:20px;
 margin:auto;
-border-radius:15px;
-box-shadow:0 15px 40px rgba(0,0,0,0.3);
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+box-sizing:border-box;
 }
 
 h2{
@@ -27,9 +29,10 @@ color:#003300;
 margin-bottom:20px;
 }
 
+/* Responsive Grid */
 .form-grid{
 display:grid;
-grid-template-columns:1fr 1fr;
+grid-template-columns:repeat(auto-fit, minmax(250px,1fr));
 gap:15px;
 }
 
@@ -45,8 +48,10 @@ margin-bottom:5px;
 
 input,select{
 padding:10px;
-border-radius:8px;
+border-radius:6px;
 border:1px solid #ccc;
+width:100%;
+box-sizing:border-box;
 }
 
 button{
@@ -55,7 +60,7 @@ padding:12px;
 background:#003300;
 color:white;
 border:none;
-border-radius:10px;
+border-radius:8px;
 margin-top:20px;
 font-size:16px;
 cursor:pointer;
@@ -68,17 +73,24 @@ margin-top:30px;
 display:none;
 }
 
+/* Summary */
 .summary-box{
 border:2px solid #003300;
 padding:15px;
 background:#f9fff9;
 margin-bottom:20px;
+border-radius:8px;
+}
+
+/* Table scroll fix */
+.table-wrapper{
+overflow-x:auto;
 }
 
 table{
+min-width:700px;
 width:100%;
 border-collapse:collapse;
-margin-top:10px;
 font-size:13px;
 }
 
@@ -99,7 +111,7 @@ margin-top:15px;
 }
 
 @media print{
-body{background:white;padding:0;}
+body{background:white;}
 form, button{display:none;}
 }
 </style>
@@ -143,7 +155,7 @@ form, button{display:none;}
 </div>
 
 <div class="form-group">
-<label>Monthly Gross Income (₹)</label>
+<label>Monthly Income (₹)</label>
 <input type="number" id="income" required>
 </div>
 
@@ -189,6 +201,7 @@ form, button{display:none;}
 
 <h3>📊 EMI Amortization Schedule</h3>
 
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -202,6 +215,7 @@ form, button{display:none;}
 </thead>
 <tbody id="scheduleBody"></tbody>
 </table>
+</div>
 
 <button class="print-btn" onclick="window.print()">Print Report</button>
 
@@ -222,13 +236,11 @@ let ageVal = Number(document.getElementById("age").value);
 let propertyVal = Number(document.getElementById("property").value);
 let cibilVal = Number(document.getElementById("cibil").value);
 
-// CIBIL Check
 if(cibilVal < 650){
 alert("Not Eligible – CIBIL below 650");
 return;
 }
 
-// Age Check
 let retirementAge = 60;
 let maxTenure = retirementAge - ageVal;
 if(maxTenure <= 0){
@@ -239,7 +251,6 @@ return;
 let finalTenureYears = Math.min(tenureYearsVal, maxTenure, 30);
 let months = finalTenureYears * 12;
 
-// NTHP Rule
 let nthp = incomeVal <= 100000 ? 0.40 :
 incomeVal <= 500000 ? 0.30 : 0.25;
 
@@ -250,195 +261,11 @@ alert("Minimum ₹10,000 balance not maintained");
 return;
 }
 
-// CIBIL Concession
 let finalRate = rateVal;
-if(cibilVal >= 800) finalRate -= 0.50;
-else if(cibilVal >= 725}
-
-input,select{
-padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
-}
-
-button{
-width:100%;
-padding:12px;
-background:#003300;
-color:white;
-border:none;
-border-radius:10px;
-margin-top:20px;
-font-size:16px;
-cursor:pointer;
-}
-
-button:hover{background:#001a00;}
-
-#resultSection{
-margin-top:30px;
-display:none;
-}
-
-.report-table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-}
-
-.report-table th,
-.report-table td{
-border:1px solid #ccc;
-padding:8px;
-font-size:13px;
-text-align:center;
-}
-
-.report-table th{
-background:#003300;
-color:white;
-}
-
-.summary-box{
-border:2px solid #003300;
-padding:15px;
-margin-bottom:20px;
-background:#f9fff9;
-}
-
-.print-btn{
-background:#006600;
-margin-top:15px;
-}
-
-@media print{
-body{background:white;padding:0;}
-form, button{display:none;}
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h2>🏦 HOME LOAN ELIGIBILITY & EMI SCHEDULE</h2>
-
-<form id="loanForm">
-
-<div class="form-grid">
-
-<div class="form-group">
-<label>Applicant Name</label>
-<input type="text" id="name" required>
-</div>
-
-<div class="form-group">
-<label>Monthly Gross Income (₹)</label>
-<input type="number" id="income" required>
-</div>
-
-<div class="form-group">
-<label>Existing EMI (₹)</label>
-<input type="number" id="existingEmi" required>
-</div>
-
-<div class="form-group">
-<label>Interest Rate (%)</label>
-<input type="number" id="roi" required>
-</div>
-
-<div class="form-group">
-<label>Tenure (Years)</label>
-<input type="number" id="tenure" required>
-</div>
-
-<div class="form-group">
-<label>Applicant Age</label>
-<input type="number" id="age" required>
-</div>
-
-<div class="form-group">
-<label>Property Value (₹)</label>
-<input type="number" id="property" required>
-</div>
-
-<div class="form-group">
-<label>CIBIL Score</label>
-<input type="number" id="cibil" min="300" max="900" required>
-</div>
-
-</div>
-
-<button type="submit">Generate Report & Schedule</button>
-
-</form>
-
-<div id="resultSection">
-<div class="summary-box" id="summaryBox"></div>
-
-<h3>📊 EMI Amortization Schedule</h3>
-<table class="report-table">
-<thead>
-<tr>
-<th>Month</th>
-<th>Opening Balance</th>
-<th>EMI</th>
-<th>Interest</th>
-<th>Principal</th>
-<th>Closing Balance</th>
-</tr>
-</thead>
-<tbody id="scheduleBody"></tbody>
-</table>
-
-<button class="print-btn" onclick="window.print()">Print Report</button>
-</div>
-
-</div>
-
-<script>
-document.getElementById("loanForm").addEventListener("submit", function(e){
-
-e.preventDefault();
-
-let income = Number(income.value);
-let existingEmi = Number(existingEmi.value);
-let rate = Number(roi.value);
-let tenureYears = Number(tenure.value);
-let ageVal = Number(age.value);
-let propertyVal = Number(property.value);
-let cibilVal = Number(cibil.value);
-
-if(cibilVal < 650){
-alert("Not Eligible – Low CIBIL");
-return;
-}
-
-let retirementAge = 60;
-let maxTenure = retirementAge - ageVal;
-if(maxTenure <= 0){
-alert("Age beyond retirement");
-return;
-}
-
-let finalTenureYears = Math.min(tenureYears, maxTenure, 30);
-let months = finalTenureYears * 12;
-
-let nthp = income <= 100000 ? 0.40 :
-income <= 500000 ? 0.30 : 0.25;
-
-let eligibleEmi = (income * nthp) - existingEmi;
-if(eligibleEmi <= 10000){
-alert("Minimum ₹10,000 balance not maintained");
-return;
-}
-
-let finalRate = rate;
 if(cibilVal >= 800) finalRate -= 0.50;
 else if(cibilVal >= 725) finalRate -= 0.40;
 
-let monthlyRate = finalRate/100/12;
+let monthlyRate = finalRate / 100 / 12;
 
 let loanIncome = eligibleEmi *
 ((Math.pow(1+monthlyRate, months)-1) /
@@ -458,8 +285,8 @@ document.getElementById("resultSection").style.display="block";
 document.getElementById("summaryBox").innerHTML = `
 <b>Eligible Loan:</b> ₹ ${Math.round(finalLoan)} <br>
 <b>EMI:</b> ₹ ${Math.round(emi)} <br>
-<b>Interest Rate:</b> ${finalRate.toFixed(2)}% <br>
-<b>Tenure:</b> ${finalTenureYears} Years
+<b>Interest Rate Applied:</b> ${finalRate.toFixed(2)}% <br>
+<b>Tenure Approved:</b> ${finalTenureYears} Years
 `;
 
 let balance = finalLoan;
