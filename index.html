@@ -4,126 +4,190 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MPGB RO Jabalpur - Dashboard</title>
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
 <style>
+:root{
+  --primary:#006400;
+  --secondary:#0b8f3e;
+  --lightbg:#f4f9f6;
+  --cardbg:white;
+  --text:#222;
+}
+
+body.dark{
+  --lightbg:#121212;
+  --cardbg:#1e1e1e;
+  --text:#f1f1f1;
+}
+
 body{
   margin:0;
   font-family:'Segoe UI',Arial;
-  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+  background:var(--lightbg);
+  color:var(--text);
+  transition:0.4s;
+  overflow-x:hidden;
+}
+
+/* Floating animated background */
+body::before{
+  content:"";
+  position:fixed;
+  width:200%;
+  height:200%;
+  background:radial-gradient(circle at 20% 30%,rgba(0,100,0,0.08),transparent),
+             radial-gradient(circle at 80% 70%,rgba(0,150,0,0.08),transparent);
+  animation:movebg 15s linear infinite;
+  z-index:-1;
+}
+
+@keyframes movebg{
+  0%{transform:translate(0,0)}
+  50%{transform:translate(-5%, -5%)}
+  100%{transform:translate(0,0)}
 }
 
 /* Header */
 .header{
-  background:white;
+  background:var(--cardbg);
   text-align:center;
-  padding:15px;
-  border-bottom:4px solid #006400;
-  box-shadow:0 4px 8px rgba(0,0,0,0.05);
+  padding:12px;
+  border-bottom:3px solid var(--primary);
+  position:sticky;
+  top:0;
+  z-index:1000;
 }
 
-.logo{
-  max-width:260px;
-}
+.logo{max-width:240px;}
 
 /* Title */
 .title-bar{
-  background:#006400;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
   color:white;
   text-align:center;
-  padding:25px 15px;
+  padding:30px 15px;
+  position:relative;
 }
 
 .title-bar h1{margin:0;font-size:22px;}
 .title-bar h2{margin:5px 0;font-size:16px;font-weight:normal;}
-.title-bar h3{margin:5px 0 0 0;font-size:14px;letter-spacing:2px;}
+.title-bar h3{margin:5px 0;font-size:14px;letter-spacing:2px;}
+
+.clock{
+  margin-top:8px;
+  font-size:13px;
+}
+
+/* Dark mode toggle */
+.toggle{
+  position:absolute;
+  right:20px;
+  top:20px;
+  cursor:pointer;
+  font-size:18px;
+}
 
 /* Stats */
 .stats{
   max-width:600px;
-  margin:25px auto;
+  margin:30px auto;
   padding:0 20px;
 }
 
 .stat-card{
-  background:white;
-  padding:20px;
-  border-radius:12px;
+  background:var(--cardbg);
+  padding:30px;
+  border-radius:20px;
   text-align:center;
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  box-shadow:0 15px 35px rgba(0,0,0,0.1);
+  transition:0.4s;
 }
 
-.stat-card h4{margin:0;color:#555;font-size:14px;}
-.stat-card h2{margin:8px 0 0 0;color:#006400;font-size:28px;}
+.stat-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 25px 50px rgba(0,0,0,0.2);
+}
+
+.stat-card h4{margin:0;color:gray;}
+.stat-card h2{
+  margin-top:10px;
+  font-size:36px;
+  color:var(--primary);
+}
 
 /* Cards */
 .container{
-  max-width:1000px;
-  margin:30px auto;
+  max-width:1100px;
+  margin:40px auto;
   padding:0 20px;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:25px;
+  gap:30px;
 }
 
 .card{
-  background:white;
-  padding:25px;
-  border-radius:15px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  background:var(--cardbg);
+  padding:30px;
+  border-radius:20px;
   text-align:center;
-  transition:0.3s;
+  box-shadow:0 15px 30px rgba(0,0,0,0.1);
+  transition:0.4s;
   position:relative;
 }
 
-.card::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:5px;
-  background:#006400;
-}
-
 .card:hover{
-  transform:translateY(-6px);
-  box-shadow:0 15px 35px rgba(0,0,0,0.15);
+  transform:translateY(-10px) scale(1.02);
+  box-shadow:0 30px 60px rgba(0,0,0,0.25);
 }
 
-.card h3{
-  color:#006400;
-  margin-bottom:10px;
+.card i{
+  font-size:38px;
+  color:var(--primary);
+  margin-bottom:15px;
 }
+
+.card h3{color:var(--primary);}
 
 .card p{
   font-size:14px;
-  color:#555;
-  min-height:40px;
+  color:gray;
 }
 
+/* Buttons */
 .btn{
   display:inline-block;
-  padding:10px 22px;
-  background:#006400;
+  padding:12px 25px;
+  margin-top:15px;
+  border-radius:30px;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
   color:white;
   text-decoration:none;
-  border-radius:30px;
-  margin-top:10px;
   font-weight:bold;
-  transition:0.3s;
+  transition:0.4s;
 }
 
 .btn:hover{
-  background:#004d00;
+  transform:scale(1.1);
+  box-shadow:0 10px 30px rgba(0,100,0,0.5);
 }
 
 /* Footer */
 .footer{
-  margin-top:40px;
-  background:#006400;
+  margin-top:50px;
+  background:var(--primary);
   color:white;
   text-align:center;
-  padding:12px;
-  font-size:12px;
+  padding:15px;
+}
+
+/* Page animation */
+body{
+  animation:fadein 1s ease;
+}
+@keyframes fadein{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
 @media(max-width:600px){
@@ -139,47 +203,52 @@ body{
 </div>
 
 <div class="title-bar">
+  <div class="toggle" onclick="toggleDark()"><i class="fa-solid fa-moon"></i></div>
   <h1>MADHYA PRADESH GRAMIN BANK</h1>
   <h2>REGIONAL OFFICE JABALPUR</h2>
   <h3>DASHBOARD</h3>
+  <div class="clock" id="clock"></div>
 </div>
 
-<!-- Only Total Branches -->
 <div class="stats">
   <div class="stat-card">
-    <h4>Total Branches</h4>
+    <h4><i class="fa-solid fa-building"></i> Total Branches</h4>
     <h2 id="branchCount">0</h2>
   </div>
 </div>
 
-<!-- Main Cards -->
 <div class="container">
 
   <div class="card">
+    <i class="fa-solid fa-desktop"></i>
     <h3>Asset Entry</h3>
     <p>Add and manage branch hardware assets securely.</p>
     <a href="inventory.html" class="btn">Go to Entry</a>
   </div>
 
   <div class="card">
+    <i class="fa-solid fa-chart-line"></i>
     <h3>Branch Business</h3>
     <p>View branch-wise business performance dashboard.</p>
     <a href="business.html" class="btn">View Business</a>
   </div>
 
-  <!-- ✅ NEW ECS MANDATE CARD -->
   <div class="card">
+    <i class="fa-solid fa-file-signature"></i>
     <h3>ECS Mandate Monitoring</h3>
     <p>Track ECS mandate progress branch-wise.</p>
     <a href="ecs.html" class="btn">Open ECS Dashboard</a>
   </div>
 
   <div class="card">
+    <i class="fa-solid fa-calculator"></i>
     <h3>EMI Calculator</h3>
     <p>Calculate loan EMI quickly and accurately.</p>
     <a href="emi.html" class="btn">Open EMI Calculator</a>
   </div>
+
   <div class="card">
+    <i class="fa-solid fa-calendar-days"></i>
     <h3>Mpgb Calender</h3>
     <p>Get Access Fast.</p>
     <a href="calendar2026.html" class="btn">Mpgb Calender</a>
@@ -192,19 +261,29 @@ body{
 </div>
 
 <script>
-function animateValue(id, start, end, duration) {
-  let range = end - start;
-  let current = start;
-  let increment = 1;
-  let stepTime = Math.abs(Math.floor(duration / range));
-  let obj = document.getElementById(id);
-  let timer = setInterval(function() {
-    current += increment;
-    obj.innerHTML = current;
-    if (current >= end) clearInterval(timer);
-  }, stepTime);
+function animateValue(id,start,end,duration){
+ let range=end-start,current=start,inc=1;
+ let step=Math.abs(Math.floor(duration/range));
+ let obj=document.getElementById(id);
+ let timer=setInterval(function(){
+  current+=inc;
+  obj.innerHTML=current;
+  if(current>=end) clearInterval(timer);
+ },step);
 }
-animateValue("branchCount", 0, 53, 800);
+animateValue("branchCount",0,53,1500);
+
+function updateClock(){
+ const now=new Date();
+ document.getElementById("clock").innerHTML=
+ now.toLocaleDateString()+" | "+now.toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+updateClock();
+
+function toggleDark(){
+ document.body.classList.toggle("dark");
+}
 </script>
 
 </body>
