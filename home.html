@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home Loan Eligibility System</title>
+<title>Home Loan Eligibility & EMI Schedule</title>
 
 <style>
 body{
@@ -13,24 +13,37 @@ padding:20px;
 }
 
 .container{
-max-width:700px;
-background:#fff;
-padding:25px;
+max-width:900px;
+background:#ffffff;
+padding:30px;
 margin:auto;
 border-radius:15px;
-box-shadow:0 15px 35px rgba(0,0,0,0.3);
+box-shadow:0 15px 40px rgba(0,0,0,0.3);
 }
 
-.header{
+h2{
 text-align:center;
 color:#003300;
-margin-bottom:20px;
+}
+
+.form-grid{
+display:grid;
+grid-template-columns: 1fr 1fr;
+gap:15px;
+}
+
+.form-group{
+display:flex;
+flex-direction:column;
+}
+
+label{
+font-weight:bold;
+margin-bottom:5px;
 }
 
 input,select{
-width:100%;
 padding:10px;
-margin-top:10px;
 border-radius:8px;
 border:1px solid #ccc;
 }
@@ -42,7 +55,7 @@ background:#003300;
 color:white;
 border:none;
 border-radius:10px;
-margin-top:15px;
+margin-top:20px;
 font-size:16px;
 cursor:pointer;
 }
@@ -50,11 +63,33 @@ cursor:pointer;
 button:hover{background:#001a00;}
 
 #resultSection{
-margin-top:25px;
-padding:20px;
-border:2px solid #003300;
-border-radius:10px;
+margin-top:30px;
 display:none;
+}
+
+.report-table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+.report-table th,
+.report-table td{
+border:1px solid #ccc;
+padding:8px;
+font-size:13px;
+text-align:center;
+}
+
+.report-table th{
+background:#003300;
+color:white;
+}
+
+.summary-box{
+border:2px solid #003300;
+padding:15px;
+margin-bottom:20px;
 background:#f9fff9;
 }
 
@@ -63,22 +98,9 @@ background:#006600;
 margin-top:15px;
 }
 
-.print-btn:hover{
-background:#004d00;
-}
-
-/* PRINT FORMAT */
 @media print{
-body{
-background:white;
-padding:0;
-}
-button, form{
-display:none;
-}
-#resultSection{
-border:none;
-}
+body{background:white;padding:0;}
+form, button{display:none;}
 }
 </style>
 </head>
@@ -87,35 +109,78 @@ border:none;
 
 <div class="container">
 
-<div class="header">
-<h2>🏦 HOME LOAN ELIGIBILITY REPORT</h2>
-<p>Pre-Sanction Eligibility Assessment</p>
-</div>
+<h2>🏦 HOME LOAN ELIGIBILITY & EMI SCHEDULE</h2>
 
 <form id="loanForm">
 
-<input type="text" id="name" placeholder="Applicant Name" required>
-<input type="number" id="income" placeholder="Monthly Gross Income (₹)" required>
-<input type="number" id="existingEmi" placeholder="Existing EMI (₹)" required>
-<input type="number" id="roi" placeholder="Base Interest Rate (%)" required>
-<input type="number" id="tenure" placeholder="Requested Tenure (Years)" required>
-<input type="number" id="age" placeholder="Applicant Age (Years)" required>
-<input type="number" id="property" placeholder="Property Value (₹)" required>
-<input type="number" id="cibil" placeholder="CIBIL Score (300-900)" required>
+<div class="form-grid">
 
-<select id="employment" required>
-<option value="">Employment Type</option>
-<option>Salaried</option>
-<option>Business</option>
-<option>Professional</option>
-</select>
+<div class="form-group">
+<label>Applicant Name</label>
+<input type="text" id="name" required>
+</div>
 
-<button type="submit">Generate Eligibility Report</button>
+<div class="form-group">
+<label>Monthly Gross Income (₹)</label>
+<input type="number" id="income" required>
+</div>
+
+<div class="form-group">
+<label>Existing EMI (₹)</label>
+<input type="number" id="existingEmi" required>
+</div>
+
+<div class="form-group">
+<label>Interest Rate (%)</label>
+<input type="number" id="roi" required>
+</div>
+
+<div class="form-group">
+<label>Tenure (Years)</label>
+<input type="number" id="tenure" required>
+</div>
+
+<div class="form-group">
+<label>Applicant Age</label>
+<input type="number" id="age" required>
+</div>
+
+<div class="form-group">
+<label>Property Value (₹)</label>
+<input type="number" id="property" required>
+</div>
+
+<div class="form-group">
+<label>CIBIL Score</label>
+<input type="number" id="cibil" min="300" max="900" required>
+</div>
+
+</div>
+
+<button type="submit">Generate Report & Schedule</button>
 
 </form>
 
-<div id="resultSection"></div>
-<button class="print-btn" onclick="window.print()" style="display:none;" id="printBtn">Print Eligibility Sheet</button>
+<div id="resultSection">
+<div class="summary-box" id="summaryBox"></div>
+
+<h3>📊 EMI Amortization Schedule</h3>
+<table class="report-table">
+<thead>
+<tr>
+<th>Month</th>
+<th>Opening Balance</th>
+<th>EMI</th>
+<th>Interest</th>
+<th>Principal</th>
+<th>Closing Balance</th>
+</tr>
+</thead>
+<tbody id="scheduleBody"></tbody>
+</table>
+
+<button class="print-btn" onclick="window.print()">Print Report</button>
+</div>
 
 </div>
 
@@ -124,88 +189,91 @@ document.getElementById("loanForm").addEventListener("submit", function(e){
 
 e.preventDefault();
 
-let name = document.getElementById("name").value;
-let income = Number(document.getElementById("income").value);
-let existingEmi = Number(document.getElementById("existingEmi").value);
-let rate = Number(document.getElementById("roi").value);
-let tenureRequested = Number(document.getElementById("tenure").value);
-let age = Number(document.getElementById("age").value);
-let property = Number(document.getElementById("property").value);
-let cibil = Number(document.getElementById("cibil").value);
+let income = Number(income.value);
+let existingEmi = Number(existingEmi.value);
+let rate = Number(roi.value);
+let tenureYears = Number(tenure.value);
+let ageVal = Number(age.value);
+let propertyVal = Number(property.value);
+let cibilVal = Number(cibil.value);
 
-if(cibil < 650){
-alert("Not Eligible – CIBIL Below 650");
+if(cibilVal < 650){
+alert("Not Eligible – Low CIBIL");
 return;
 }
 
 let retirementAge = 60;
-let maxTenureByAge = retirementAge - age;
-if(maxTenureByAge <= 0){
-alert("Not Eligible – Age Beyond Retirement");
+let maxTenure = retirementAge - ageVal;
+if(maxTenure <= 0){
+alert("Age beyond retirement");
 return;
 }
 
-let finalTenureYears = Math.min(tenureRequested, maxTenureByAge, 30);
-let tenure = finalTenureYears * 12;
+let finalTenureYears = Math.min(tenureYears, maxTenure, 30);
+let months = finalTenureYears * 12;
 
-let nthp = 0.40;
-if(income > 100000 && income <= 500000) nthp = 0.30;
-if(income > 500000) nthp = 0.25;
+let nthp = income <= 100000 ? 0.40 :
+income <= 500000 ? 0.30 : 0.25;
 
 let eligibleEmi = (income * nthp) - existingEmi;
-
 if(eligibleEmi <= 10000){
-alert("Not Eligible – Minimum ₹10,000 Balance Not Maintained");
+alert("Minimum ₹10,000 balance not maintained");
 return;
 }
 
 let finalRate = rate;
-if(cibil >= 800) finalRate = rate - 0.50;
-else if(cibil >= 725) finalRate = rate - 0.40;
-
-if(finalRate < 6) finalRate = 6;
+if(cibilVal >= 800) finalRate -= 0.50;
+else if(cibilVal >= 725) finalRate -= 0.40;
 
 let monthlyRate = finalRate/100/12;
 
-let loanIncomeBased = eligibleEmi *
-((Math.pow(1+monthlyRate, tenure)-1) /
-(monthlyRate * Math.pow(1+monthlyRate, tenure)));
+let loanIncome = eligibleEmi *
+((Math.pow(1+monthlyRate, months)-1) /
+(monthlyRate*Math.pow(1+monthlyRate, months)));
 
-let ltv = 0.90;
-if(property > 3000000 && property <= 7500000) ltv = 0.80;
-if(property > 7500000) ltv = 0.75;
+let ltv = propertyVal <= 3000000 ? 0.90 :
+propertyVal <= 7500000 ? 0.80 : 0.75;
 
-let loanPropertyBased = property * ltv;
-let finalLoan = Math.min(loanIncomeBased, loanPropertyBased);
+let finalLoan = Math.min(loanIncome, propertyVal * ltv);
 
-let margin = 10;
-if(finalLoan > 3000000 && finalLoan <= 7500000) margin = 20;
-if(finalLoan > 7500000) margin = 25;
-
-let emi = finalLoan * monthlyRate * Math.pow(1+monthlyRate, tenure) /
-(Math.pow(1+monthlyRate, tenure) - 1);
-
-let today = new Date().toLocaleDateString();
+let emi = finalLoan * monthlyRate *
+Math.pow(1+monthlyRate, months) /
+(Math.pow(1+monthlyRate, months)-1);
 
 document.getElementById("resultSection").style.display="block";
-document.getElementById("printBtn").style.display="block";
 
-document.getElementById("resultSection").innerHTML = `
-<h3 style="text-align:center;">ELIGIBILITY ASSESSMENT SUMMARY</h3>
-<hr>
-<p><b>Date:</b> ${today}</p>
-<p><b>Applicant Name:</b> ${name}</p>
-<p><b>Employment Type:</b> ${document.getElementById("employment").value}</p>
-<p><b>CIBIL Score:</b> ${cibil}</p>
-<hr>
-<p><b>Eligible Loan Amount:</b> ₹ ${Math.round(finalLoan)}</p>
-<p><b>Estimated EMI:</b> ₹ ${Math.round(emi)}</p>
-<p><b>Interest Rate Applied:</b> ${finalRate.toFixed(2)}%</p>
-<p><b>Margin Requirement:</b> ${margin}%</p>
-<p><b>Final Tenure Approved:</b> ${finalTenureYears} Years</p>
-<hr>
-<p style="font-size:12px;">Note: This is a system generated pre-sanction eligibility assessment and subject to verification of documents and bank approval norms.</p>
+document.getElementById("summaryBox").innerHTML = `
+<b>Eligible Loan:</b> ₹ ${Math.round(finalLoan)} <br>
+<b>EMI:</b> ₹ ${Math.round(emi)} <br>
+<b>Interest Rate:</b> ${finalRate.toFixed(2)}% <br>
+<b>Tenure:</b> ${finalTenureYears} Years
 `;
+
+let balance = finalLoan;
+let scheduleHTML = "";
+
+for(let i=1; i<=months; i++){
+
+let interest = balance * monthlyRate;
+let principal = emi - interest;
+let closing = balance - principal;
+
+scheduleHTML += `
+<tr>
+<td>${i}</td>
+<td>${balance.toFixed(0)}</td>
+<td>${emi.toFixed(0)}</td>
+<td>${interest.toFixed(0)}</td>
+<td>${principal.toFixed(0)}</td>
+<td>${closing.toFixed(0)}</td>
+</tr>
+`;
+
+balance = closing;
+}
+
+document.getElementById("scheduleBody").innerHTML = scheduleHTML;
+
 });
 </script>
 
