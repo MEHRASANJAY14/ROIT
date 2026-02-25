@@ -187,9 +187,31 @@ Powered by RO Jabalpur IT Cell
 
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-function growthClass(v){
-  if(Number(v)>0) return "positive";
-  if(Number(v)<0) return "negative";
+function growthClass(value,isNPA){
+
+  if(value === null || value === undefined) return "";
+
+  let cleaned = value.toString()
+      .replace(/−/g,"-")     // fix special minus
+      .replace(/,/g,"")
+      .replace("%","")
+      .trim();
+
+  let v = parseFloat(cleaned);
+  if(isNaN(v)) return "";
+
+  // 🔥 NORMAL SECTIONS
+  if(!isNPA){
+      if(v > 0) return "positive";
+      if(v < 0) return "negative";
+  }
+
+  // 🔥 NPA REVERSE ONLY FOR FTD/MTD/YTD
+  if(isNPA){
+      if(v < 0) return "positive";   // Negative = Good
+      if(v > 0) return "negative";
+  }
+
   return "";
 }
 
@@ -253,7 +275,9 @@ function renderSection(title,start,row,headers){
         </tr>
         <tr>
           ${d.map((v,i)=>
-            `<td class="${i>=4?growthClass(v):''}">${v}</td>`
+            ${d.map((v,i)=>
+  `<td class="${i>=4 ? growthClass(v,isNPA) : ''}">${v}</td>`
+).join("")}
           ).join("")}
         </tr>
       </table>
@@ -301,3 +325,4 @@ loadBranches();
 
 </body>
 </html>
+
