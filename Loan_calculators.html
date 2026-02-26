@@ -2,38 +2,31 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MPGB RO Jabalpur - Premium Dashboard</title>
+<title>MPGB Loan Calculators</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-:root{
-  --primary:#004d1a;
-  --secondary:#00b050;
-  --accent:#00ff99;
-  --bg:#f4f9f6;
-}
-
 body{
   margin:0;
   font-family:'Segoe UI',Arial;
-  background:var(--bg);
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
 }
 
 /* Header */
 .header{
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  background:linear-gradient(135deg,#004d1a,#00b050);
   color:white;
   text-align:center;
-  padding:30px;
+  padding:25px;
   font-size:22px;
   font-weight:bold;
-  box-shadow:0 15px 40px rgba(0,100,0,0.4);
+  box-shadow:0 10px 30px rgba(0,100,0,0.4);
 }
 
-/* Grid */
+/* Container */
 .container{
-  max-width:1200px;
+  max-width:1100px;
   margin:50px auto;
   padding:0 20px;
   display:grid;
@@ -44,42 +37,26 @@ body{
 /* Card */
 .card{
   background:white;
-  padding:35px;
-  border-radius:25px;
+  padding:30px;
+  border-radius:20px;
   text-align:center;
-  box-shadow:0 20px 50px rgba(0,0,0,0.08);
-  transition:0.4s;
-  position:relative;
-  overflow:hidden;
-}
-
-.card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:25px;
-  padding:2px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent));
-  -webkit-mask:
-     linear-gradient(#fff 0 0) content-box,
-     linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-          mask-composite:exclude;
+  box-shadow:0 15px 40px rgba(0,0,0,0.1);
+  transition:0.3s;
 }
 
 .card:hover{
-  transform:translateY(-12px) scale(1.03);
-  box-shadow:0 30px 80px rgba(0,0,0,0.2);
+  transform:translateY(-8px);
+  box-shadow:0 25px 60px rgba(0,0,0,0.2);
 }
 
 .card i{
-  font-size:42px;
+  font-size:40px;
+  color:#006400;
   margin-bottom:15px;
-  color:var(--primary);
 }
 
 .card h3{
-  color:var(--primary);
+  color:#006400;
   margin-bottom:10px;
 }
 
@@ -88,27 +65,28 @@ body{
   color:#555;
 }
 
+/* Button */
 .btn{
   display:inline-block;
-  margin-top:18px;
-  padding:12px 30px;
-  border-radius:40px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  margin-top:15px;
+  padding:12px 28px;
+  border-radius:30px;
+  background:linear-gradient(135deg,#004d1a,#00b050);
   color:white;
   text-decoration:none;
   font-weight:bold;
-  transition:0.4s;
+  transition:0.3s;
 }
 
 .btn:hover{
   transform:scale(1.1);
-  box-shadow:0 15px 40px rgba(0,150,0,0.5);
+  box-shadow:0 10px 30px rgba(0,150,0,0.5);
 }
 
 .footer{
   text-align:center;
   padding:20px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  background:#006400;
   color:white;
   margin-top:60px;
 }
@@ -118,41 +96,41 @@ body{
 <body>
 
 <div class="header">
-MPGB Loan Calculator & Smart Tools Suite
+MPGB Loan Calculator Suite
 </div>
 
 <div class="container">
 
-<!-- Housing Loan -->
+<!-- Housing -->
 <div class="card">
   <i class="fa-solid fa-house"></i>
   <h3>Housing Loan</h3>
-  <p>Eligibility & EMI calculation as per circular norms.</p>
-  <a href="./home.html" class="btn">Open</a>
+  <p>Housing loan eligibility & EMI calculation.</p>
+  <a href="home.html" class="btn">Open</a>
 </div>
 
 <!-- Loan Comparison -->
 <div class="card">
   <i class="fa-solid fa-scale-balanced"></i>
   <h3>Loan Comparison</h3>
-  <p>Compare two loans and find the best EMI option.</p>
-  <a href="./loan_compare.html" class="btn">Compare Now</a>
+  <p>Compare two loan options side by side.</p>
+  <a href="loan_compare.html" class="btn">Compare</a>
 </div>
 
 <!-- Smart Eligibility -->
 <div class="card">
   <i class="fa-solid fa-brain"></i>
-  <h3>Smart Loan Eligibility</h3>
-  <p>Find which loan customer is eligible for instantly.</p>
-  <a href="./loan_recommendation.html" class="btn">Check Eligibility</a>
+  <h3>Loan Eligibility Engine</h3>
+  <p>Check customer eligible loan products instantly.</p>
+  <a href="loan_recommendation.html" class="btn">Check</a>
 </div>
 
-<!-- Vehicle / General EMI -->
+<!-- EMI -->
 <div class="card">
-  <i class="fa-solid fa-car"></i>
+  <i class="fa-solid fa-calculator"></i>
   <h3>General EMI Calculator</h3>
-  <p>Standard EMI calculator for all loan types.</p>
-  <a href="./emi.html" class="btn">Open EMI</a>
+  <p>Standard EMI calculation for all loans.</p>
+  <a href="emi.html" class="btn">Open EMI</a>
 </div>
 
 </div>
