@@ -10,7 +10,7 @@
 :root{
   --sbi-blue:#1c4fa3;
   --light-blue:#2e6dd8;
-  --bg:#f4f7fc;
+  --bg:#f2f5fa;
 }
 
 body{
@@ -19,202 +19,204 @@ body{
   background:var(--bg);
 }
 
-/* ===== TOP STRIP ===== */
-.top-strip{
-  background:#0f2e66;
+/* ===== APP HEADER ===== */
+.app-header{
+  background:var(--sbi-blue);
   color:white;
+  padding:15px;
   text-align:center;
-  padding:6px;
-  font-size:12px;
-  letter-spacing:0.5px;
-}
-
-/* ===== LOGO SECTION ===== */
-.header{
-  background:white;
-  text-align:center;
-  padding:18px 0 12px 0;
+  position:sticky;
+  top:0;
+  z-index:1000;
 }
 
 .logo{
-  width:65%;
-  max-width:340px;
+  width:60%;
+  max-width:250px;
   height:auto;
+  margin-bottom:8px;
 }
 
-/* Blue divider */
-.divider{
-  height:4px;
-  background:linear-gradient(to right,var(--sbi-blue),var(--light-blue));
-}
-
-/* ===== TITLE ===== */
-.title-section{
-  background:var(--sbi-blue);
-  color:white;
-  text-align:center;
-  padding:18px 10px;
-}
-
-.title-section h1{
+.app-header h1{
   margin:0;
-  font-size:18px;
-  letter-spacing:1px;
+  font-size:16px;
 }
 
-.title-section h2{
-  margin:6px 0 0 0;
-  font-size:13px;
+.app-header h2{
+  margin:4px 0 0 0;
+  font-size:12px;
   font-weight:normal;
 }
 
 /* ===== CONTENT ===== */
 .content{
-  padding:20px;
-  padding-bottom:90px;
+  padding:15px;
+  padding-bottom:120px;
 }
 
-/* ===== STAT CARD ===== */
-.stat-card{
+/* ===== KPI CARD ===== */
+.kpi-card{
   background:white;
-  padding:20px;
-  border-radius:16px;
+  padding:18px;
+  border-radius:14px;
   text-align:center;
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
-  margin-bottom:25px;
-  border-left:6px solid var(--sbi-blue);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  margin-bottom:20px;
+  border-left:5px solid var(--sbi-blue);
 }
 
-.stat-card h4{
+.kpi-card h4{
   margin:0;
-  font-size:13px;
+  font-size:12px;
   color:#555;
 }
 
-.stat-card h1{
-  margin-top:10px;
-  font-size:34px;
+.kpi-card h1{
+  margin-top:8px;
+  font-size:28px;
   color:var(--sbi-blue);
 }
 
-/* ===== GRID ===== */
-.grid{
+/* ===== APP GRID ===== */
+.app-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:18px;
+  gap:14px;
 }
 
-.card{
+.app-tile{
   background:white;
-  padding:22px;
-  border-radius:16px;
+  padding:18px;
+  border-radius:14px;
   text-align:center;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
-  transition:all 0.3s ease;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+  transition:0.2s;
   cursor:pointer;
-  border-top:4px solid var(--light-blue);
 }
 
-.card:hover{
-  transform:translateY(-6px);
-  box-shadow:0 12px 28px rgba(0,0,0,0.15);
+.app-tile:active{
+  transform:scale(0.96);
 }
 
-.card i{
-  font-size:24px;
+.app-tile i{
+  font-size:22px;
   color:var(--sbi-blue);
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 
-.card h3{
-  font-size:13px;
-  margin:5px 0;
+.app-tile span{
+  display:block;
+  font-size:12px;
   color:#333;
+}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  position:fixed;
+  bottom:50px;
+  width:100%;
+  background:white;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+  box-shadow:0 -4px 12px rgba(0,0,0,0.08);
+}
+
+.bottom-nav i{
+  font-size:20px;
+  color:var(--sbi-blue);
 }
 
 /* ===== FOOTER ===== */
 .footer{
-  background:var(--sbi-blue);
-  color:white;
-  text-align:center;
-  padding:12px;
-  font-size:12px;
   position:fixed;
   bottom:0;
   width:100%;
+  background:var(--sbi-blue);
+  color:white;
+  text-align:center;
+  padding:8px 5px;
+  font-size:11px;
 }
 
-/* ===== RESPONSIVE ===== */
-@media(max-width:480px){
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-  }
+.developer{
+  font-size:9px;
+  opacity:0.9;
+}
+
+.developer span{
+  font-weight:600;
+  color:#e3f2fd;
 }
 </style>
 </head>
 
 <body>
 
-<div class="top-strip">
-  Welcome to MPGB RO Jabalpur Digital Dashboard
-</div>
-
-<div class="header">
+<!-- ===== APP HEADER ===== -->
+<div class="app-header">
   <img src="mpgb_header_small.png" class="logo">
-</div>
-
-<div class="divider"></div>
-
-<div class="title-section">
   <h1>MADHYA PRADESH GRAMIN BANK</h1>
-  <h2>REGIONAL OFFICE JABALPUR – DIGITAL DASHBOARD</h2>
+  <h2>RO Jabalpur – Digital Dashboard</h2>
 </div>
 
+<!-- ===== MAIN CONTENT ===== -->
 <div class="content">
 
-  <div class="stat-card">
+  <div class="kpi-card">
     <h4>Total Branches</h4>
     <h1 id="branchCount">0</h1>
   </div>
 
-  <div class="grid">
+  <div class="app-grid">
 
-    <div class="card" onclick="go('inventory.html')">
+    <div class="app-tile" onclick="go('inventory.html')">
       <i class="fa-solid fa-desktop"></i>
-      <h3>Asset Entry</h3>
+      <span>Asset Entry</span>
     </div>
 
-    <div class="card" onclick="go('business.html')">
+    <div class="app-tile" onclick="go('business.html')">
       <i class="fa-solid fa-chart-line"></i>
-      <h3>Branch Business</h3>
+      <span>Business</span>
     </div>
 
-    <div class="card" onclick="go('ecs.html')">
+    <div class="app-tile" onclick="go('ecs.html')">
       <i class="fa-solid fa-file-signature"></i>
-      <h3>ECS Monitoring</h3>
+      <span>ECS Monitoring</span>
     </div>
 
-    <div class="card" onclick="go('emi.html')">
+    <div class="app-tile" onclick="go('emi.html')">
       <i class="fa-solid fa-calculator"></i>
-      <h3>EMI Calculator</h3>
+      <span>EMI Calculator</span>
     </div>
 
-    <div class="card" onclick="go('Loan_calculators.html')">
+    <div class="app-tile" onclick="go('Loan_calculators.html')">
       <i class="fa-solid fa-landmark"></i>
-      <h3>Loan Tools</h3>
+      <span>Loan Tools</span>
     </div>
 
-    <div class="card" onclick="go('calendar2026.html')">
+    <div class="app-tile" onclick="go('calendar2026.html')">
       <i class="fa-solid fa-calendar-days"></i>
-      <h3>Calendar</h3>
+      <span>Calendar</span>
     </div>
 
   </div>
 
 </div>
 
+<!-- ===== BOTTOM NAV ===== -->
+<div class="bottom-nav">
+  <i class="fa-solid fa-house"></i>
+  <i class="fa-solid fa-bell"></i>
+  <i class="fa-solid fa-user"></i>
+</div>
+
+<!-- ===== FOOTER ===== -->
 <div class="footer">
-  © Madhya Pradesh Gramin Bank | RO Jabalpur IT Cell
+  © MPGB | RO Jabalpur IT Cell
+  <div class="developer">
+    Developed & Maintained by <span>Sanjay Mehra</span>
+  </div>
 </div>
 
 <script>
