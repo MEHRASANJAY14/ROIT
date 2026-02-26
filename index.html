@@ -2,253 +2,305 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MPGB RO Jabalpur</title>
+<title>MPGB Digital App</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
 :root{
-  --primary:#102a71;
-  --secondary:#2d6cdf;
-  --accent:#4c8dff;
+  --primary:#1a2a6c;
+  --secondary:#3a7bd5;
+  --accent:#00d2ff;
+  --bg:#f2f5ff;
+  --card:#ffffff;
 }
 
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(160deg,#0f1c4d,#1e3c91,#3b6df6);
-  color:white;
+  background:var(--bg);
   overflow-x:hidden;
+  animation:fadeIn 0.6s ease;
 }
 
-/* ===== HEADER ===== */
-.header{
-  padding:15px;
-  text-align:center;
+/* Fade animation */
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-.logo-strip{
+/* HEADER */
+.top{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:white;
+  padding:20px 20px 80px 20px;
+  border-bottom-left-radius:30px;
+  border-bottom-right-radius:30px;
+  position:relative;
+}
+
+.logo{
   width:100%;
-  height:70px;
+  height:65px;
   object-fit:contain;
 }
 
-/* ===== APP GREETING ===== */
-.greeting{
-  padding:15px 20px;
-  font-size:18px;
-  font-weight:500;
-}
-
-.sub{
+.clock{
   font-size:12px;
-  opacity:0.8;
-}
-
-/* ===== FLOATING STAT CARD ===== */
-.stat-wrapper{
-  padding:0 20px;
-  margin-top:10px;
-}
-
-.stat-card{
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(12px);
-  border-radius:25px;
-  padding:20px;
-  text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.4);
-}
-
-.stat-card h4{
-  margin:0;
-  font-size:13px;
+  margin-top:5px;
   opacity:0.9;
 }
 
-.stat-card h1{
-  margin-top:10px;
-  font-size:36px;
+/* SEARCH */
+.search-box{
+  position:absolute;
+  bottom:-25px;
+  left:50%;
+  transform:translateX(-50%);
+  width:85%;
 }
 
-/* ===== GRID MENU ===== */
-.container{
-  padding:25px 20px 120px 20px;
+.search-box input{
+  width:100%;
+  padding:12px 15px;
+  border-radius:25px;
+  border:none;
+  outline:none;
+  box-shadow:0 8px 20px rgba(0,0,0,0.25);
+  font-size:14px;
+}
+
+/* CONTENT */
+.content{
+  padding:60px 20px 120px 20px;
+}
+
+/* STATS */
+.stats{
+  background:white;
+  padding:18px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  margin-bottom:25px;
+}
+
+.stats h1{
+  margin:8px 0 0 0;
+  font-size:32px;
+  color:var(--primary);
+}
+
+/* GRID */
+.grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:18px;
 }
 
 .card{
-  background:rgba(255,255,255,0.12);
-  backdrop-filter:blur(15px);
-  border-radius:25px;
-  padding:25px 15px;
+  background:var(--card);
+  padding:22px;
+  border-radius:22px;
   text-align:center;
-  transition:0.4s;
-  box-shadow:0 8px 25px rgba(0,0,0,0.3);
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  transition:0.3s;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
 }
 
-.card:hover{
-  transform:translateY(-6px) scale(1.03);
-  background:rgba(255,255,255,0.2);
+.card:active{
+  transform:scale(0.97);
 }
 
 .card i{
   font-size:28px;
-  margin-bottom:12px;
+  color:var(--secondary);
+  margin-bottom:10px;
 }
 
 .card h3{
   font-size:14px;
   margin:5px 0;
+  color:var(--primary);
 }
 
-.card a{
-  text-decoration:none;
-  color:white;
-  font-size:12px;
-}
-
-/* ===== FLOATING ACTION BUTTON ===== */
-.fab{
-  position:fixed;
-  bottom:85px;
-  right:20px;
-  background:linear-gradient(135deg,var(--secondary),var(--accent));
-  width:60px;
-  height:60px;
+/* Ripple effect */
+.card::after{
+  content:"";
+  position:absolute;
+  width:100px;
+  height:100px;
+  background:rgba(0,210,255,0.3);
   border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.5);
-  cursor:pointer;
-  transition:0.3s;
+  transform:scale(0);
+  opacity:0;
+  transition:0.5s;
 }
 
-.fab:hover{
-  transform:scale(1.1);
+.card:active::after{
+  transform:scale(3);
+  opacity:1;
 }
 
-/* ===== BOTTOM NAV ===== */
+/* Bottom Nav */
 .bottom-nav{
   position:fixed;
   bottom:0;
   width:100%;
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(20px);
+  background:white;
   display:flex;
   justify-content:space-around;
   padding:12px 0;
+  box-shadow:0 -8px 20px rgba(0,0,0,0.1);
   border-top-left-radius:25px;
   border-top-right-radius:25px;
 }
 
 .bottom-nav i{
   font-size:22px;
-  color:white;
+  color:var(--primary);
   transition:0.3s;
 }
 
 .bottom-nav i:hover{
-  color:#ffcc00;
+  color:var(--accent);
   transform:scale(1.2);
 }
 
-/* Animation */
-body{
-  animation:fade 0.7s ease;
+/* Notification popup */
+.toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:var(--secondary);
+  color:white;
+  padding:12px 18px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+  display:none;
 }
-@keyframes fade{
-  from{opacity:0;transform:translateY(15px)}
-  to{opacity:1;transform:translateY(0)}
+
+/* Dark Mode */
+.dark{
+  background:#111827;
+}
+
+.dark .stats,
+.dark .card,
+.dark .bottom-nav{
+  background:#1f2937;
+  color:white;
+}
+
+.dark .stats h1,
+.dark .card h3{
+  color:#00d2ff;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <img src="mpgb_header_small.png" class="logo-strip">
+<div class="top">
+  <img src="mpgb_header_small.png" class="logo">
+  <div class="clock" id="clock"></div>
+
+  <div class="search-box">
+    <input type="text" placeholder="Search feature...">
+  </div>
 </div>
 
-<div class="greeting">
-  Welcome, RO Jabalpur
-  <div class="sub">Madhya Pradesh Gramin Bank Digital App</div>
-</div>
+<div class="content">
 
-<div class="stat-wrapper">
-  <div class="stat-card">
-    <h4>Total Branches</h4>
+  <div class="stats">
+    <div>Total Branches</div>
     <h1 id="branchCount">0</h1>
   </div>
-</div>
 
-<div class="container">
+  <div class="grid">
+    <div class="card" onclick="go('inventory.html')">
+      <i class="fa-solid fa-desktop"></i>
+      <h3>Asset Entry</h3>
+    </div>
 
-  <div class="card">
-    <i class="fa-solid fa-desktop"></i>
-    <h3>Asset Entry</h3>
-    <a href="inventory.html">Open</a>
+    <div class="card" onclick="go('business.html')">
+      <i class="fa-solid fa-chart-line"></i>
+      <h3>Business</h3>
+    </div>
+
+    <div class="card" onclick="go('ecs.html')">
+      <i class="fa-solid fa-file-signature"></i>
+      <h3>ECS</h3>
+    </div>
+
+    <div class="card" onclick="go('emi.html')">
+      <i class="fa-solid fa-calculator"></i>
+      <h3>EMI</h3>
+    </div>
+
+    <div class="card" onclick="go('Loan_calculators.html')">
+      <i class="fa-solid fa-landmark"></i>
+      <h3>Loan Tools</h3>
+    </div>
+
+    <div class="card" onclick="go('calendar2026.html')">
+      <i class="fa-solid fa-calendar-days"></i>
+      <h3>Calendar</h3>
+    </div>
   </div>
 
-  <div class="card">
-    <i class="fa-solid fa-chart-line"></i>
-    <h3>Business</h3>
-    <a href="business.html">Open</a>
-  </div>
-
-  <div class="card">
-    <i class="fa-solid fa-file-signature"></i>
-    <h3>ECS</h3>
-    <a href="ecs.html">Open</a>
-  </div>
-
-  <div class="card">
-    <i class="fa-solid fa-calculator"></i>
-    <h3>EMI</h3>
-    <a href="emi.html">Open</a>
-  </div>
-
-  <div class="card">
-    <i class="fa-solid fa-landmark"></i>
-    <h3>Loan Calculators</h3>
-    <a href="Loan_calculators.html">Open</a>
-  </div>
-
-  <div class="card">
-    <i class="fa-solid fa-calendar-days"></i>
-    <h3>Calendar</h3>
-    <a href="calendar2026.html">Open</a>
-  </div>
-
-</div>
-
-<div class="fab">
-  <i class="fa-solid fa-plus"></i>
 </div>
 
 <div class="bottom-nav">
   <i class="fa-solid fa-house"></i>
-  <i class="fa-solid fa-chart-simple"></i>
-  <i class="fa-solid fa-bell"></i>
+  <i class="fa-solid fa-bell" onclick="showToast()"></i>
+  <i class="fa-solid fa-moon" onclick="toggleDark()"></i>
   <i class="fa-solid fa-user"></i>
 </div>
 
+<div class="toast" id="toast">🔔 New Notification</div>
+
 <script>
-function animateValue(id,start,end,duration){
- let range=end-start,current=start,inc=1;
- let step=Math.abs(Math.floor(duration/range));
- let obj=document.getElementById(id);
- let timer=setInterval(function(){
-  current+=inc;
-  obj.innerHTML=current;
-  if(current>=end) clearInterval(timer);
- },step);
+// Page navigation
+function go(page){
+  document.body.style.opacity="0.3";
+  setTimeout(()=>{ window.location.href=page; },300);
 }
-animateValue("branchCount",0,53,1500);
+
+// Dark mode
+function toggleDark(){
+  document.body.classList.toggle("dark");
+}
+
+// Live Clock
+function updateClock(){
+  const now=new Date();
+  document.getElementById("clock").innerHTML=
+  now.toLocaleDateString()+" | "+now.toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// Animated Counter
+function animateCounter(){
+  let count=0;
+  let target=53;
+  let interval=setInterval(()=>{
+    count++;
+    document.getElementById("branchCount").innerText=count;
+    if(count>=target) clearInterval(interval);
+  },20);
+}
+animateCounter();
+
+// Toast notification
+function showToast(){
+  let t=document.getElementById("toast");
+  t.style.display="block";
+  setTimeout(()=>{t.style.display="none"},3000);
+}
 </script>
 
 </body>
