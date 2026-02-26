@@ -2,205 +2,159 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MPGB RO Jabalpur - Premium Dashboard</title>
+<title>MPGB RO Jabalpur - Royal Blue Portal</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
 :root{
-  --primary:#006400;
-  --secondary:#00a651;
-  --accent:#00ff99;
-  --bg:#eef5f1;
-  --glass:rgba(255,255,255,0.65);
-  --text:#1a1a1a;
-}
-
-body.dark{
-  --bg:#0f1a14;
-  --glass:rgba(20,30,25,0.7);
-  --text:#f1f1f1;
+  --primary:#0a1f44;
+  --secondary:#1e3c72;
+  --accent:#2a5298;
+  --light:#f1f5fb;
 }
 
 body{
   margin:0;
   font-family:'Segoe UI',Arial;
-  background:linear-gradient(135deg,#e8f5e9,#ffffff);
-  background-attachment:fixed;
-  color:var(--text);
-  overflow-x:hidden;
-  transition:0.4s;
-}
-
-/* Animated gradient overlay */
-body::before{
-  content:"";
-  position:fixed;
-  width:200%;
-  height:200%;
-  background:radial-gradient(circle at 20% 30%,rgba(0,150,0,0.15),transparent),
-             radial-gradient(circle at 80% 70%,rgba(0,255,150,0.12),transparent);
-  animation:float 18s infinite linear;
-  z-index:-1;
-}
-
-@keyframes float{
-  0%{transform:translate(0,0)}
-  50%{transform:translate(-5%,-5%)}
-  100%{transform:translate(0,0)}
+  background:var(--light);
 }
 
 /* Header */
 .header{
-  text-align:center;
-  padding:15px;
-  backdrop-filter:blur(12px);
-  background:var(--glass);
-  border-bottom:1px solid rgba(255,255,255,0.4);
-  position:sticky;
-  top:0;
-  z-index:1000;
-}
-
-.logo{max-width:240px;}
-
-/* Title Bar */
-.title-bar{
-  text-align:center;
-  padding:40px 20px;
   background:linear-gradient(135deg,var(--primary),var(--secondary));
   color:white;
-  position:relative;
-  box-shadow:0 15px 40px rgba(0,100,0,0.4);
+  padding:25px;
+  border-bottom-left-radius:30px;
+  border-bottom-right-radius:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
-.title-bar h1{margin:0;font-size:26px;letter-spacing:1px;}
-.title-bar h2{margin:8px 0;font-weight:normal;}
-.title-bar h3{letter-spacing:3px;}
-
-.toggle{
-  position:absolute;
-  right:20px;
-  top:20px;
-  cursor:pointer;
-  font-size:18px;
+.header h2{
+  margin:0;
+  font-size:20px;
 }
 
-/* KPI Glass Card */
+.header p{
+  margin:4px 0 0 0;
+  font-size:13px;
+  opacity:0.9;
+}
+
+/* Quick Stats */
 .stats{
-  max-width:800px;
-  margin:-40px auto 40px auto;
-  padding:0 20px;
+  display:flex;
+  justify-content:space-around;
+  margin-top:-20px;
+  padding:0 15px;
 }
 
 .stat-card{
-  background:var(--glass);
-  backdrop-filter:blur(15px);
-  border-radius:25px;
-  padding:40px;
+  background:white;
+  padding:14px;
+  border-radius:18px;
+  width:30%;
   text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,0.15);
-  border:1px solid rgba(255,255,255,0.4);
-  transition:0.4s;
+  box-shadow:0 8px 20px rgba(0,0,0,0.12);
 }
 
-.stat-card:hover{
-  transform:translateY(-8px);
+.stat-card h4{
+  margin:0;
+  font-size:12px;
+  color:gray;
 }
 
-.stat-card h4{margin:0;font-size:16px;}
-.stat-card h2{
-  font-size:42px;
-  margin-top:15px;
+.stat-card h3{
+  margin:6px 0 0 0;
   color:var(--primary);
 }
 
-/* Cards Grid */
-.container{
-  max-width:1200px;
-  margin:auto;
-  padding:20px;
+/* Grid */
+.grid{
+  padding:30px 15px 110px;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:30px;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
 }
 
-.card{
-  background:var(--glass);
-  backdrop-filter:blur(20px);
-  border-radius:25px;
-  padding:35px;
+.feature{
+  background:white;
+  padding:20px 10px;
+  border-radius:22px;
   text-align:center;
-  position:relative;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,0.4);
-  box-shadow:0 20px 60px rgba(0,0,0,0.1);
-  transition:0.4s;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  transition:0.3s;
 }
 
-.card:hover{
-  transform:translateY(-12px) scale(1.03);
-  box-shadow:0 30px 80px rgba(0,0,0,0.25);
+.feature:hover{
+  transform:translateY(-6px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.15);
 }
 
-/* Light sweep animation */
-.card::before{
-  content:"";
-  position:absolute;
-  top:-100%;
-  left:-100%;
-  width:200%;
-  height:200%;
-  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.3),transparent);
-  transform:rotate(25deg);
-  transition:0.8s;
+.feature i{
+  font-size:26px;
+  color:var(--accent);
+  margin-bottom:8px;
 }
 
-.card:hover::before{
-  top:100%;
-  left:100%;
+.feature span{
+  font-size:13px;
+  display:block;
+  color:var(--primary);
+  font-weight:500;
 }
 
-.card i{
-  font-size:40px;
-  margin-bottom:15px;
+.feature a{
+  text-decoration:none;
+  color:inherit;
+}
+
+/* Floating Button */
+.fab{
+  position:fixed;
+  bottom:85px;
+  right:20px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:white;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.4);
+}
+
+/* Bottom Navigation */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:white;
+  display:flex;
+  justify-content:space-around;
+  padding:12px 0;
+  box-shadow:0 -5px 15px rgba(0,0,0,0.1);
+}
+
+.bottom-nav a{
+  text-decoration:none;
+}
+
+.bottom-nav i{
+  font-size:20px;
+  color:gray;
+}
+
+.bottom-nav i.active{
   color:var(--primary);
 }
 
-.card h3{color:var(--primary);margin-bottom:10px;}
-.card p{font-size:14px;color:#555;}
-
-/* Premium Button */
-.btn{
-  display:inline-block;
-  margin-top:15px;
-  padding:12px 28px;
-  border-radius:40px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:white;
-  text-decoration:none;
-  font-weight:bold;
-  transition:0.4s;
-  box-shadow:0 10px 25px rgba(0,150,0,0.4);
-}
-
-.btn:hover{
-  transform:scale(1.1);
-  box-shadow:0 15px 40px rgba(0,255,150,0.6);
-}
-
-/* Footer */
-.footer{
-  margin-top:60px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:white;
-  text-align:center;
-  padding:18px;
-}
-
-/* Responsive */
-@media(max-width:600px){
-  .title-bar h1{font-size:20px}
+@media(min-width:768px){
+  .grid{
+    grid-template-columns:repeat(5,1fr);
+  }
 }
 </style>
 </head>
@@ -208,92 +162,82 @@ body::before{
 <body>
 
 <div class="header">
- <img src="mpgb_header_small.png" class="logo">
-</div>
-
-<div class="title-bar">
-  <div class="toggle" onclick="toggleDark()">
-    <i class="fa-solid fa-moon"></i>
-  </div>
-  <h1>MADHYA PRADESH GRAMIN BANK</h1>
-  <h2>REGIONAL OFFICE JABALPUR</h2>
-  <h3>ENTERPRISE DASHBOARD</h3>
+  <h2>MADHYA PRADESH GRAMIN BANK</h2>
+  <p>Regional Office Jabalpur – Digital Control Panel</p>
 </div>
 
 <div class="stats">
   <div class="stat-card">
-    <h4><i class="fa-solid fa-building"></i> Total Branches</h4>
-    <h2 id="branchCount">0</h2>
+    <h4>Total Branches</h4>
+    <h3>53</h3>
+  </div>
+  <div class="stat-card">
+    <h4>Modules</h4>
+    <h3>10+</h3>
+  </div>
+  <div class="stat-card">
+    <h4>Status</h4>
+    <h3>Active</h3>
   </div>
 </div>
 
-<div class="container">
+<div class="grid">
 
-  <div class="card">
-    <i class="fa-solid fa-desktop"></i>
-    <h3>Asset Entry</h3>
-    <p>Manage branch hardware assets securely.</p>
-    <a href="inventory.html" class="btn">Open</a>
+  <div class="feature">
+    <a href="inventory.html">
+      <i class="fa-solid fa-desktop"></i>
+      <span>Assets</span>
+    </a>
   </div>
 
-  <div class="card">
-    <i class="fa-solid fa-chart-line"></i>
-    <h3>Branch Business</h3>
-    <p>Monitor branch-wise performance.</p>
-    <a href="business.html" class="btn">Open</a>
+  <div class="feature">
+    <a href="business.html">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>Business</span>
+    </a>
   </div>
 
-  <div class="card">
-    <i class="fa-solid fa-file-signature"></i>
-    <h3>ECS Monitoring</h3>
-    <p>Track ECS mandate progress.</p>
-    <a href="ecs.html" class="btn">Open</a>
+  <div class="feature">
+    <a href="loan_calculators.html">
+      <i class="fa-solid fa-calculator"></i>
+      <span>Loan Suite</span>
+    </a>
   </div>
 
-  <div class="card">
-    <i class="fa-solid fa-building-columns"></i>
-    <h3>MPGB Loan Calculator</h3>
-    <p>Access all loan eligibility tools.</p>
-    <a href="Loan_calculators.html" class="btn">Open</a>
+  <div class="feature">
+    <a href="emi.html">
+      <i class="fa-solid fa-percent"></i>
+      <span>EMI</span>
+    </a>
   </div>
 
-  <div class="card">
-    <i class="fa-solid fa-calculator"></i>
-    <h3>EMI Calculator</h3>
-    <p>Calculate EMI instantly.</p>
-    <a href="emi.html" class="btn">Open</a>
+  <div class="feature">
+    <a href="ecs.html">
+      <i class="fa-solid fa-file-signature"></i>
+      <span>ECS</span>
+    </a>
   </div>
 
-  <div class="card">
-    <i class="fa-solid fa-calendar-days"></i>
-    <h3>MPGB Calendar</h3>
-    <p>Access official holiday calendar.</p>
-    <a href="calendar2026.html" class="btn">Open</a>
+  <div class="feature">
+    <a href="calendar2026.html">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>Calendar</span>
+    </a>
   </div>
 
 </div>
 
-<div class="footer">
-© Madhya Pradesh Gramin Bank | RO Jabalpur IT Cell
+<div class="fab">
+  <i class="fa-solid fa-plus"></i>
 </div>
 
-<script>
-function animateValue(id,start,end,duration){
- let range=end-start,current=start,inc=1;
- let step=Math.abs(Math.floor(duration/range));
- let obj=document.getElementById(id);
- let timer=setInterval(function(){
-  current+=inc;
-  obj.innerHTML=current;
-  if(current>=end) clearInterval(timer);
- },step);
-}
-animateValue("branchCount",0,53,1500);
-
-function toggleDark(){
- document.body.classList.toggle("dark");
-}
-</script>
+<div class="bottom-nav">
+  <a href="index.html"><i class="fa-solid fa-house active"></i></a>
+  <a href="loan_calculators.html"><i class="fa-solid fa-calculator"></i></a>
+  <a href="emi.html"><i class="fa-solid fa-percent"></i></a>
+  <a href="business.html"><i class="fa-solid fa-chart-line"></i></a>
+  <a href="#"><i class="fa-solid fa-user"></i></a>
+</div>
 
 </body>
 </html>
