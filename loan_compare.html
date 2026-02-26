@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loan Comparison Tool - MPGB</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',Arial;
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+}
+
+/* Header */
+.header{
+  background:linear-gradient(135deg,#004d1a,#00b050);
+  color:white;
+  text-align:center;
+  padding:25px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+/* Container */
+.container{
+  max-width:1100px;
+  margin:40px auto;
+  padding:0 20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:25px;
+}
+
+.card{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 15px 35px rgba(0,0,0,0.1);
+}
+
+.card h3{
+  text-align:center;
+  color:#006400;
+}
+
+input{
+  width:100%;
+  padding:8px;
+  margin:8px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#006400;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:hover{
+  background:#004d00;
+}
+
+/* Result */
+.result{
+  margin-top:40px;
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 15px 35px rgba(0,0,0,0.1);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+
+th,td{
+  border:1px solid #ccc;
+  padding:10px;
+  text-align:center;
+}
+
+th{
+  background:#006400;
+  color:white;
+}
+
+.highlight{
+  background:#d4edda;
+  font-weight:bold;
+  color:#155724;
+}
+
+.back{
+  text-align:center;
+  margin-top:30px;
+}
+
+.back a{
+  text-decoration:none;
+  font-weight:bold;
+  color:#006400;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+MPGB Loan Comparison Tool
+</div>
+
+<div class="container">
+
+<div class="grid">
+
+<div class="card">
+<h3>Loan Option 1</h3>
+<input type="number" id="amt1" placeholder="Loan Amount">
+<input type="number" id="rate1" placeholder="Interest Rate (%)">
+<input type="number" id="tenure1" placeholder="Tenure (Months)">
+</div>
+
+<div class="card">
+<h3>Loan Option 2</h3>
+<input type="number" id="amt2" placeholder="Loan Amount">
+<input type="number" id="rate2" placeholder="Interest Rate (%)">
+<input type="number" id="tenure2" placeholder="Tenure (Months)">
+</div>
+
+</div>
+
+<button onclick="compare()">Compare Loans</button>
+
+<div class="result" id="result" style="display:none;"></div>
+
+<div class="back">
+<a href="loan_calculators.html">⬅ Back to Loan Suite</a>
+</div>
+
+</div>
+
+<script>
+
+function format(n){
+ return n.toLocaleString("en-IN",{maximumFractionDigits:2});
+}
+
+function calculateEMI(P,annual,n){
+ let r=annual/12/100;
+ return (P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+}
+
+function compare(){
+
+ let P1=parseFloat(amt1.value);
+ let R1=parseFloat(rate1.value);
+ let N1=parseFloat(tenure1.value);
+
+ let P2=parseFloat(amt2.value);
+ let R2=parseFloat(rate2.value);
+ let N2=parseFloat(tenure2.value);
+
+ if(!P1||!R1||!N1||!P2||!R2||!N2){
+   alert("Fill all fields");
+   return;
+ }
+
+ let emi1=calculateEMI(P1,R1,N1);
+ let emi2=calculateEMI(P2,R2,N2);
+
+ let total1=emi1*N1;
+ let total2=emi2*N2;
+
+ let interest1=total1-P1;
+ let interest2=total2-P2;
+
+ let html=`
+ <table>
+ <tr>
+ <th>Parameter</th>
+ <th>Loan 1</th>
+ <th>Loan 2</th>
+ </tr>
+ <tr>
+ <td>Monthly EMI</td>
+ <td class="${emi1<emi2?'highlight':''}">${format(emi1)}</td>
+ <td class="${emi2<emi1?'highlight':''}">${format(emi2)}</td>
+ </tr>
+ <tr>
+ <td>Total Interest</td>
+ <td class="${interest1<interest2?'highlight':''}">${format(interest1)}</td>
+ <td class="${interest2<interest1?'highlight':''}">${format(interest2)}</td>
+ </tr>
+ <tr>
+ <td>Total Payment</td>
+ <td>${format(total1)}</td>
+ <td>${format(total2)}</td>
+ </tr>
+ </table>
+ `;
+
+ document.getElementById("result").innerHTML=html;
+ document.getElementById("result").style.display="block";
+}
+
+</script>
+
+</body>
+</html>
