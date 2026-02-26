@@ -19,11 +19,11 @@ body{
   background:var(--bg);
 }
 
-/* ===== APP HEADER ===== */
+/* ===== HEADER ===== */
 .app-header{
   background:var(--sbi-blue);
   color:white;
-  padding:15px;
+  padding:15px 10px;
   text-align:center;
   position:sticky;
   top:0;
@@ -31,21 +31,29 @@ body{
 }
 
 .logo{
-  width:60%;
-  max-width:250px;
+  width:70%;
+  max-width:300px;
   height:auto;
   margin-bottom:8px;
 }
 
 .app-header h1{
   margin:0;
-  font-size:16px;
+  font-size:15px;
 }
 
 .app-header h2{
-  margin:4px 0 0 0;
+  margin:3px 0;
   font-size:12px;
   font-weight:normal;
+}
+
+/* Date & Time */
+.datetime{
+  margin-top:6px;
+  font-size:12px;
+  opacity:0.95;
+  letter-spacing:0.5px;
 }
 
 /* ===== CONTENT ===== */
@@ -54,7 +62,7 @@ body{
   padding-bottom:120px;
 }
 
-/* ===== KPI CARD ===== */
+/* KPI */
 .kpi-card{
   background:white;
   padding:18px;
@@ -77,7 +85,7 @@ body{
   color:var(--sbi-blue);
 }
 
-/* ===== APP GRID ===== */
+/* Grid */
 .app-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -110,7 +118,7 @@ body{
   color:#333;
 }
 
-/* ===== BOTTOM NAV ===== */
+/* Bottom Nav */
 .bottom-nav{
   position:fixed;
   bottom:50px;
@@ -127,7 +135,7 @@ body{
   color:var(--sbi-blue);
 }
 
-/* ===== FOOTER ===== */
+/* Footer */
 .footer{
   position:fixed;
   bottom:0;
@@ -153,14 +161,15 @@ body{
 
 <body>
 
-<!-- ===== APP HEADER ===== -->
+<!-- HEADER -->
 <div class="app-header">
   <img src="mpgb_header_small.png" class="logo">
   <h1>MADHYA PRADESH GRAMIN BANK</h1>
   <h2>RO Jabalpur – Digital Dashboard</h2>
+  <div class="datetime" id="datetime"></div>
 </div>
 
-<!-- ===== MAIN CONTENT ===== -->
+<!-- CONTENT -->
 <div class="content">
 
   <div class="kpi-card">
@@ -204,14 +213,14 @@ body{
 
 </div>
 
-<!-- ===== BOTTOM NAV ===== -->
+<!-- Bottom Nav -->
 <div class="bottom-nav">
   <i class="fa-solid fa-house"></i>
   <i class="fa-solid fa-bell"></i>
   <i class="fa-solid fa-user"></i>
 </div>
 
-<!-- ===== FOOTER ===== -->
+<!-- Footer -->
 <div class="footer">
   © MPGB | RO Jabalpur IT Cell
   <div class="developer">
@@ -220,10 +229,12 @@ body{
 </div>
 
 <script>
+
 function go(page){
   window.location.href = page;
 }
 
+/* Branch Counter Animation */
 function animateCounter(){
   let count=0;
   let target=53;
@@ -234,6 +245,28 @@ function animateCounter(){
   },20);
 }
 animateCounter();
+
+/* Live Date & Time */
+function updateDateTime(){
+  const now = new Date();
+
+  const options = { 
+    day:'2-digit',
+    month:'long',
+    year:'numeric',
+    weekday:'long'
+  };
+
+  const date = now.toLocaleDateString('en-IN', options);
+  const time = now.toLocaleTimeString('en-IN');
+
+  document.getElementById("datetime").innerHTML =
+    date + " | " + time + " IST";
+}
+
+setInterval(updateDateTime,1000);
+updateDateTime();
+
 </script>
 
 </body>
