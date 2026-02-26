@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loan Eligibility & Recommendation - MPGB</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',Arial;
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+}
+
+.header{
+  background:linear-gradient(135deg,#004d1a,#00b050);
+  color:white;
+  text-align:center;
+  padding:25px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.container{
+  max-width:900px;
+  margin:40px auto;
+  padding:0 20px;
+}
+
+.card{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 15px 35px rgba(0,0,0,0.1);
+}
+
+input,select{
+  width:100%;
+  padding:8px;
+  margin:8px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#006400;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{background:#004d00;}
+
+.result{
+  margin-top:25px;
+  padding:20px;
+  border-radius:15px;
+  background:#f1f8f4;
+}
+
+.badge{
+  display:inline-block;
+  padding:6px 12px;
+  background:#00b050;
+  color:white;
+  border-radius:20px;
+  margin:5px;
+  font-size:12px;
+}
+
+.back{
+  text-align:center;
+  margin-top:30px;
+}
+.back a{
+  text-decoration:none;
+  font-weight:bold;
+  color:#006400;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+MPGB Smart Loan Eligibility Engine
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<input type="number" id="income" placeholder="Net Monthly Income (₹)">
+<input type="number" id="existing" placeholder="Existing EMI (₹)">
+<input type="number" id="age" placeholder="Customer Age">
+<input type="number" id="tenure" placeholder="Required Tenure (Months)">
+<select id="employment">
+  <option value="">Select Employment Type</option>
+  <option value="salaried">Salaried</option>
+  <option value="business">Business</option>
+</select>
+
+<button onclick="calculate()">Check Eligibility</button>
+
+<div class="result" id="result" style="display:none;"></div>
+
+</div>
+
+<div class="back">
+<a href="loan_calculators.html">⬅ Back to Loan Suite</a>
+</div>
+
+</div>
+
+<script>
+
+function calculate(){
+
+let income=parseFloat(document.getElementById("income").value);
+let existing=parseFloat(document.getElementById("existing").value)||0;
+let age=parseFloat(document.getElementById("age").value);
+let tenure=parseFloat(document.getElementById("tenure").value);
+let employment=document.getElementById("employment").value;
+
+if(!income || !age || !tenure || !employment){
+ alert("Fill all required fields");
+ return;
+}
+
+/* FOIR Logic */
+let foir=0;
+
+if(income<=25000) foir=0.50;
+else if(income<=50000) foir=0.55;
+else if(income<=100000) foir=0.60;
+else foir=0.65;
+
+let eligibleEMI=(income*foir)-existing;
+
+if(eligibleEMI<=0){
+ document.getElementById("result").innerHTML="❌ Not eligible due to FOIR limit.";
+ document.getElementById("result").style.display="block";
+ return;
+}
+
+/* Product Suggestion */
+let products=[];
+
+if(tenure>=120) products.push("Housing Loan");
+if(tenure>=36 && tenure<=84) products.push("Vehicle Loan");
+if(employment==="business") products.push("MSME Loan");
+if(employment==="business" && tenure>=24) products.push("Agriculture Loan");
+if(employment==="salaried") products.push("Personal Loan");
+
+let html=`
+<h3>Eligibility Result</h3>
+<p><strong>FOIR Applied:</strong> ${foir*100}%</p>
+<p><strong>Eligible EMI Capacity:</strong> ₹ ${eligibleEMI.toLocaleString("en-IN")}</p>
+<p><strong>Suggested Loan Products:</strong></p>
+`;
+
+products.forEach(p=>{
+ html+=`<span class="badge">${p}</span>`;
+});
+
+document.getElementById("result").innerHTML=html;
+document.getElementById("result").style.display="block";
+
+}
+
+</script>
+
+</body>
+</html>
