@@ -2,60 +2,93 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MPGB Loan Calculators - RO Jabalpur</title>
+<title>MPGB Loan Calculator Suite</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
 :root{
-  --primary:#006400;
-  --secondary:#0b8f3e;
-  --bg:#f4f7f6;
-  --card:#ffffff;
+  --primary:#004d1a;
+  --secondary:#00b050;
+  --accent:#00ff99;
 }
 
 body{
   margin:0;
   font-family:'Segoe UI',Arial;
-  background:var(--bg);
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+  overflow-x:hidden;
 }
 
+/* Header */
 .header{
   background:linear-gradient(135deg,var(--primary),var(--secondary));
   color:white;
-  padding:20px;
   text-align:center;
-  font-size:18px;
-  font-weight:bold;
+  padding:35px 15px;
+  box-shadow:0 20px 50px rgba(0,100,0,0.4);
+  position:relative;
 }
 
+.header h1{margin:0;font-size:24px;}
+.header p{margin:8px 0 0 0;font-size:14px;opacity:0.9}
+
+.header::after{
+  content:"";
+  position:absolute;
+  bottom:-10px;
+  left:0;
+  width:100%;
+  height:20px;
+  background:radial-gradient(circle,rgba(0,255,150,0.4),transparent);
+  filter:blur(20px);
+}
+
+/* Grid */
 .container{
-  max-width:1100px;
-  margin:40px auto;
+  max-width:1200px;
+  margin:50px auto;
   padding:0 20px;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:25px;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:30px;
 }
 
+/* Card */
 .card{
-  background:var(--card);
-  padding:30px;
-  border-radius:18px;
+  background:white;
+  border-radius:25px;
+  padding:35px;
   text-align:center;
-  box-shadow:0 15px 35px rgba(0,0,0,0.08);
-  transition:0.3s;
+  box-shadow:0 20px 50px rgba(0,0,0,0.08);
+  transition:0.4s;
+  position:relative;
+  overflow:hidden;
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:25px;
+  padding:2px;
+  background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent));
+  -webkit-mask:
+     linear-gradient(#fff 0 0) content-box,
+     linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+          mask-composite:exclude;
 }
 
 .card:hover{
-  transform:translateY(-8px);
-  box-shadow:0 25px 50px rgba(0,0,0,0.15);
+  transform:translateY(-12px) scale(1.03);
+  box-shadow:0 30px 80px rgba(0,0,0,0.2);
 }
 
 .card i{
-  font-size:35px;
-  color:var(--primary);
+  font-size:42px;
   margin-bottom:15px;
+  color:var(--primary);
 }
 
 .card h3{
@@ -68,20 +101,43 @@ body{
   color:#555;
 }
 
+/* Badge */
+.badge{
+  position:absolute;
+  top:15px;
+  right:15px;
+  background:var(--secondary);
+  color:white;
+  padding:5px 10px;
+  font-size:11px;
+  border-radius:15px;
+}
+
+/* Button */
 .btn{
   display:inline-block;
-  margin-top:15px;
-  padding:10px 22px;
+  margin-top:18px;
+  padding:12px 30px;
+  border-radius:40px;
   background:linear-gradient(135deg,var(--primary),var(--secondary));
   color:white;
-  border-radius:25px;
   text-decoration:none;
   font-weight:bold;
-  transition:0.3s;
+  transition:0.4s;
 }
 
 .btn:hover{
-  transform:scale(1.08);
+  transform:scale(1.1);
+  box-shadow:0 15px 40px rgba(0,150,0,0.5);
+}
+
+/* Footer */
+.footer{
+  text-align:center;
+  padding:20px;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:white;
+  margin-top:60px;
 }
 
 .back{
@@ -91,8 +147,8 @@ body{
 
 .back a{
   text-decoration:none;
-  color:var(--primary);
   font-weight:bold;
+  color:var(--primary);
 }
 </style>
 </head>
@@ -100,43 +156,49 @@ body{
 <body>
 
 <div class="header">
-MPGB Loan Calculator Panel | RO Jabalpur
+  <h1>MPGB Loan Calculator Suite</h1>
+  <p>Regional Office Jabalpur – Enterprise Banking Tools</p>
 </div>
 
 <div class="container">
 
 <div class="card">
+  <div class="badge">Housing</div>
   <i class="fa-solid fa-house"></i>
   <h3>Housing Loan</h3>
-  <p>Eligibility & EMI as per circular norms.</p>
+  <p>Eligibility & EMI calculation as per circular norms.</p>
   <a href="home.html" class="btn">Open</a>
 </div>
 
 <div class="card">
+  <div class="badge">Vehicle</div>
   <i class="fa-solid fa-car"></i>
   <h3>Vehicle Loan</h3>
-  <p>Vehicle EMI & eligibility calculator.</p>
+  <p>EMI & eligibility calculation.</p>
   <a href="emi.html" class="btn">Open</a>
 </div>
 
 <div class="card">
-  <i class="fa-solid fa-tractor"></i>
-  <h3>Agriculture Loan</h3>
-  <p>Agri loan EMI calculator.</p>
-  <a href="emi.html" class="btn">Open</a>
-</div>
-
-<div class="card">
+  <div class="badge">MSME</div>
   <i class="fa-solid fa-store"></i>
   <h3>MSME Loan</h3>
-  <p>Business loan EMI calculator.</p>
+  <p>Business loan EMI & assessment tool.</p>
   <a href="emi.html" class="btn">Open</a>
 </div>
 
 <div class="card">
+  <div class="badge">Agriculture</div>
+  <i class="fa-solid fa-tractor"></i>
+  <h3>Agriculture Loan</h3>
+  <p>Agri credit EMI calculator.</p>
+  <a href="emi.html" class="btn">Open</a>
+</div>
+
+<div class="card">
+  <div class="badge">Solar</div>
   <i class="fa-solid fa-solar-panel"></i>
   <h3>Solar Loan</h3>
-  <p>Solar project EMI & subsidy check.</p>
+  <p>Solar project EMI & subsidy estimate.</p>
   <a href="emi.html" class="btn">Open</a>
 </div>
 
@@ -144,6 +206,10 @@ MPGB Loan Calculator Panel | RO Jabalpur
 
 <div class="back">
   <a href="index.html">⬅ Back to Dashboard</a>
+</div>
+
+<div class="footer">
+© Madhya Pradesh Gramin Bank | RO Jabalpur IT Cell
 </div>
 
 </body>
