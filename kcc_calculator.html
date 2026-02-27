@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KCC Eligibility & Credit Limit Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+font-family: Arial;
+background:#f4f8fb;
+padding:20px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{
+text-align:center;
+color:#006400;
+}
+
+input, select{
+width:100%;
+padding:8px;
+margin:6px 0;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+button{
+background:#006400;
+color:white;
+padding:10px;
+border:none;
+width:100%;
+border-radius:5px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#004d00;
+}
+
+.result{
+margin-top:20px;
+background:#f0fff0;
+padding:15px;
+border-radius:8px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:6px;
+text-align:center;
+}
+
+.print-btn{
+background:#003366;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>KCC Eligibility & 5-Year Limit Calculator</h2>
+
+<label>Farmer Category</label>
+<select id="category">
+<option value="normal">Other Farmer</option>
+<option value="marginal">Marginal Farmer</option>
+</select>
+
+<label>Total Land (in Acre)</label>
+<input type="number" id="land">
+
+<label>Scale of Finance per Acre (₹)</label>
+<input type="number" id="sof">
+
+<label>Crop Insurance (₹)</label>
+<input type="number" id="insurance" value="0">
+
+<label>Allied Activity (if any ₹)</label>
+<input type="number" id="allied" value="0">
+
+<button onclick="calculateKCC()">Calculate</button>
+
+<div class="result" id="output"></div>
+
+<button class="print-btn" onclick="window.print()">Print Sanction Sheet</button>
+
+</div>
+
+<script>
+
+function calculateKCC(){
+
+let land = parseFloat(document.getElementById("land").value);
+let sof = parseFloat(document.getElementById("sof").value);
+let insurance = parseFloat(document.getElementById("insurance").value);
+let allied = parseFloat(document.getElementById("allied").value);
+let category = document.getElementById("category").value;
+
+let cropCost = land * sof;
+
+let year1 = cropCost + (cropCost*0.10) + (cropCost*0.20) + insurance + allied;
+
+let year2Crop = cropCost * 1.10;
+let year3Crop = year2Crop * 1.10;
+let year4Crop = year3Crop * 1.10;
+let year5Crop = year4Crop * 1.10;
+
+let year2 = year2Crop + (year2Crop*0.10) + (year2Crop*0.20) + insurance + allied;
+let year3 = year3Crop + (year3Crop*0.10) + (year3Crop*0.20) + insurance + allied;
+let year4 = year4Crop + (year4Crop*0.10) + (year4Crop*0.20) + insurance + allied;
+let year5 = year5Crop + (year5Crop*0.10) + (year5Crop*0.20) + insurance + allied;
+
+let mpl = Math.max(year1,year2,year3,year4,year5);
+
+let marginText = (mpl <= 160000) ? "No Margin (Up to 1.60 lakh)" : "Margin as per Bank Norms";
+let securityText = (mpl <= 200000) ? "Hypothecation of Crops" : "Collateral / As per Bank Norms";
+
+let marginalNote = "";
+if(category=="marginal" && mpl<=50000){
+marginalNote = "<b>Eligible under Simplified Marginal Farmer Norm</b><br>";
+}
+
+document.getElementById("output").innerHTML = `
+${marginalNote}
+<b>Year 1 Limit:</b> ₹ ${year1.toFixed(0)} <br>
+<b>Year 2 Limit:</b> ₹ ${year2.toFixed(0)} <br>
+<b>Year 3 Limit:</b> ₹ ${year3.toFixed(0)} <br>
+<b>Year 4 Limit:</b> ₹ ${year4.toFixed(0)} <br>
+<b>Year 5 Limit:</b> ₹ ${year5.toFixed(0)} <br><br>
+
+<b>Maximum Permissible Limit (MPL):</b> ₹ ${mpl.toFixed(0)} <br><br>
+
+<b>Margin:</b> ${marginText} <br>
+<b>Security:</b> ${securityText}
+`;
+
+}
+
+</script>
+
+</body>
+</html>
