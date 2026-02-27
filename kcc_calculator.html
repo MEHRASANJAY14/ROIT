@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>KCC Eligibility & Credit Limit Calculator</title>
+<title>KCC Branch Credit Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+
 body{
 font-family: Arial;
-background:#f4f8fb;
+background:#f0f6f0;
 padding:20px;
 }
 
 .container{
-max-width:800px;
+max-width:1000px;
 margin:auto;
 background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+padding:25px;
+border-radius:12px;
+box-shadow:0 0 15px rgba(0,0,0,0.1);
 }
 
 h2{
@@ -24,21 +25,28 @@ text-align:center;
 color:#006400;
 }
 
-input, select{
+label{
+font-weight:bold;
+display:block;
+margin-top:10px;
+}
+
+input,select{
 width:100%;
 padding:8px;
-margin:6px 0;
+margin-top:5px;
+border-radius:6px;
 border:1px solid #ccc;
-border-radius:5px;
 }
 
 button{
 background:#006400;
 color:white;
-padding:10px;
-border:none;
+padding:12px;
 width:100%;
-border-radius:5px;
+margin-top:15px;
+border:none;
+border-radius:6px;
 font-size:16px;
 cursor:pointer;
 }
@@ -48,28 +56,42 @@ background:#004d00;
 }
 
 .result{
-margin-top:20px;
-background:#f0fff0;
-padding:15px;
+margin-top:25px;
+background:#f5fff5;
+padding:20px;
+border-left:6px solid #006400;
 border-radius:8px;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:10px;
+margin-top:15px;
 }
 
-th,td{
+th{
+background:#006400;
+color:white;
+padding:8px;
+}
+
+td{
 border:1px solid #ccc;
-padding:6px;
+padding:8px;
 text-align:center;
+}
+
+.highlight{
+font-size:18px;
+font-weight:bold;
+color:#b30000;
 }
 
 .print-btn{
 background:#003366;
-margin-top:10px;
+margin-top:15px;
 }
+
 </style>
 </head>
 
@@ -77,80 +99,116 @@ margin-top:10px;
 
 <div class="container">
 
-<h2>KCC Eligibility & 5-Year Limit Calculator</h2>
+<h2>KCC Branch Circular Engine</h2>
 
-<label>Farmer Category</label>
-<select id="category">
-<option value="normal">Other Farmer</option>
-<option value="marginal">Marginal Farmer</option>
+<label>District</label>
+<select id="district" onchange="autoSOF()">
+<option value="">Select District</option>
+<option value="35000">Jabalpur (SOF ₹35,000)</option>
+<option value="40000">Sagar (SOF ₹40,000)</option>
+<option value="38000">Damoh (SOF ₹38,000)</option>
 </select>
 
-<label>Total Land (in Acre)</label>
+<label>Total Land (Acre)</label>
 <input type="number" id="land">
 
 <label>Scale of Finance per Acre (₹)</label>
 <input type="number" id="sof">
 
-<label>Crop Insurance (₹)</label>
-<input type="number" id="insurance" value="0">
+<label>PMFBY Insurance Rate (%)</label>
+<input type="number" id="insrate" value="2">
 
-<label>Allied Activity (if any ₹)</label>
+<label>Allied Activity (₹)</label>
 <input type="number" id="allied" value="0">
 
-<button onclick="calculateKCC()">Calculate</button>
+<button onclick="calculateKCC()">Generate Sanction</button>
 
 <div class="result" id="output"></div>
 
-<button class="print-btn" onclick="window.print()">Print Sanction Sheet</button>
+<button class="print-btn" onclick="window.print()">Print Sanction Memo</button>
 
 </div>
 
 <script>
 
-function calculateKCC(){
-
-let land = parseFloat(document.getElementById("land").value);
-let sof = parseFloat(document.getElementById("sof").value);
-let insurance = parseFloat(document.getElementById("insurance").value);
-let allied = parseFloat(document.getElementById("allied").value);
-let category = document.getElementById("category").value;
-
-let cropCost = land * sof;
-
-let year1 = cropCost + (cropCost*0.10) + (cropCost*0.20) + insurance + allied;
-
-let year2Crop = cropCost * 1.10;
-let year3Crop = year2Crop * 1.10;
-let year4Crop = year3Crop * 1.10;
-let year5Crop = year4Crop * 1.10;
-
-let year2 = year2Crop + (year2Crop*0.10) + (year2Crop*0.20) + insurance + allied;
-let year3 = year3Crop + (year3Crop*0.10) + (year3Crop*0.20) + insurance + allied;
-let year4 = year4Crop + (year4Crop*0.10) + (year4Crop*0.20) + insurance + allied;
-let year5 = year5Crop + (year5Crop*0.10) + (year5Crop*0.20) + insurance + allied;
-
-let mpl = Math.max(year1,year2,year3,year4,year5);
-
-let marginText = (mpl <= 160000) ? "No Margin (Up to 1.60 lakh)" : "Margin as per Bank Norms";
-let securityText = (mpl <= 200000) ? "Hypothecation of Crops" : "Collateral / As per Bank Norms";
-
-let marginalNote = "";
-if(category=="marginal" && mpl<=50000){
-marginalNote = "<b>Eligible under Simplified Marginal Farmer Norm</b><br>";
+function autoSOF(){
+let districtValue=document.getElementById("district").value;
+document.getElementById("sof").value=districtValue;
 }
 
-document.getElementById("output").innerHTML = `
-${marginalNote}
-<b>Year 1 Limit:</b> ₹ ${year1.toFixed(0)} <br>
-<b>Year 2 Limit:</b> ₹ ${year2.toFixed(0)} <br>
-<b>Year 3 Limit:</b> ₹ ${year3.toFixed(0)} <br>
-<b>Year 4 Limit:</b> ₹ ${year4.toFixed(0)} <br>
-<b>Year 5 Limit:</b> ₹ ${year5.toFixed(0)} <br><br>
+function calculateKCC(){
 
-<b>Maximum Permissible Limit (MPL):</b> ₹ ${mpl.toFixed(0)} <br><br>
+let land=parseFloat(document.getElementById("land").value)||0;
+let sof=parseFloat(document.getElementById("sof").value)||0;
+let insrate=parseFloat(document.getElementById("insrate").value)||0;
+let allied=parseFloat(document.getElementById("allied").value)||0;
 
-<b>Margin:</b> ${marginText} <br>
-<b>Security:</b> ${securityText}
+if(land<=0 || sof<=0){
+alert("Enter valid land & SOF");
+return;
+}
+
+let base=land*sof;
+let insurance=base*(insrate/100);
+
+function yearCalc(crop){
+return crop + (crop*0.10) + (crop*0.20) + insurance + allied;
+}
+
+let y1Crop=base;
+let y2Crop=y1Crop*1.10;
+let y3Crop=y2Crop*1.10;
+let y4Crop=y3Crop*1.10;
+let y5Crop=y4Crop*1.10;
+
+let y1=yearCalc(y1Crop);
+let y2=yearCalc(y2Crop);
+let y3=yearCalc(y3Crop);
+let y4=yearCalc(y4Crop);
+let y5=yearCalc(y5Crop);
+
+let mpl=Math.max(y1,y2,y3,y4,y5);
+
+let processingCharge=0;
+
+if(mpl<=100000){
+processingCharge=0;
+}
+else if(mpl<=300000){
+processingCharge=400;
+}
+else if(mpl<=500000){
+processingCharge=5000;
+}
+else{
+processingCharge=10000;
+}
+
+let interestRate="7% p.a. (Subvention eligible if prompt payment)";
+let repayment="12 months (Short Crop) / 18 months (Long Crop)";
+
+document.getElementById("output").innerHTML=`
+
+<h3>5-Year Credit Projection</h3>
+
+<table>
+<tr><th>Year</th><th>Total Limit (₹)</th></tr>
+<tr><td>Year 1</td><td>${y1.toFixed(0)}</td></tr>
+<tr><td>Year 2</td><td>${y2.toFixed(0)}</td></tr>
+<tr><td>Year 3</td><td>${y3.toFixed(0)}</td></tr>
+<tr><td>Year 4</td><td>${y4.toFixed(0)}</td></tr>
+<tr><td>Year 5</td><td>${y5.toFixed(0)}</td></tr>
+</table>
+
+<br>
+<div class="highlight">Maximum Permissible Limit (MPL): ₹ ${mpl.toFixed(0)}</div>
+
+<br>
+<b>Insurance (PMFBY):</b> ₹ ${insurance.toFixed(0)} <br>
+<b>Processing Charges:</b> ₹ ${processingCharge} <br>
+<b>Interest Rate:</b> ${interestRate} <br>
+<b>Repayment Period:</b> ${repayment}
+
 `;
 
 }
