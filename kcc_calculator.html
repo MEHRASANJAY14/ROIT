@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>KCC 55 District Master Engine</title>
+<title>KCC 55 District Complete Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 
@@ -63,6 +63,12 @@ border-left:6px solid #006400;
 border-radius:8px;
 }
 
+.highlight{
+font-size:18px;
+font-weight:bold;
+color:#b30000;
+}
+
 table{
 width:100%;
 border-collapse:collapse;
@@ -81,12 +87,6 @@ padding:8px;
 text-align:center;
 }
 
-.highlight{
-font-size:18px;
-font-weight:bold;
-color:#b30000;
-}
-
 </style>
 </head>
 
@@ -94,71 +94,69 @@ color:#b30000;
 
 <div class="container">
 
-<h2>KCC District + Crop Based Credit Engine (55 Districts)</h2>
+<h2>KCC District Wise SOF Engine (55 Districts)</h2>
 
 <label>District</label>
-<select id="district">
+<select id="district" onchange="autoSOF()">
 <option value="">Select District</option>
-
-<option>Agar Malwa</option>
-<option>Alirajpur</option>
-<option>Anuppur</option>
-<option>Ashoknagar</option>
-<option>Balaghat</option>
-<option>Barwani</option>
-<option>Betul</option>
-<option>Bhind</option>
-<option>Bhopal</option>
-<option>Burhanpur</option>
-<option>Chhatarpur</option>
-<option>Chhindwara</option>
-<option>Damoh</option>
-<option>Datia</option>
-<option>Dewas</option>
-<option>Dhar</option>
-<option>Dindori</option>
-<option>Guna</option>
-<option>Gwalior</option>
-<option>Harda</option>
-<option>Narmadapuram</option>
-<option>Indore</option>
-<option>Jabalpur</option>
-<option>Jhabua</option>
-<option>Katni</option>
-<option>Khandwa</option>
-<option>Khargone</option>
-<option>Maihar</option>
-<option>Mandla</option>
-<option>Mandsaur</option>
-<option>Morena</option>
-<option>Narsinghpur</option>
-<option>Neemuch</option>
-<option>Niwari</option>
-<option>Panna</option>
-<option>Pandhurna</option>
-<option>Raisen</option>
-<option>Rajgarh</option>
-<option>Ratlam</option>
-<option>Rewa</option>
-<option>Sagar</option>
-<option>Satna</option>
-<option>Sehore</option>
-<option>Seoni</option>
-<option>Shahdol</option>
-<option>Shajapur</option>
-<option>Sheopur</option>
-<option>Shivpuri</option>
-<option>Sidhi</option>
-<option>Singrauli</option>
-<option>Tikamgarh</option>
-<option>Ujjain</option>
-<option>Umaria</option>
-<option>Vidisha</option>
-
+<option value="agar_malwa">Agar Malwa</option>
+<option value="alirajpur">Alirajpur</option>
+<option value="anuppur">Anuppur</option>
+<option value="ashoknagar">Ashoknagar</option>
+<option value="balaghat">Balaghat</option>
+<option value="barwani">Barwani</option>
+<option value="betul">Betul</option>
+<option value="bhind">Bhind</option>
+<option value="bhopal">Bhopal</option>
+<option value="burhanpur">Burhanpur</option>
+<option value="chhatarpur">Chhatarpur</option>
+<option value="chhindwara">Chhindwara</option>
+<option value="damoh">Damoh</option>
+<option value="datia">Datia</option>
+<option value="dewas">Dewas</option>
+<option value="dhar">Dhar</option>
+<option value="dindori">Dindori</option>
+<option value="guna">Guna</option>
+<option value="gwalior">Gwalior</option>
+<option value="harda">Harda</option>
+<option value="narmadapuram">Narmadapuram</option>
+<option value="indore">Indore</option>
+<option value="jabalpur">Jabalpur</option>
+<option value="jhabua">Jhabua</option>
+<option value="katni">Katni</option>
+<option value="khandwa">Khandwa</option>
+<option value="khargone">Khargone</option>
+<option value="maihar">Maihar</option>
+<option value="mandla">Mandla</option>
+<option value="mandsaur">Mandsaur</option>
+<option value="morena">Morena</option>
+<option value="narsinghpur">Narsinghpur</option>
+<option value="neemuch">Neemuch</option>
+<option value="niwari">Niwari</option>
+<option value="panna">Panna</option>
+<option value="pandhurna">Pandhurna</option>
+<option value="raisen">Raisen</option>
+<option value="rajgarh">Rajgarh</option>
+<option value="ratlam">Ratlam</option>
+<option value="rewa">Rewa</option>
+<option value="sagar">Sagar</option>
+<option value="satna">Satna</option>
+<option value="sehore">Sehore</option>
+<option value="seoni">Seoni</option>
+<option value="shahdol">Shahdol</option>
+<option value="shajapur">Shajapur</option>
+<option value="sheopur">Sheopur</option>
+<option value="shivpuri">Shivpuri</option>
+<option value="sidhi">Sidhi</option>
+<option value="singrauli">Singrauli</option>
+<option value="tikamgarh">Tikamgarh</option>
+<option value="ujjain">Ujjain</option>
+<option value="umaria">Umaria</option>
+<option value="vidisha">Vidisha</option>
 </select>
 
 <label>Crop</label>
-<select id="crop">
+<select id="crop" onchange="autoSOF()">
 <option value="">Select Crop</option>
 <option value="wheat">Wheat</option>
 <option value="soyabean">Soyabean</option>
@@ -167,7 +165,7 @@ color:#b30000;
 </select>
 
 <label>Irrigation</label>
-<select id="irrigation">
+<select id="irrigation" onchange="autoSOF()">
 <option value="irrigated">Irrigated</option>
 <option value="rainfed">Rainfed</option>
 </select>
@@ -176,7 +174,14 @@ color:#b30000;
 <input type="number" id="land">
 
 <label>Scale of Finance per Acre (₹)</label>
-<input type="number" id="sof" placeholder="Enter or edit SOF manually">
+<input type="number" id="sof" oninput="markEdited()">
+<small id="sofNote" style="color:green;">DTC Approved SOF</small>
+
+<label>Insurance (Actual ₹)</label>
+<input type="number" id="insurance" value="0">
+
+<label>Allied Activity (₹)</label>
+<input type="number" id="allied" value="0">
 
 <button onclick="calculateKCC()">Calculate KCC Limit</button>
 
@@ -186,62 +191,118 @@ color:#b30000;
 
 <script>
 
-function getBaseSOF(crop, irrigation){
+let defaultSOF=0;
 
-let baseRates = {
-wheat:{irrigated:45000, rainfed:37000},
-soyabean:{irrigated:47000, rainfed:39000},
-paddy:{irrigated:48000, rainfed:40000},
-gram:{irrigated:40000, rainfed:32000}
+/* FULL 55 DISTRICT SOF MASTER */
+const sofMaster = {
+agar_malwa:{wheat:{irrigated:42000,rainfed:35000},soyabean:{irrigated:43000,rainfed:36000},gram:{irrigated:39000,rainfed:32000}},
+alirajpur:{wheat:{irrigated:40000,rainfed:33000},soyabean:{irrigated:41000,rainfed:34000},gram:{irrigated:37000,rainfed:30000}},
+anuppur:{wheat:{irrigated:41000,rainfed:34000},paddy:{irrigated:46000,rainfed:38000}},
+ashoknagar:{wheat:{irrigated:42000,rainfed:35000},gram:{irrigated:38000,rainfed:31000}},
+balaghat:{paddy:{irrigated:48000,rainfed:40000},wheat:{irrigated:43000,rainfed:36000}},
+barwani:{soyabean:{irrigated:42000,rainfed:35000},gram:{irrigated:37000,rainfed:30000}},
+betul:{soyabean:{irrigated:44000,rainfed:37000},wheat:{irrigated:43000,rainfed:35000}},
+bhind:{wheat:{irrigated:41000,rainfed:34000},gram:{irrigated:37000,rainfed:30000}},
+bhopal:{wheat:{irrigated:45000,rainfed:37000},soyabean:{irrigated:46000,rainfed:38000}},
+burhanpur:{soyabean:{irrigated:43000,rainfed:36000},gram:{irrigated:38000,rainfed:31000}},
+chhatarpur:{wheat:{irrigated:42000,rainfed:35000},gram:{irrigated:38000,rainfed:30000}},
+chhindwara:{soyabean:{irrigated:45000,rainfed:38000},wheat:{irrigated:44000,rainfed:36000}},
+damoh:{wheat:{irrigated:40000,rainfed:33000},gram:{irrigated:37000,rainfed:30000}},
+datia:{wheat:{irrigated:41000,rainfed:34000},gram:{irrigated:37000,rainfed:30000}},
+dewas:{soyabean:{irrigated:45000,rainfed:38000},wheat:{irrigated:44000,rainfed:36000}},
+dhar:{soyabean:{irrigated:46000,rainfed:39000},wheat:{irrigated:45000,rainfed:37000}},
+dindori:{paddy:{irrigated:47000,rainfed:39000}},
+guna:{wheat:{irrigated:42000,rainfed:35000},gram:{irrigated:38000,rainfed:30000}},
+gwalior:{wheat:{irrigated:42000,rainfed:35000}},
+harda:{soyabean:{irrigated:45000,rainfed:38000}},
+narmadapuram:{soyabean:{irrigated:46000,rainfed:39000}},
+indore:{soyabean:{irrigated:48000,rainfed:40000},wheat:{irrigated:47000,rainfed:39000}},
+jabalpur:{paddy:{irrigated:48000,rainfed:40000},wheat:{irrigated:44000,rainfed:36000}},
+jhabua:{soyabean:{irrigated:42000,rainfed:35000}},
+katni:{wheat:{irrigated:43000,rainfed:36000}},
+khandwa:{soyabean:{irrigated:44000,rainfed:37000}},
+khargone:{soyabean:{irrigated:45000,rainfed:38000}},
+maihar:{wheat:{irrigated:42000,rainfed:35000}},
+mandla:{paddy:{irrigated:47000,rainfed:39000}},
+mandsaur:{soyabean:{irrigated:45000,rainfed:38000},wheat:{irrigated:44000,rainfed:36000}},
+morena:{wheat:{irrigated:41000,rainfed:34000}},
+narsinghpur:{soyabean:{irrigated:45000,rainfed:38000}},
+neemuch:{soyabean:{irrigated:45000,rainfed:38000}},
+niwari:{wheat:{irrigated:40000,rainfed:33000}},
+panna:{wheat:{irrigated:41000,rainfed:34000}},
+pandhurna:{soyabean:{irrigated:44000,rainfed:37000}},
+raisen:{soyabean:{irrigated:45000,rainfed:38000}},
+rajgarh:{soyabean:{irrigated:44000,rainfed:37000}},
+ratlam:{soyabean:{irrigated:45000,rainfed:38000}},
+rewa:{paddy:{irrigated:46000,rainfed:38000},wheat:{irrigated:43000,rainfed:35000}},
+sagar:{wheat:{irrigated:42000,rainfed:34000},gram:{irrigated:38000,rainfed:30000}},
+satna:{paddy:{irrigated:45000,rainfed:37000}},
+sehore:{soyabean:{irrigated:45000,rainfed:38000}},
+seoni:{paddy:{irrigated:47000,rainfed:39000}},
+shahdol:{paddy:{irrigated:46000,rainfed:38000}},
+shajapur:{soyabean:{irrigated:44000,rainfed:37000}},
+sheopur:{wheat:{irrigated:40000,rainfed:33000}},
+shivpuri:{wheat:{irrigated:41000,rainfed:34000}},
+sidhi:{paddy:{irrigated:46000,rainfed:38000}},
+singrauli:{paddy:{irrigated:47000,rainfed:39000}},
+tikamgarh:{wheat:{irrigated:40000,rainfed:33000}},
+ujjain:{soyabean:{irrigated:45000,rainfed:38000}},
+umaria:{paddy:{irrigated:46000,rainfed:38000}},
+vidisha:{wheat:{irrigated:43000,rainfed:35000}}
 };
 
-return baseRates[crop][irrigation];
+function autoSOF(){
+let d=document.getElementById("district").value;
+let c=document.getElementById("crop").value;
+let i=document.getElementById("irrigation").value;
+
+if(sofMaster[d] && sofMaster[d][c] && sofMaster[d][c][i]){
+defaultSOF=sofMaster[d][c][i];
+document.getElementById("sof").value=defaultSOF;
+document.getElementById("sofNote").innerHTML="DTC Approved SOF";
+document.getElementById("sofNote").style.color="green";
+}
+}
+
+function markEdited(){
+let current=document.getElementById("sof").value;
+if(current!=defaultSOF){
+document.getElementById("sofNote").innerHTML="SOF Manually Edited";
+document.getElementById("sofNote").style.color="red";
+}
 }
 
 function calculateKCC(){
 
 let land=parseFloat(document.getElementById("land").value)||0;
-let crop=document.getElementById("crop").value;
-let irrigation=document.getElementById("irrigation").value;
-let sofInput=parseFloat(document.getElementById("sof").value);
+let sof=parseFloat(document.getElementById("sof").value)||0;
+let insurance=parseFloat(document.getElementById("insurance").value)||0;
+let allied=parseFloat(document.getElementById("allied").value)||0;
 
-if(land<=0 || !crop || !irrigation){
-alert("Please fill all required fields.");
+if(land<=0||sof<=0){
+alert("Enter valid inputs.");
 return;
 }
 
-let sof = sofInput || getBaseSOF(crop, irrigation);
-
-let base=land*sof;
-let insurance=base*0.02;
-
-function yearCalc(cropCost){
-return cropCost + (cropCost*0.10)+(cropCost*0.20)+insurance;
+function yearCalc(cost){
+return cost + (cost*0.10)+(cost*0.20)+insurance+allied;
 }
 
-let y1Crop=base;
-let y2Crop=y1Crop*1.10;
-let y3Crop=y2Crop*1.10;
-let y4Crop=y3Crop*1.10;
-let y5Crop=y4Crop*1.10;
-
-let y1=yearCalc(y1Crop);
-let y2=yearCalc(y2Crop);
-let y3=yearCalc(y3Crop);
-let y4=yearCalc(y4Crop);
-let y5=yearCalc(y5Crop);
+let y1=yearCalc(land*sof);
+let y2=yearCalc((land*sof)*1.10);
+let y3=yearCalc((land*sof)*1.21);
+let y4=yearCalc((land*sof)*1.331);
+let y5=yearCalc((land*sof)*1.4641);
 
 let mpl=Math.max(y1,y2,y3,y4,y5);
 
-let margin=(mpl<=160000)?"No Margin":"Margin Applicable";
-let security=(mpl<=200000)?"Hypothecation of Crops":"Collateral Required";
+let margin=(mpl<=160000)?"No Margin":"Margin As Per Norms";
+let security=(mpl<=200000)?"Hypothecation":"Collateral Required";
 
 document.getElementById("output").innerHTML=`
-
 <h3>5-Year Projection</h3>
-
 <table>
-<tr><th>Year</th><th>Total Limit (₹)</th></tr>
+<tr><th>Year</th><th>Total Limit</th></tr>
 <tr><td>Year 1</td><td>${y1.toFixed(0)}</td></tr>
 <tr><td>Year 2</td><td>${y2.toFixed(0)}</td></tr>
 <tr><td>Year 3</td><td>${y3.toFixed(0)}</td></tr>
@@ -250,16 +311,12 @@ document.getElementById("output").innerHTML=`
 </table>
 
 <br>
-<div class="highlight">Maximum Permissible Limit (MPL): ₹ ${mpl.toFixed(0)}</div>
+<div class="highlight">MPL: ₹ ${mpl.toFixed(0)}</div>
 
 <br>
-<b>Base Crop Cost:</b> ₹ ${base.toFixed(0)} <br>
-<b>PMFBY Insurance (2% assumed):</b> ₹ ${insurance.toFixed(0)} <br>
-<b>Margin:</b> ${margin} <br>
+<b>Margin:</b> ${margin}<br>
 <b>Security:</b> ${security}
-
 `;
-
 }
 
 </script>
