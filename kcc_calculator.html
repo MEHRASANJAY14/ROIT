@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>KCC Branch Credit Engine</title>
+<title>KCC Full Crop Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 
 body{
 font-family: Arial;
-background:#f0f6f0;
+background:#eef5ee;
 padding:20px;
 }
 
@@ -87,9 +87,9 @@ font-weight:bold;
 color:#b30000;
 }
 
-.print-btn{
-background:#003366;
-margin-top:15px;
+.small{
+font-size:12px;
+color:#666;
 }
 
 </style>
@@ -99,49 +99,83 @@ margin-top:15px;
 
 <div class="container">
 
-<h2>KCC Branch Circular Engine</h2>
+<h2>KCC Crop & Season Based Credit Engine</h2>
 
 <label>District</label>
-<select id="district" onchange="autoSOF()">
+<select id="district">
 <option value="">Select District</option>
-<option value="35000">Jabalpur (SOF ₹35,000)</option>
-<option value="40000">Sagar (SOF ₹40,000)</option>
-<option value="38000">Damoh (SOF ₹38,000)</option>
+<option value="MP">Madhya Pradesh</option>
+</select>
+
+<label>Season</label>
+<select id="season">
+<option value="kharif">Kharif</option>
+<option value="rabi">Rabi</option>
+</select>
+
+<label>Crop Type</label>
+<select id="crop" onchange="autoSOF()">
+<option value="">Select Crop</option>
+<option value="wheat">Wheat</option>
+<option value="soyabean">Soyabean</option>
+<option value="paddy">Paddy</option>
+<option value="gram">Gram</option>
+</select>
+
+<label>Irrigation Type</label>
+<select id="irrigation" onchange="autoSOF()">
+<option value="irrigated">Irrigated</option>
+<option value="rainfed">Rainfed</option>
 </select>
 
 <label>Total Land (Acre)</label>
 <input type="number" id="land">
 
 <label>Scale of Finance per Acre (₹)</label>
-<input type="number" id="sof">
+<input type="number" id="sof" oninput="markEdited()">
+<small id="sofNote" style="color:green;">Auto SOF (Crop Based)</small>
 
-<label>PMFBY Insurance Rate (%)</label>
-<input type="number" id="insrate" value="2">
-
-<label>Allied Activity (₹)</label>
-<input type="number" id="allied" value="0">
-
-<button onclick="calculateKCC()">Generate Sanction</button>
+<button onclick="calculateKCC()">Calculate KCC Limit</button>
 
 <div class="result" id="output"></div>
-
-<button class="print-btn" onclick="window.print()">Print Sanction Memo</button>
 
 </div>
 
 <script>
 
+let defaultSOF = 0;
+
+const sofMatrix = {
+    wheat: { irrigated: 45000, rainfed: 38000 },
+    soyabean: { irrigated: 42000, rainfed: 35000 },
+    paddy: { irrigated: 48000, rainfed: 40000 },
+    gram: { irrigated: 40000, rainfed: 32000 }
+};
+
 function autoSOF(){
-let districtValue=document.getElementById("district").value;
-document.getElementById("sof").value=districtValue;
+    let crop=document.getElementById("crop").value;
+    let irrigation=document.getElementById("irrigation").value;
+
+    if(crop && irrigation){
+        defaultSOF=sofMatrix[crop][irrigation];
+        document.getElementById("sof").value=defaultSOF;
+        document.getElementById("sofNote").innerHTML="Auto SOF (Crop Based)";
+        document.getElementById("sofNote").style.color="green";
+    }
+}
+
+function markEdited(){
+    let current=document.getElementById("sof").value;
+    if(current!=defaultSOF){
+        document.getElementById("sofNote").innerHTML="SOF Manually Edited";
+        document.getElementById("sofNote").style.color="red";
+    }
 }
 
 function calculateKCC(){
 
 let land=parseFloat(document.getElementById("land").value)||0;
 let sof=parseFloat(document.getElementById("sof").value)||0;
-let insrate=parseFloat(document.getElementById("insrate").value)||0;
-let allied=parseFloat(document.getElementById("allied").value)||0;
 
 if(land<=0 || sof<=0){
 alert("Enter valid land & SOF");
@@ -149,7 +183,8 @@ return;
 }
 
 let base=land*sof;
-let insurance=base*(insrate/100);
+let insurance=base*0.02; // PMFBY assumed 2%
+let allied=0;
 
 function yearCalc(crop){
 return crop + (crop*0.10) + (crop*0.20) + insurance + allied;
@@ -169,27 +204,12 @@ let y5=yearCalc(y5Crop);
 
 let mpl=Math.max(y1,y2,y3,y4,y5);
 
-let processingCharge=0;
-
-if(mpl<=100000){
-processingCharge=0;
-}
-else if(mpl<=300000){
-processingCharge=400;
-}
-else if(mpl<=500000){
-processingCharge=5000;
-}
-else{
-processingCharge=10000;
-}
-
-let interestRate="7% p.a. (Subvention eligible if prompt payment)";
-let repayment="12 months (Short Crop) / 18 months (Long Crop)";
+let margin=(mpl<=160000)?"No Margin":"Margin Applicable";
+let security=(mpl<=200000)?"Hypothecation of Crops":"Collateral Required";
 
 document.getElementById("output").innerHTML=`
 
-<h3>5-Year Credit Projection</h3>
+<h3>5 Year Projection</h3>
 
 <table>
 <tr><th>Year</th><th>Total Limit (₹)</th></tr>
@@ -204,10 +224,9 @@ document.getElementById("output").innerHTML=`
 <div class="highlight">Maximum Permissible Limit (MPL): ₹ ${mpl.toFixed(0)}</div>
 
 <br>
-<b>Insurance (PMFBY):</b> ₹ ${insurance.toFixed(0)} <br>
-<b>Processing Charges:</b> ₹ ${processingCharge} <br>
-<b>Interest Rate:</b> ${interestRate} <br>
-<b>Repayment Period:</b> ${repayment}
+<b>PMFBY Insurance:</b> ₹ ${insurance.toFixed(0)} <br>
+<b>Margin:</b> ${margin} <br>
+<b>Security:</b> ${security}
 
 `;
 
