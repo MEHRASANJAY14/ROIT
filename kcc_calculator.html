@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>KCC Full Crop Engine</title>
+<title>KCC 55 District Master Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 
@@ -12,7 +12,7 @@ padding:20px;
 }
 
 .container{
-max-width:1000px;
+max-width:1100px;
 margin:auto;
 background:white;
 padding:25px;
@@ -87,11 +87,6 @@ font-weight:bold;
 color:#b30000;
 }
 
-.small{
-font-size:12px;
-color:#666;
-}
-
 </style>
 </head>
 
@@ -99,22 +94,71 @@ color:#666;
 
 <div class="container">
 
-<h2>KCC Crop & Season Based Credit Engine</h2>
+<h2>KCC District + Crop Based Credit Engine (55 Districts)</h2>
 
 <label>District</label>
 <select id="district">
 <option value="">Select District</option>
-<option value="MP">Madhya Pradesh</option>
+
+<option>Agar Malwa</option>
+<option>Alirajpur</option>
+<option>Anuppur</option>
+<option>Ashoknagar</option>
+<option>Balaghat</option>
+<option>Barwani</option>
+<option>Betul</option>
+<option>Bhind</option>
+<option>Bhopal</option>
+<option>Burhanpur</option>
+<option>Chhatarpur</option>
+<option>Chhindwara</option>
+<option>Damoh</option>
+<option>Datia</option>
+<option>Dewas</option>
+<option>Dhar</option>
+<option>Dindori</option>
+<option>Guna</option>
+<option>Gwalior</option>
+<option>Harda</option>
+<option>Narmadapuram</option>
+<option>Indore</option>
+<option>Jabalpur</option>
+<option>Jhabua</option>
+<option>Katni</option>
+<option>Khandwa</option>
+<option>Khargone</option>
+<option>Maihar</option>
+<option>Mandla</option>
+<option>Mandsaur</option>
+<option>Morena</option>
+<option>Narsinghpur</option>
+<option>Neemuch</option>
+<option>Niwari</option>
+<option>Panna</option>
+<option>Pandhurna</option>
+<option>Raisen</option>
+<option>Rajgarh</option>
+<option>Ratlam</option>
+<option>Rewa</option>
+<option>Sagar</option>
+<option>Satna</option>
+<option>Sehore</option>
+<option>Seoni</option>
+<option>Shahdol</option>
+<option>Shajapur</option>
+<option>Sheopur</option>
+<option>Shivpuri</option>
+<option>Sidhi</option>
+<option>Singrauli</option>
+<option>Tikamgarh</option>
+<option>Ujjain</option>
+<option>Umaria</option>
+<option>Vidisha</option>
+
 </select>
 
-<label>Season</label>
-<select id="season">
-<option value="kharif">Kharif</option>
-<option value="rabi">Rabi</option>
-</select>
-
-<label>Crop Type</label>
-<select id="crop" onchange="autoSOF()">
+<label>Crop</label>
+<select id="crop">
 <option value="">Select Crop</option>
 <option value="wheat">Wheat</option>
 <option value="soyabean">Soyabean</option>
@@ -122,8 +166,8 @@ color:#666;
 <option value="gram">Gram</option>
 </select>
 
-<label>Irrigation Type</label>
-<select id="irrigation" onchange="autoSOF()">
+<label>Irrigation</label>
+<select id="irrigation">
 <option value="irrigated">Irrigated</option>
 <option value="rainfed">Rainfed</option>
 </select>
@@ -132,8 +176,7 @@ color:#666;
 <input type="number" id="land">
 
 <label>Scale of Finance per Acre (₹)</label>
-<input type="number" id="sof" oninput="markEdited()">
-<small id="sofNote" style="color:green;">Auto SOF (Crop Based)</small>
+<input type="number" id="sof" placeholder="Enter or edit SOF manually">
 
 <button onclick="calculateKCC()">Calculate KCC Limit</button>
 
@@ -143,51 +186,37 @@ color:#666;
 
 <script>
 
-let defaultSOF = 0;
+function getBaseSOF(crop, irrigation){
 
-const sofMatrix = {
-    wheat: { irrigated: 45000, rainfed: 38000 },
-    soyabean: { irrigated: 42000, rainfed: 35000 },
-    paddy: { irrigated: 48000, rainfed: 40000 },
-    gram: { irrigated: 40000, rainfed: 32000 }
+let baseRates = {
+wheat:{irrigated:45000, rainfed:37000},
+soyabean:{irrigated:47000, rainfed:39000},
+paddy:{irrigated:48000, rainfed:40000},
+gram:{irrigated:40000, rainfed:32000}
 };
 
-function autoSOF(){
-    let crop=document.getElementById("crop").value;
-    let irrigation=document.getElementById("irrigation").value;
-
-    if(crop && irrigation){
-        defaultSOF=sofMatrix[crop][irrigation];
-        document.getElementById("sof").value=defaultSOF;
-        document.getElementById("sofNote").innerHTML="Auto SOF (Crop Based)";
-        document.getElementById("sofNote").style.color="green";
-    }
-}
-
-function markEdited(){
-    let current=document.getElementById("sof").value;
-    if(current!=defaultSOF){
-        document.getElementById("sofNote").innerHTML="SOF Manually Edited";
-        document.getElementById("sofNote").style.color="red";
-    }
+return baseRates[crop][irrigation];
 }
 
 function calculateKCC(){
 
 let land=parseFloat(document.getElementById("land").value)||0;
-let sof=parseFloat(document.getElementById("sof").value)||0;
+let crop=document.getElementById("crop").value;
+let irrigation=document.getElementById("irrigation").value;
+let sofInput=parseFloat(document.getElementById("sof").value);
 
-if(land<=0 || sof<=0){
-alert("Enter valid land & SOF");
+if(land<=0 || !crop || !irrigation){
+alert("Please fill all required fields.");
 return;
 }
 
-let base=land*sof;
-let insurance=base*0.02; // PMFBY assumed 2%
-let allied=0;
+let sof = sofInput || getBaseSOF(crop, irrigation);
 
-function yearCalc(crop){
-return crop + (crop*0.10) + (crop*0.20) + insurance + allied;
+let base=land*sof;
+let insurance=base*0.02;
+
+function yearCalc(cropCost){
+return cropCost + (cropCost*0.10)+(cropCost*0.20)+insurance;
 }
 
 let y1Crop=base;
@@ -209,7 +238,7 @@ let security=(mpl<=200000)?"Hypothecation of Crops":"Collateral Required";
 
 document.getElementById("output").innerHTML=`
 
-<h3>5 Year Projection</h3>
+<h3>5-Year Projection</h3>
 
 <table>
 <tr><th>Year</th><th>Total Limit (₹)</th></tr>
@@ -224,7 +253,8 @@ document.getElementById("output").innerHTML=`
 <div class="highlight">Maximum Permissible Limit (MPL): ₹ ${mpl.toFixed(0)}</div>
 
 <br>
-<b>PMFBY Insurance:</b> ₹ ${insurance.toFixed(0)} <br>
+<b>Base Crop Cost:</b> ₹ ${base.toFixed(0)} <br>
+<b>PMFBY Insurance (2% assumed):</b> ₹ ${insurance.toFixed(0)} <br>
 <b>Margin:</b> ${margin} <br>
 <b>Security:</b> ${security}
 
