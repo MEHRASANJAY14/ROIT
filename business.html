@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Segoe UI, Arial;background:#f4f6f8;}
-
+.orange{color:#ff9800;font-weight:bold}
 .topbar{
   background:#006400;
   color:white;
@@ -292,7 +292,16 @@ let casa = toNumber(row[26]);
 let totalBusiness = advance + deposit;
 let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : 0;
 let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : 0;
+let cdRatio = deposit ? ((advance / deposit) * 100).toFixed(2) : 0;
+    let cdClass = "";
 
+if(cdRatio < 60){
+  cdClass = "orange";
+}else if(cdRatio > 90){
+  cdClass = "negative";
+}else{
+  cdClass = "positive";
+}
 document.getElementById("summary").innerHTML=
   `<div class="summary">
 
@@ -310,6 +319,11 @@ document.getElementById("summary").innerHTML=
       <h4>Total Business</h4>
       <h2>${totalBusiness.toFixed(2)}</h2>
     </div>
+
+    <div class="summary-card">
+  <h4>CD Ratio</h4>
+  <h2 class="${cdClass}">${cdRatio}%</h2>
+</div>
 
     <div class="summary-card">
       <h4>NPA</h4>
@@ -350,6 +364,7 @@ loadBranches();
 
 </body>
 </html>
+
 
 
 
