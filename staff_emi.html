@@ -5,107 +5,101 @@
 <title>MPGB Staff Loan EMI</title>
 
 <style>
+
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   background:#f4f6f9;
 }
 
-.back{
-  display:block;
-  text-align:center;
-  margin-top:20px;
-  text-decoration:none;
-  color:#006400;
-  font-weight:bold;
-}
-  
 .header{
   background:#006400;
   color:white;
   text-align:center;
-  padding:12px;
+  padding:14px;
   font-size:16px;
   font-weight:bold;
 }
 
 .container{
+  width:100%;
   max-width:1400px;
-  margin:15px auto;
+  margin:10px auto;
   background:white;
   padding:18px;
   border-radius:6px;
   box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
+/* Inputs Mobile Safe */
 input{
-  padding:8px;
   width:100%;
-  max-width:600px;
-  margin-bottom:10px;
+  padding:10px;
+  margin-bottom:12px;
   border:1px solid #ccc;
-  border-radius:4px;
+  border-radius:5px;
   font-size:14px;
 }
 
+/* Buttons */
 button{
   background:#006400;
   color:white;
   border:none;
-  padding:7px 12px;
-  border-radius:4px;
+  padding:9px 16px;
+  border-radius:5px;
   cursor:pointer;
-  font-size:13px;
+  font-size:14px;
   margin-right:6px;
 }
 
-button:hover{background:#004d00;}
-
-.result{
-  margin-top:12px;
-  margin-bottom:15px;
-  background:#eef9f1;
-  padding:14px;
-  border-radius:6px;
-  font-size:14px;
-  line-height:1.6em;
+button:hover{
+  background:#004d00;
 }
 
+/* Summary Safe Box */
+.result{
+  margin-top:15px;
+  margin-bottom:15px;
+  background:#eef9f1;
+  padding:18px;
+  border-radius:6px;
+  font-size:15px;
+  line-height:1.8em;
+  width:100%;
+  word-break:break-word;
+}
+
+/* Table */
 .table-wrapper{
+  width:100%;
   overflow-x:auto;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:14px;
-  table-layout:fixed;
+  font-size:13px;
+  min-width:950px;
 }
 
 th,td{
   border:1px solid #ddd;
-  padding:8px 8px;
+  padding:6px;
   text-align:center;
 }
-
-th:nth-child(1), td:nth-child(1){ width:60px; }
-th:nth-child(2), td:nth-child(2){ width:120px; }
-th:nth-child(3), td:nth-child(3){ width:110px; }
-th:nth-child(4), td:nth-child(4){ width:110px; }
-th:nth-child(5), td:nth-child(5){ width:120px; }
-th:nth-child(6), td:nth-child(6){ width:140px; }
 
 th{
   background:#006400;
   color:white;
 }
 
+/* PRINT FIX */
 @media print{
-
-  @page{
-    size:A4 landscape;
-    margin:10mm;
-  }
 
   body{
     background:white;
@@ -113,18 +107,34 @@ th{
 
   .header,
   input,
-  button,
-  .result{
+  button{
     display:none !important;
   }
 
   .container{
-    box-shadow:none;
+    width:100%;
     margin:0;
     padding:0;
+    box-shadow:none;
+  }
+
+  .result{
+    page-break-inside:avoid;
+    font-size:14px;
+  }
+
+  table{
+    font-size:11px;
+    min-width:100%;
+  }
+
+  @page{
+    size:A4 landscape;
+    margin:8mm;
   }
 
 }
+
 </style>
 </head>
 
@@ -149,7 +159,6 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <table id="schedule"></table>
 </div>
 
-<a href="index.html" class="back">⬅ Back to Dashboard</a>
 </div>
 
 <script>
@@ -181,7 +190,7 @@ let effectiveMonths = totalMonths - moratorium;
 let principalMonths=Math.round((3/4)*effectiveMonths);
 let interestMonths=effectiveMonths-principalMonths;
 
-/* Slab Split */
+/* Slab */
 let slab1=Math.min(P,4000000);
 let slab2=P>4000000?P-4000000:0;
 
@@ -253,7 +262,6 @@ for(let i=1;i<=principalMonths;i++){
   let totalOutstanding = (balance1+balance2) + accumulatedInterest;
 
   let row=table.insertRow();
-
   row.insertCell(0).innerText=moratorium+i;
   row.insertCell(1).innerText=format(monthlyPrincipal);
   row.insertCell(2).innerText=format(interest1);
@@ -271,7 +279,6 @@ for(let i=1;i<=interestMonths;i++){
   remainingInterest-=monthlyInterestRecovery;
 
   let row=table.insertRow();
-
   row.insertCell(0).innerText=moratorium+principalMonths+i;
   row.insertCell(1).innerText="0";
   row.insertCell(2).innerText="0";
@@ -281,7 +288,6 @@ for(let i=1;i<=interestMonths;i++){
 }
 
 /* Summary */
-
 document.getElementById("summary").innerHTML=
 "<b>Loan Amount:</b> "+format(P)+"<br>"+
 "<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
