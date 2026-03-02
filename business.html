@@ -178,10 +178,10 @@ function loadOverallData(){
       return parseFloat(val.toString().replace(/,/g,"")) || 0;
     }
 
-    let advance = toNumber(data.advance);
-    let deposit = toNumber(data.deposit);
-    let npa = toNumber(data.npa);
-    let casa = toNumber(data.casa);
+    let advance = toNumber(data.advance ?? data[0] ?? data.row?.[0]);
+let deposit = toNumber(data.deposit ?? data[1] ?? data.row?.[1]);
+let npa = toNumber(data.npa ?? data[2] ?? data.row?.[2]);
+let casa = toNumber(data.casa ?? data[3] ?? data.row?.[3]);
 
     let totalBusiness = advance + deposit;
     let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
@@ -501,6 +501,7 @@ loadOverallData();
 
 </body>
 </html>
+
 
 
 
