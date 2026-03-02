@@ -1,21 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RO Jabalpur Business Dashboard</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI, Arial;background:#f4f6f8;}
+.orange{color:#ff9800;font-weight:bold}
+.positive{color:green;font-weight:bold}
+.negative{color:red;font-weight:bold}
+
+.topbar{
+  background:#006400;
+  color:white;
+  text-align:center;
+  padding:10px;
+  font-size:15px;
+  font-weight:bold;
+}
+
+.container{padding:8px;}
+
+select{
+  width:100%;
+  padding:6px;
+  margin-bottom:10px;
+  border-radius:5px;
+  border:1px solid #ccc;
+  font-size:12px;
+}
+
+.branch-card{
+  background:white;
+  padding:6px;
+  margin-bottom:10px;
+  border-radius:6px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.1);
+  text-align:center;
+  font-weight:bold;
+  color:#006400;
+  font-size:12px;
+}
+
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:6px;
+  margin-bottom:10px;
+}
+
+.summary-card{
+  background:white;
+  padding:6px;
+  border-radius:6px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+.summary-card h4{margin:0;font-size:11px;color:#555;}
+.summary-card h2{margin:3px 0 0 0;color:#006400;font-size:14px;}
+
+.section{
+  background:white;
+  padding:6px;
+  margin-bottom:10px;
+  border-radius:6px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.1);
+}
+
+.section-title{
+  background:#006400;
+  color:white;
+  padding:4px;
+  text-align:center;
+  font-weight:bold;
+  border-radius:4px;
+  margin-bottom:6px;
+  font-size:12px;
+}
+
+.footer{
+  text-align:center;
+  padding:6px;
+  font-size:11px;
+  color:#555;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+MADHYA PRADESH GRAMIN BANK  
+RO JABALPUR BUSINESS DASHBOARD (₹ Crore)
+</div>
+
+<div class="container">
+
+<div id="overallSummary"></div>
+
+<select id="branch">
+<option value="">Select Branch</option>
+</select>
+
+<div id="branchInfo"></div>
+<div id="summary"></div>
+<div id="dashboard"></div>
+
+</div>
+
+<div class="footer">
+Powered by RO Jabalpur IT Cell
+</div>
+
 <script>
 
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
+/* SAFE NUMBER CLEANER */
+function toNumber(val){
+  if(!val) return 0;
+  return parseFloat(val.toString().replace(/₹/g,"").replace(/,/g,"")) || 0;
+}
+
 /* =========================
-   RO OVERALL DATA FUNCTION
+   LOAD RO TOTAL DATA
 ========================= */
 function loadOverallData(){
 
   fetch(API_URL+"?type=overallData")
-  .then(res=>res.json())
-  .then(result=>{
+  .then(res=>res.text())
+  .then(text=>{
 
-    const data = result;
+    if(!text) return;
 
-    function toNumber(val){
-      if(!val) return 0;
-      return parseFloat(val.toString().replace(/₹/g,"").replace(/,/g,"")) || 0;
+    let data;
+    try{
+      data = JSON.parse(text);
+    }catch(e){
+      console.log("Invalid overall JSON");
+      return;
     }
 
     let advance = toNumber(data.advance);
@@ -26,107 +151,37 @@ function loadOverallData(){
     let totalBusiness = advance + deposit;
     let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
 
-    document.getElementById("overallSummary").innerHTML =
+    document.getElementById("overallSummary").innerHTML=
     `
     <div class="section">
       <div class="section-title">RO TOTAL BUSINESS</div>
-
       <div class="summary">
-
-        <div class="summary-card">
-          <h4>Total Advance</h4>
-          <h2>${advance.toFixed(2)}</h2>
-        </div>
-
-        <div class="summary-card">
-          <h4>Total Deposit</h4>
-          <h2>${deposit.toFixed(2)}</h2>
-        </div>
-
-        <div class="summary-card">
-          <h4>Total Business</h4>
-          <h2>${totalBusiness.toFixed(2)}</h2>
-        </div>
-
-        <div class="summary-card">
-          <h4>Total NPA</h4>
-          <h2>${npa.toFixed(2)}</h2>
-        </div>
-
-        <div class="summary-card">
-          <h4>Total CASA</h4>
-          <h2>${casa.toFixed(2)}</h2>
-        </div>
-
-        <div class="summary-card">
-          <h4>CD Ratio</h4>
-          <h2>${cdRatio}%</h2>
-        </div>
-
+        <div class="summary-card"><h4>Total Advance</h4><h2>${advance.toFixed(2)}</h2></div>
+        <div class="summary-card"><h4>Total Deposit</h4><h2>${deposit.toFixed(2)}</h2></div>
+        <div class="summary-card"><h4>Total Business</h4><h2>${totalBusiness.toFixed(2)}</h2></div>
+        <div class="summary-card"><h4>Total NPA</h4><h2>${npa.toFixed(2)}</h2></div>
+        <div class="summary-card"><h4>Total CASA</h4><h2>${casa.toFixed(2)}</h2></div>
+        <div class="summary-card"><h4>CD Ratio</h4><h2>${cdRatio}%</h2></div>
       </div>
     </div>
     `;
 
   })
   .catch(err=>{
-    console.log("Overall Load Error:",err);
+    console.log("Overall API Error:",err);
   });
 
 }
 
 /* =========================
-   Growth Color Logic
-========================= */
-function growthClass(value,isNPA){
-
-  if(value===null||value===undefined) return "";
-
-  let cleaned=value.toString()
-    .replace(/−/g,"-")
-    .replace(/,/g,"")
-    .replace("%","")
-    .trim();
-
-  let v=parseFloat(cleaned);
-  if(isNaN(v)) return "";
-
-  if(isNPA){
-    return v<0 ? "positive" : (v>0 ? "negative" : "");
-  }else{
-    return v>0 ? "positive" : (v<0 ? "negative" : "");
-  }
-}
-
-/* =========================
-   Header Formatter
-========================= */
-function formatHeader(text){
-  if(!text) return "";
-  text=text.trim();
-
-  if(text.includes("Last Month")){
-    let d=text.replace("Last Month","").trim();
-    return "Last<br>Month<br><span class='header-date'>"+d+"</span>";
-  }
-  if(text.includes("Previous as on")){
-    let d=text.replace("Previous as on","").trim();
-    return "Previous<br>as on<br><span class='header-date'>"+d+"</span>";
-  }
-  if(text.includes("Current as on")){
-    let d=text.replace("Current as on","").trim();
-    return "Current<br>as on<br><span class='header-date'>"+d+"</span>";
-  }
-
-  return "<span class='header-date'>"+text+"</span>";
-}
-
-/* =========================
-   Load Branch Dropdown
+   LOAD BRANCH LIST
 ========================= */
 function loadBranches(){
+
   fetch(API_URL+"?type=branches")
   .then(res=>res.json())
   .then(data=>{
+
     const select=document.getElementById("branch");
     select.innerHTML='<option value="">Select Branch</option>';
 
@@ -136,46 +191,16 @@ function loadBranches(){
       o.text=r[0]+" - "+r[1];
       select.appendChild(o);
     });
+
   })
   .catch(err=>{
     console.log("Branch Load Error:",err);
   });
+
 }
 
 /* =========================
-   Render Section
-========================= */
-function renderSection(title,start,row,headers,isNPA){
-
-  const h=headers.slice(start,start+7);
-  const d=row.slice(start,start+7);
-
-  return `
-  <div class="section">
-    <div class="section-title">${title}</div>
-    <div class="table-wrapper">
-      <table>
-        <tr>
-          <th>${formatHeader(h[0])}</th>
-          <th>${formatHeader(h[1])}</th>
-          <th>${formatHeader(h[2])}</th>
-          <th>${formatHeader(h[3])}</th>
-          <th>FTD</th>
-          <th>MTD</th>
-          <th>YTD</th>
-        </tr>
-        <tr>
-          ${d.map((v,i)=>
-            `<td class="${i>=4 ? growthClass(v,isNPA) : ''}">${v}</td>`
-          ).join("")}
-        </tr>
-      </table>
-    </div>
-  </div>`;
-}
-
-/* =========================
-   Branch Selection
+   BRANCH CHANGE
 ========================= */
 document.getElementById("branch").addEventListener("change",function(){
 
@@ -186,77 +211,38 @@ document.getElementById("branch").addEventListener("change",function(){
   .then(result=>{
 
     const row=result.row;
-    const headers=result.headers;
 
     document.getElementById("branchInfo").innerHTML=
-      `<div class="branch-card">
-        Branch Code: ${row[0]} | Branch Name: ${row[1]}
-      </div>`;
-
-    function toNumber(val){
-      if(!val) return 0;
-      return parseFloat(val.toString().replace(/₹/g,"").replace(/,/g,"")) || 0;
-    }
+    `<div class="branch-card">
+      Branch Code: ${row[0]} | Branch Name: ${row[1]}
+    </div>`;
 
     let advance = toNumber(row[5]);
-    let npa = toNumber(row[12]);
     let deposit = toNumber(row[19]);
+    let npa = toNumber(row[12]);
     let casa = toNumber(row[26]);
 
     let totalBusiness = advance + deposit;
+    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
     let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : "0.00";
     let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : "0.00";
-    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
 
-    let cdClass = "";
-    if(cdRatio < 60){ cdClass="orange"; }
-    else if(cdRatio > 90){ cdClass="negative"; }
-    else{ cdClass="positive"; }
+    let cdClass="";
+    if(cdRatio<60){cdClass="orange";}
+    else if(cdRatio>90){cdClass="negative";}
+    else{cdClass="positive";}
 
     document.getElementById("summary").innerHTML=
-    `<div class="summary">
-
-      <div class="summary-card">
-        <h4>Advance</h4>
-        <h2>${row[5]}</h2>
-      </div>
-
-      <div class="summary-card">
-        <h4>Deposit</h4>
-        <h2>${row[19]}</h2>
-      </div>
-
-      <div class="summary-card">
-        <h4>Total Business</h4>
-        <h2>${totalBusiness.toFixed(2)}</h2>
-      </div>
-
-      <div class="summary-card">
-        <h4>CD Ratio</h4>
-        <h2 class="${cdClass}">${cdRatio}%</h2>
-      </div>
-
-      <div class="summary-card">
-        <h4>NPA</h4>
-        <h2>${row[12]}</h2>
-        <div style="font-size:11px;color:red;">${npaPercent}%</div>
-      </div>
-
-      <div class="summary-card">
-        <h4>CASA</h4>
-        <h2>${row[26]}</h2>
-        <div style="font-size:11px;color:#006400;">${casaPercent}%</div>
-      </div>
-
-    </div>`;
-
-    let html="";
-    html+=renderSection("ADVANCE",2,row,headers,false);
-    html+=renderSection("NPA",9,row,headers,true);
-    html+=renderSection("DEPOSIT",16,row,headers,false);
-    html+=renderSection("CASA",23,row,headers,false);
-
-    document.getElementById("dashboard").innerHTML=html;
+    `
+    <div class="summary">
+      <div class="summary-card"><h4>Advance</h4><h2>${row[5]}</h2></div>
+      <div class="summary-card"><h4>Deposit</h4><h2>${row[19]}</h2></div>
+      <div class="summary-card"><h4>Total Business</h4><h2>${totalBusiness.toFixed(2)}</h2></div>
+      <div class="summary-card"><h4>CD Ratio</h4><h2 class="${cdClass}">${cdRatio}%</h2></div>
+      <div class="summary-card"><h4>NPA</h4><h2>${row[12]}</h2><div style="font-size:11px;color:red">${npaPercent}%</div></div>
+      <div class="summary-card"><h4>CASA</h4><h2>${row[26]}</h2><div style="font-size:11px;color:#006400">${casaPercent}%</div></div>
+    </div>
+    `;
 
   })
   .catch(err=>{
@@ -265,10 +251,11 @@ document.getElementById("branch").addEventListener("change",function(){
 
 });
 
-/* =========================
-   INIT LOAD
-========================= */
+/* INIT */
 loadBranches();
 loadOverallData();
 
 </script>
+
+</body>
+</html>
