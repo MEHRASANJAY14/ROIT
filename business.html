@@ -184,48 +184,57 @@ let npa = toNumber(data.npa ?? data[2] ?? data.row?.[2]);
 let casa = toNumber(data.casa ?? data[3] ?? data.row?.[3]);
 
     let totalBusiness = advance + deposit;
-    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
+let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
 
-    document.getElementById("overallSummary").innerHTML =
-    `
-    <div class="section">
-      <div class="section-title">RO TOTAL BUSINESS</div>
+let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : "0.00";
+let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : "0.00";
 
-      <div class="summary">
+   document.getElementById("overallSummary").innerHTML =
+`
+<div class="section">
+  <div class="section-title">RO TOTAL BUSINESS</div>
 
-        <div class="summary-card">
-          <h4>Total Advance</h4>
-          <h2>${advance.toFixed(2)}</h2>
-        </div>
+  <div class="summary">
 
-        <div class="summary-card">
-          <h4>Total Deposit</h4>
-          <h2>${deposit.toFixed(2)}</h2>
-        </div>
+    <div class="summary-card">
+      <h4>Total Advance</h4>
+      <h2>${advance.toFixed(2)}</h2>
+    </div>
 
-        <div class="summary-card">
-          <h4>Total Business</h4>
-          <h2>${totalBusiness.toFixed(2)}</h2>
-        </div>
+    <div class="summary-card">
+      <h4>Total Deposit</h4>
+      <h2>${deposit.toFixed(2)}</h2>
+    </div>
 
-        <div class="summary-card">
-          <h4>Total NPA</h4>
-          <h2>${npa.toFixed(2)}</h2>
-        </div>
+    <div class="summary-card">
+      <h4>Total Business</h4>
+      <h2>${totalBusiness.toFixed(2)}</h2>
+    </div>
 
-        <div class="summary-card">
-          <h4>Total CASA</h4>
-          <h2>${casa.toFixed(2)}</h2>
-        </div>
+    <div class="summary-card">
+      <h4>CD Ratio</h4>
+      <h2>${cdRatio}%</h2>
+    </div>
 
-        <div class="summary-card">
-          <h4>CD Ratio</h4>
-          <h2>${cdRatio}%</h2>
-        </div>
-
+    <div class="summary-card">
+      <h4>Total NPA</h4>
+      <h2>${npa.toFixed(2)}</h2>
+      <div style="font-size:11px;color:red;">
+        ${npaPercent}%
       </div>
     </div>
-    `;
+
+    <div class="summary-card">
+      <h4>Total CASA</h4>
+      <h2>${casa.toFixed(2)}</h2>
+      <div style="font-size:11px;color:#006400;">
+        ${casaPercent}%
+      </div>
+    </div>
+
+  </div>
+</div>
+`;
 
   })
   .catch(err=>{
@@ -501,6 +510,7 @@ loadOverallData();
 
 </body>
 </html>
+
 
 
 
