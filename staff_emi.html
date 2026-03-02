@@ -10,6 +10,7 @@ body{
   font-family:Arial;
   background:#f4f6f9;
 }
+
 .back{
   display:block;
   text-align:center;
@@ -99,7 +100,6 @@ th{
   color:white;
 }
 
-/* PRINT ONLY TABLE */
 @media print{
 
   @page{
@@ -137,7 +137,8 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <div class="container">
 
 <input type="number" id="amount" placeholder="Loan Amount (₹)">
-<input type="number" id="tenure" placeholder="Tenure (Months)">
+<input type="number" id="tenure" placeholder="Total Tenure (Months)">
+<input type="number" id="moratorium" placeholder="Moratorium Period (Months)">
 
 <button onclick="calculateStaff()">Calculate</button>
 <button onclick="window.print()">Print</button>
@@ -147,6 +148,7 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <div class="table-wrapper">
 <table id="schedule"></table>
 </div>
+
 <a href="index.html" class="back">⬅ Back to Dashboard</a>
 </div>
 
@@ -158,17 +160,26 @@ function format(n){
 
 function calculateStaff(){
 
-let P=parseFloat(amount.value);
-let totalMonths=parseInt(tenure.value);
+let P=parseFloat(document.getElementById("amount").value);
+let totalMonths=parseInt(document.getElementById("tenure").value);
+let moratorium=parseInt(document.getElementById("moratorium").value) || 0;
 
-if(!P||!totalMonths){
+if(!P || !totalMonths){
   alert("Fill all fields");
   return;
 }
 
+if(moratorium >= totalMonths){
+  alert("Moratorium must be less than total tenure");
+  return;
+}
+
+/* Effective Tenure */
+let effectiveMonths = totalMonths - moratorium;
+
 /* 3:1 Ratio */
-let principalMonths=Math.round((3/4)*totalMonths);
-let interestMonths=totalMonths-principalMonths;
+let principalMonths=Math.round((3/4)*effectiveMonths);
+let interestMonths=effectiveMonths-principalMonths;
 
 /* Slab Split */
 let slab1=Math.min(P,4000000);
@@ -199,7 +210,27 @@ headerRow.innerHTML=
 "<th>Total Int</th>"+
 "<th>Outstanding</th>";
 
-/* Phase 1 */
+/* Moratorium Phase */
+for(let i=1;i<=moratorium;i++){
+
+  let interest1 = balance1*r1;
+  let interest2 = balance2*r2;
+  let totalInterestMonth = interest1 + interest2;
+
+  slab1InterestTotal += interest1;
+  slab2InterestTotal += interest2;
+  accumulatedInterest += totalInterestMonth;
+
+  let row=table.insertRow();
+  row.insertCell(0).innerText=i;
+  row.insertCell(1).innerText="Moratorium";
+  row.insertCell(2).innerText=format(interest1);
+  row.insertCell(3).innerText=format(interest2);
+  row.insertCell(4).innerText=format(totalInterestMonth);
+  row.insertCell(5).innerText=format(P+accumulatedInterest);
+}
+
+/* Principal Phase */
 for(let i=1;i<=principalMonths;i++){
 
   let reductionRatio = monthlyPrincipal / P;
@@ -223,7 +254,7 @@ for(let i=1;i<=principalMonths;i++){
 
   let row=table.insertRow();
 
-  row.insertCell(0).innerText=i;
+  row.insertCell(0).innerText=moratorium+i;
   row.insertCell(1).innerText=format(monthlyPrincipal);
   row.insertCell(2).innerText=format(interest1);
   row.insertCell(3).innerText=format(interest2);
@@ -231,7 +262,7 @@ for(let i=1;i<=principalMonths;i++){
   row.insertCell(5).innerText=format(totalOutstanding);
 }
 
-/* Phase 2 */
+/* Interest Phase */
 let monthlyInterestRecovery=accumulatedInterest/interestMonths;
 let remainingInterest=accumulatedInterest;
 
@@ -241,7 +272,7 @@ for(let i=1;i<=interestMonths;i++){
 
   let row=table.insertRow();
 
-  row.insertCell(0).innerText=principalMonths+i;
+  row.insertCell(0).innerText=moratorium+principalMonths+i;
   row.insertCell(1).innerText="0";
   row.insertCell(2).innerText="0";
   row.insertCell(3).innerText="0";
@@ -249,11 +280,14 @@ for(let i=1;i<=interestMonths;i++){
   row.insertCell(5).innerText=format(remainingInterest);
 }
 
-/* UPDATED SUMMARY */
+/* Summary */
 
 document.getElementById("summary").innerHTML=
 "<b>Loan Amount:</b> "+format(P)+"<br>"+
 "<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
+"<b>Moratorium:</b> "+moratorium+" Months<br>"+
+"<b>Effective Tenure:</b> "+effectiveMonths+" Months<br><hr>"+
+
 "<b>Principal Phase:</b> "+principalMonths+" Months<br>"+
 "<b>Interest Phase:</b> "+interestMonths+" Months<br><hr>"+
 
@@ -274,6 +308,3 @@ document.getElementById("summary").style.display="block";
 
 </body>
 </html>
-
-
-
