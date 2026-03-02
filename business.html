@@ -274,13 +274,60 @@ document.getElementById("branch").addEventListener("change",function(){
         Branch Code: ${row[0]} | Branch Name: ${row[1]}
       </div>`;
 
-    document.getElementById("summary").innerHTML=
-      `<div class="summary">
-        <div class="summary-card"><h4>Advance</h4><h2>${row[5]}</h2></div>
-        <div class="summary-card"><h4>NPA</h4><h2>${row[12]}</h2></div>
-        <div class="summary-card"><h4>Deposit</h4><h2>${row[19]}</h2></div>
-        <div class="summary-card"><h4>CASA</h4><h2>${row[26]}</h2></div>
-      </div>`;
+   function toNumber(val){
+  if(!val) return 0;
+  return parseFloat(
+    val.toString()
+      .replace(/,/g,"")
+      .replace("₹","")
+      .trim()
+  ) || 0;
+}
+
+let advance = toNumber(row[5]);
+let npa = toNumber(row[12]);
+let deposit = toNumber(row[19]);
+let casa = toNumber(row[26]);
+
+let totalBusiness = advance + deposit;
+let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : 0;
+let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : 0;
+
+document.getElementById("summary").innerHTML=
+  `<div class="summary">
+
+    <div class="summary-card">
+      <h4>Advance</h4>
+      <h2>${row[5]}</h2>
+    </div>
+
+    <div class="summary-card">
+      <h4>Deposit</h4>
+      <h2>${row[19]}</h2>
+    </div>
+
+    <div class="summary-card">
+      <h4>Total Business</h4>
+      <h2>${totalBusiness.toFixed(2)}</h2>
+    </div>
+
+    <div class="summary-card">
+      <h4>NPA</h4>
+      <h2>${row[12]}</h2>
+      <div style="font-size:11px;color:red;">
+        ${npaPercent}%
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h4>CASA</h4>
+      <h2>${row[26]}</h2>
+      <div style="font-size:11px;color:#006400;">
+        ${casaPercent}%
+      </div>
+    </div>
+
+  </div>`;
 
     let html="";
     html+=renderSection("ADVANCE",2,row,headers,false);
@@ -303,5 +350,6 @@ loadBranches();
 
 </body>
 </html>
+
 
 
