@@ -2,107 +2,42 @@
 
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-/* =========================
-   SAFE NUMBER CLEANER
-========================= */
+/* Safe Number */
 function toNumber(val){
   if(!val) return 0;
-  return parseFloat(val.toString().replace(/₹/g,"").replace(/,/g,"")) || 0;
+  return parseFloat(val.toString().replace(/,/g,"").replace("₹","")) || 0;
 }
 
-/* =========================
-   LOAD OVERALL DATA
-========================= */
-function loadOverallData(){
-
-  fetch(API_URL+"?type=overallData")
-  .then(res=>res.text())
-  .then(text=>{
-
-    if(!text) return;
-
-    let data;
-    try{
-      data = JSON.parse(text);
-    }catch(e){
-      console.log("Invalid overall JSON");
-      return;
-    }
-
-    let advance = toNumber(data.advance || data[0] || data.row?.[0]);
-    let deposit = toNumber(data.deposit || data[1] || data.row?.[1]);
-    let npa = toNumber(data.npa || data[2] || data.row?.[2]);
-    let casa = toNumber(data.casa || data[3] || data.row?.[3]);
-
-    let totalBusiness = advance + deposit;
-    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
-
-    document.getElementById("overallSummary").innerHTML=
-    `
-    <div class="section">
-      <div class="section-title">RO TOTAL BUSINESS</div>
-      <div class="summary">
-        <div class="summary-card"><h4>Total Advance</h4><h2>${advance.toFixed(2)}</h2></div>
-        <div class="summary-card"><h4>Total Deposit</h4><h2>${deposit.toFixed(2)}</h2></div>
-        <div class="summary-card"><h4>Total Business</h4><h2>${totalBusiness.toFixed(2)}</h2></div>
-        <div class="summary-card"><h4>Total NPA</h4><h2>${npa.toFixed(2)}</h2></div>
-        <div class="summary-card"><h4>Total CASA</h4><h2>${casa.toFixed(2)}</h2></div>
-        <div class="summary-card"><h4>CD Ratio</h4><h2>${cdRatio}%</h2></div>
-      </div>
-    </div>
-    `;
-  })
-  .catch(err=>console.log("Overall Load Error:",err));
-}
-
-/* =========================
-   GROWTH COLOR LOGIC
-========================= */
+/* Growth Color */
 function growthClass(value,isNPA){
   if(value===null||value===undefined) return "";
-
-  let cleaned=value.toString()
-    .replace(/−/g,"-")
-    .replace(/,/g,"")
-    .replace("%","")
-    .trim();
-
+  let cleaned=value.toString().replace(/−/g,"-").replace(/,/g,"").replace("%","").trim();
   let v=parseFloat(cleaned);
   if(isNaN(v)) return "";
-
-  if(isNPA){
-    return v<0 ? "positive" : (v>0 ? "negative" : "");
-  }else{
-    return v>0 ? "positive" : (v<0 ? "negative" : "");
-  }
+  if(isNPA){ return v<0 ? "positive" : (v>0 ? "negative" : ""); }
+  return v>0 ? "positive" : (v<0 ? "negative" : "");
 }
 
-/* =========================
-   HEADER FORMATTER
-========================= */
+/* Header */
 function formatHeader(text){
   if(!text) return "";
   text=text.trim();
-
   if(text.includes("Last Month")){
     let d=text.replace("Last Month","").trim();
-    return "Last<br>Month<br><span class='header-date'>"+d+"</span>";
+    return `Last<br>Month<br><span class='header-date'>${d}</span>`;
   }
   if(text.includes("Previous as on")){
     let d=text.replace("Previous as on","").trim();
-    return "Previous<br>as on<br><span class='header-date'>"+d+"</span>";
+    return `Previous<br>as on<br><span class='header-date'>${d}</span>`;
   }
   if(text.includes("Current as on")){
     let d=text.replace("Current as on","").trim();
-    return "Current<br>as on<br><span class='header-date'>"+d+"</span>";
+    return `Current<br>as on<br><span class='header-date'>${d}</span>`;
   }
-
-  return "<span class='header-date'>"+text+"</span>";
+  return `<span class='header-date'>${text}</span>`;
 }
 
-/* =========================
-   RENDER TABLE SECTION
-========================= */
+/* Render Section */
 function renderSection(title,start,row,headers,isNPA){
 
   const h=headers.slice(start,start+7);
@@ -132,9 +67,7 @@ function renderSection(title,start,row,headers,isNPA){
   </div>`;
 }
 
-/* =========================
-   LOAD BRANCHES
-========================= */
+/* Load Branch */
 function loadBranches(){
   fetch(API_URL+"?type=branches")
   .then(res=>res.json())
@@ -147,13 +80,38 @@ function loadBranches(){
       o.text=r[0]+" - "+r[1];
       select.appendChild(o);
     });
-  })
-  .catch(err=>console.log("Branch Load Error:",err));
+  });
 }
 
-/* =========================
-   BRANCH SELECT
-========================= */
+/* Overall RO */
+function loadOverallData(){
+  fetch(API_URL+"?type=overallData")
+  .then(res=>res.json())
+  .then(data=>{
+    let advance = toNumber(data.advance);
+    let deposit = toNumber(data.deposit);
+    let npa = toNumber(data.npa);
+    let casa = toNumber(data.casa);
+
+    let totalBusiness = advance + deposit;
+    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0";
+
+    document.getElementById("overallSummary").innerHTML=`
+    <div class="section">
+      <div class="section-title">RO TOTAL BUSINESS</div>
+      <div class="summary">
+        <div class="summary-card"><h4>Total Advance</h4><h2>${advance}</h2></div>
+        <div class="summary-card"><h4>Total Deposit</h4><h2>${deposit}</h2></div>
+        <div class="summary-card"><h4>Total Business</h4><h2>${totalBusiness}</h2></div>
+        <div class="summary-card"><h4>Total NPA</h4><h2>${npa}</h2></div>
+        <div class="summary-card"><h4>Total CASA</h4><h2>${casa}</h2></div>
+        <div class="summary-card"><h4>CD Ratio</h4><h2>${cdRatio}%</h2></div>
+      </div>
+    </div>`;
+  });
+}
+
+/* Branch Select */
 document.getElementById("branch").addEventListener("change",function(){
 
   if(!this.value) return;
@@ -165,8 +123,8 @@ document.getElementById("branch").addEventListener("change",function(){
     const row=result.row;
     const headers=result.headers;
 
-    document.getElementById("branchInfo").innerHTML=
-      `<div class="branch-card">
+    document.getElementById("branchInfo").innerHTML=`
+      <div class="branch-card">
         Branch Code: ${row[0]} | Branch Name: ${row[1]}
       </div>`;
 
@@ -176,26 +134,24 @@ document.getElementById("branch").addEventListener("change",function(){
     let casa = toNumber(row[26]);
 
     let totalBusiness = advance + deposit;
-    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
-    let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : "0.00";
-    let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : "0.00";
+    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0";
+    let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : "0";
+    let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : "0";
 
     let cdClass="";
     if(cdRatio<60){cdClass="orange";}
     else if(cdRatio>90){cdClass="negative";}
     else{cdClass="positive";}
 
-    document.getElementById("summary").innerHTML=
-    `
+    document.getElementById("summary").innerHTML=`
     <div class="summary">
       <div class="summary-card"><h4>Advance</h4><h2>${row[5]}</h2></div>
       <div class="summary-card"><h4>Deposit</h4><h2>${row[19]}</h2></div>
-      <div class="summary-card"><h4>Total Business</h4><h2>${totalBusiness.toFixed(2)}</h2></div>
+      <div class="summary-card"><h4>Total Business</h4><h2>${totalBusiness}</h2></div>
       <div class="summary-card"><h4>CD Ratio</h4><h2 class="${cdClass}">${cdRatio}%</h2></div>
       <div class="summary-card"><h4>NPA</h4><h2>${row[12]}</h2><div style="font-size:11px;color:red">${npaPercent}%</div></div>
       <div class="summary-card"><h4>CASA</h4><h2>${row[26]}</h2><div style="font-size:11px;color:#006400">${casaPercent}%</div></div>
-    </div>
-    `;
+    </div>`;
 
     let html="";
     html+=renderSection("ADVANCE",2,row,headers,false);
@@ -205,11 +161,10 @@ document.getElementById("branch").addEventListener("change",function(){
 
     document.getElementById("dashboard").innerHTML=html;
 
-  })
-  .catch(err=>console.log("Branch Data Error:",err));
+  });
+
 });
 
-/* INIT */
 loadBranches();
 loadOverallData();
 
