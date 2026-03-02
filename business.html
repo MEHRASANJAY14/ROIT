@@ -146,7 +146,7 @@ RO JABALPUR BUSINESS DASHBOARD (₹ Crore)
 </div>
 
 <div class="container">
-
+<div id="overallSummary"></div>
 <select id="branch">
 <option value="">Select Branch</option>
 </select>
@@ -274,6 +274,75 @@ document.getElementById("branch").addEventListener("change",function(){
         Branch Code: ${row[0]} | Branch Name: ${row[1]}
       </div>`;
 
+    function loadOverallData(){
+
+  fetch(API_URL+"?type=overallData")
+  .then(res=>res.json())
+  .then(result=>{
+
+    const data = result;
+
+    function toNumber(val){
+      if(!val) return 0;
+      return parseFloat(val.toString().replace(/,/g,"")) || 0;
+    }
+
+    let advance = toNumber(data.advance);
+    let deposit = toNumber(data.deposit);
+    let npa = toNumber(data.npa);
+    let casa = toNumber(data.casa);
+
+    let totalBusiness = advance + deposit;
+    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : 0;
+
+    document.getElementById("overallSummary").innerHTML =
+    `
+    <div class="section">
+      <div class="section-title">RO TOTAL BUSINESS</div>
+
+      <div class="summary">
+
+        <div class="summary-card">
+          <h4>Total Advance</h4>
+          <h2>${advance.toFixed(2)}</h2>
+        </div>
+
+        <div class="summary-card">
+          <h4>Total Deposit</h4>
+          <h2>${deposit.toFixed(2)}</h2>
+        </div>
+
+        <div class="summary-card">
+          <h4>Total Business</h4>
+          <h2>${totalBusiness.toFixed(2)}</h2>
+        </div>
+
+        <div class="summary-card">
+          <h4>Total NPA</h4>
+          <h2>${npa.toFixed(2)}</h2>
+        </div>
+
+        <div class="summary-card">
+          <h4>Total CASA</h4>
+          <h2>${casa.toFixed(2)}</h2>
+        </div>
+
+        <div class="summary-card">
+          <h4>CD Ratio</h4>
+          <h2>${cdRatio}%</h2>
+        </div>
+
+      </div>
+    </div>
+    `;
+
+  })
+  .catch(err=>{
+    console.log("Overall Load Error:",err);
+  });
+
+}
+
    function toNumber(val){
   if(!val) return 0;
   return parseFloat(
@@ -359,11 +428,12 @@ document.getElementById("summary").innerHTML=
 });
 
 loadBranches();
-
+loadOverallData();
 </script>
 
 </body>
 </html>
+
 
 
 
