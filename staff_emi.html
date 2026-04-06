@@ -17,6 +17,15 @@ button:hover{background:#004d00;}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:1200px;}
 th,td{border:1px solid #ddd;padding:6px;text-align:center;}
 th{background:#006400;color:white;}
+
+@media print{
+  body{background:white;}
+  .header,input,button{display:none !important;}
+  .container{width:100%;margin:0;padding:0;box-shadow:none;}
+  .result{page-break-inside:avoid;font-size:14px;}
+  table{font-size:11px;min-width:100%;}
+  @page{size:A4 landscape;margin:8mm;}
+}
 </style>
 </head>
 
@@ -34,6 +43,7 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <input type="date" id="accdate" placeholder="Account Open Date (Optional)">
 
 <button onclick="calculateStaff()">Calculate</button>
+<button onclick="window.print()">Print</button>
 
 <div class="result" id="summary" style="display:none;"></div>
 
@@ -49,18 +59,14 @@ function format(n){
   return Number(n).toFixed(2);
 }
 
-/* DATE FUNCTION */
 function getLastDateOfMonth(baseDate, monthOffset){
   if(!baseDate) return "";
-
   let d = new Date(baseDate);
   d.setMonth(d.getMonth() + monthOffset + 1);
   d.setDate(0);
-
   let day = d.getDate();
   let month = d.toLocaleString('en-US', { month: 'short' });
   let year = d.getFullYear();
-
   return day + "-" + month + "-" + year;
 }
 
@@ -110,7 +116,6 @@ let slab3InterestTotal=0;
 let table=document.getElementById("schedule");
 table.innerHTML="";
 
-/* HEADER */
 let headerRow=table.insertRow();
 headerRow.innerHTML=
 "<th>Month</th>"+
@@ -174,7 +179,6 @@ for(let i=1;i<=principalMonths;i++){
   accumulatedInterest += totalInterestMonth;
 
   let remainingPrincipal = balance1 + balance2 + balance3;
-
   let principalPay = (i === principalMonths) ? remainingPrincipal : monthlyPrincipal;
 
   let ratio1 = balance1 / remainingPrincipal || 0;
