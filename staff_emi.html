@@ -12,7 +12,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;}
 input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ccc;border-radius:5px;font-size:14px;}
 button{background:#006400;color:white;border:none;padding:9px 16px;border-radius:5px;cursor:pointer;font-size:14px;margin-right:6px;}
 button:hover{background:#004d00;}
-.result{margin-top:15px;margin-bottom:15px;background:#eef9f1;padding:18px;border-radius:6px;font-size:15px;line-height:1.8em;width:100%;word-break:break-word;}
+.result{margin-top:15px;margin-bottom:15px;background:#eef9f1;padding:18px;border-radius:6px;font-size:15px;line-height:1.8em;width:100%;}
 .table-wrapper{width:100%;overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px;}
 th,td{border:1px solid #ddd;padding:6px;text-align:center;}
@@ -104,7 +104,7 @@ let slab3InterestTotal=0;
 let table=document.getElementById("schedule");
 table.innerHTML="";
 
-/* HEADER (ONLY ADD COLUMN) */
+/* HEADER */
 let headerRow=table.insertRow();
 headerRow.innerHTML=
 "<th>Month</th>"+
@@ -204,17 +204,27 @@ for(let i=1;i<=interestMonths;i++){
   row.insertCell(0).innerText=moratorium+principalMonths+i;
   row.insertCell(1).innerText="0";
   row.insertCell(2).innerText=format(monthlyInterestRecovery);
+
   row.insertCell(3).innerText="0";
   row.insertCell(4).innerText="0";
   row.insertCell(5).innerText="0";
+
   row.insertCell(6).innerText=format(monthlyInterestRecovery);
   row.insertCell(7).innerText="0";
   row.insertCell(8).innerText=format(remainingInterest);
 }
 
-/* SUMMARY SAME */
+/* SUMMARY */
 document.getElementById("summary").innerHTML=
 "<b>Loan Amount:</b> "+format(P)+"<br>"+
+"<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
+"<b>Moratorium:</b> "+moratorium+" Months<br>"+
+"<b>Principal Phase:</b> "+principalMonths+" Months<br>"+
+"<b>Interest Phase:</b> "+interestMonths+" Months<br><hr>"+
+
+"<b>Monthly Principal EMI:</b> "+format(monthlyPrincipal)+"<br>"+
+"<b>Monthly Interest EMI:</b> "+format(monthlyInterestRecovery)+"<br><hr>"+
+
 "<b>Total Interest:</b> "+format(accumulatedInterest)+"<br>"+
 "<b>Total Payment:</b> "+format(P+accumulatedInterest);
 
