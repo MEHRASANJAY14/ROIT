@@ -45,15 +45,13 @@ input{
   font-size:14px;
 }
 
-/* CAPTCHA BOX */
+/* CAPTCHA */
 .captcha-box{
   display:flex;
   align-items:center;
   gap:10px;
-  width:100%;
 }
 
-/* CAPTCHA TEXT */
 .captcha-text{
   flex:1;
   background:#fff;
@@ -65,7 +63,7 @@ input{
   text-align:center;
 }
 
-/* 🔥 REFRESH BUTTON (SVG FIX) */
+/* REFRESH BUTTON (SVG) */
 .refresh{
   width:50px;
   height:50px;
@@ -73,16 +71,13 @@ input{
   border:none;
   border-radius:8px;
   cursor:pointer;
-
   display:flex;
   align-items:center;
   justify-content:center;
-
-  flex-shrink:0;
 }
 
-/* BUTTON */
-button.login-btn{
+/* LOGIN BUTTON */
+.login-btn{
   width:100%;
   padding:12px;
   background:#00c6ff;
@@ -93,19 +88,31 @@ button.login-btn{
   cursor:pointer;
 }
 
-button.login-btn:hover{
-  background:#0072ff;
+.login-btn:disabled{
+  background:#888;
 }
 
+/* MESSAGE */
 #msg{
   margin-top:10px;
-  color:yellow;
+  font-weight:bold;
 }
 
-/* FOCUS */
-input:focus{
-  outline:none;
-  box-shadow:0 0 5px #00c6ff;
+/* SPINNER */
+.loader {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #00c6ff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
 </head>
@@ -126,7 +133,6 @@ input:focus{
     <div class="captcha-text" id="captcha"></div>
 
     <button type="button" class="refresh" onclick="generateCaptcha()">
-      <!-- SVG ICON (ALWAYS VISIBLE) -->
       <svg width="20" height="20" viewBox="0 0 24 24">
         <path fill="black" d="M17.65 6.35A7.95 7.95 0 0012 4V1L7 6l5 5V7a5 5 0 11-5 5H5a7 7 0 107-7c1.66 0 3.14.69 4.22 1.78l1.43-1.43z"/>
       </svg>
@@ -145,25 +151,34 @@ input:focus{
 
 let captchaValue = "";
 
-/* GENERATE CAPTCHA */
+/* CAPTCHA */
 function generateCaptcha(){
   captchaValue = Math.random().toString(36).substring(2,7).toUpperCase();
   document.getElementById("captcha").innerText = captchaValue;
 }
 generateCaptcha();
 
-/* LOGIN FUNCTION */
+/* LOGIN */
 function login(){
+
+  let btn = document.querySelector(".login-btn");
+  let msg = document.getElementById("msg");
 
   let user = document.getElementById("username").value.trim();
   let pass = document.getElementById("password").value.trim();
   let captchaInput = document.getElementById("captchaInput").value.trim();
 
+  msg.innerHTML = "";
+
   if(captchaInput !== captchaValue){
-    document.getElementById("msg").innerText = "Invalid CAPTCHA!";
+    msg.innerHTML = "❌ Invalid CAPTCHA!";
     generateCaptcha();
     return;
   }
+
+  // SHOW LOADING
+  btn.disabled = true;
+  msg.innerHTML = '<span class="loader"></span> Logging...';
 
   let url = "https://script.google.com/macros/s/AKfycbwQGrxhD6caEndOULRK0jMvzG5j9mQ7EA4Xb2n8BtniAFeWh0RGE8lCk0PZgV0uPzmkdQ/exec"
             + "?username=" + encodeURIComponent(user)
@@ -176,20 +191,27 @@ function login(){
 
       if(data.status === "success"){
 
+        msg.innerHTML = "✅ Login Successful!";
+        msg.style.color = "lightgreen";
+
         localStorage.setItem("login","true");
         localStorage.setItem("branch", data.branch);
         localStorage.setItem("time", new Date().getTime());
 
-        window.location.href = "dashboard.html";
+        setTimeout(()=>{
+          window.location.href = "dashboard.html";
+        },1000);
 
       } else {
-        document.getElementById("msg").innerText = "Invalid Login!";
+        msg.innerHTML = "❌ Invalid Login!";
+        btn.disabled = false;
         generateCaptcha();
       }
 
     })
     .catch(()=>{
-      document.getElementById("msg").innerText = "Server Error!";
+      msg.innerHTML = "⚠ Server Error!";
+      btn.disabled = false;
     });
 }
 
