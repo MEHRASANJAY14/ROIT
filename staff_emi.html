@@ -7,14 +7,14 @@
 <style>
 *{box-sizing:border-box;}
 body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;}
-.header{background:#006400;color:white;text-align:center;padding:14px;font-weight:bold;}
-.container{max-width:1400px;margin:10px auto;background:white;padding:18px;border-radius:6px;}
-input{width:100%;padding:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:5px;}
-button{background:#006400;color:white;border:none;padding:10px;border-radius:5px;margin-right:5px;cursor:pointer;}
+.header{background:#006400;color:white;text-align:center;padding:14px;font-size:16px;font-weight:bold;}
+.container{width:100%;max-width:1400px;margin:10px auto;background:white;padding:18px;border-radius:6px;box-shadow:0 3px 10px rgba(0,0,0,0.08);}
+input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ccc;border-radius:5px;font-size:14px;}
+button{background:#006400;color:white;border:none;padding:9px 16px;border-radius:5px;cursor:pointer;margin-right:6px;}
+.result{margin-top:15px;background:#eef9f1;padding:18px;border-radius:6px;line-height:1.8em;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
 th,td{border:1px solid #ddd;padding:6px;text-align:center;}
 th{background:#006400;color:white;}
-.result{background:#eef9f1;padding:15px;margin-top:10px;border-radius:5px;}
 
 @media print{
   .header,input,button{display:none;}
@@ -24,13 +24,15 @@ th{background:#006400;color:white;}
 
 <body>
 
-<div class="header">MPGB Staff Loan EMI</div>
+<div class="header">
+MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
+</div>
 
 <div class="container">
 
-<input type="number" id="amount" placeholder="Loan Amount">
-<input type="number" id="tenure" placeholder="Tenure (Months)">
-<input type="number" id="moratorium" placeholder="Moratorium">
+<input type="number" id="amount" placeholder="Loan Amount (₹)">
+<input type="number" id="tenure" placeholder="Total Tenure (Months)">
+<input type="number" id="moratorium" placeholder="Moratorium Period (Months)">
 <input type="date" id="accdate">
 
 <button onclick="calculateStaff()">Calculate</button>
@@ -62,12 +64,12 @@ let moratorium=parseInt(document.getElementById("moratorium").value)||0;
 let accDateInput=document.getElementById("accdate").value;
 let accDate=accDateInput?new Date(accDateInput):null;
 
-if(!P||!totalMonths){ alert("Fill all fields"); return; }
-if(moratorium>=totalMonths){ alert("Invalid moratorium"); return; }
+if(!P||!totalMonths){ alert("Fill all fields"); return;}
+if(moratorium>=totalMonths){ alert("Invalid moratorium"); return;}
 
-let effective=totalMonths-moratorium;
-let principalMonths=Math.round((3/4)*effective);
-let interestMonths=effective-principalMonths;
+let effectiveMonths=totalMonths-moratorium;
+let principalMonths=Math.round((3/4)*effectiveMonths);
+let interestMonths=effectiveMonths-principalMonths;
 
 let monthlyPrincipal=P/principalMonths;
 
@@ -79,7 +81,9 @@ let s1=0,s2=0,s3=0;
 let table=document.getElementById("schedule");
 table.innerHTML="";
 
-table.innerHTML="<tr><th>Month</th><th>Principal EMI</th><th>Interest EMI</th><th>5%</th><th>5.5%</th><th>6%</th><th>Total Int</th><th>Principal</th><th>Total</th></tr>";
+/* ORIGINAL HEADER STYLE */
+table.innerHTML=
+"<tr><th>Month</th><th>Principal EMI</th><th>Interest EMI</th><th>5%</th><th>5.5%</th><th>6%</th><th>Total Int</th><th>Principal Outstanding</th><th>Total Outstanding</th></tr>";
 
 /* MORATORIUM */
 for(let i=1;i<=moratorium;i++){
@@ -142,16 +146,25 @@ table.innerHTML+=`<tr>
 <td>0</td><td>0</td><td>${format(remain)}</td></tr>`;
 }
 
-/* SUMMARY */
+/* ✅ ORIGINAL STYLE SUMMARY RESTORED */
 document.getElementById("summary").innerHTML=
-`Loan: ${format(P)}<br>
-Effective Tenure: ${effective}<br>
-Principal EMI: ${format(monthlyPrincipal)}<br>
-Interest EMI: ${format(emi)}<br>
-5% Interest: ${format(s1)}<br>
-5.5% Interest: ${format(s2)}<br>
-6% Interest: ${format(s3)}<br>
-Total Interest: ${format(accInt)}`;
+"<b>Loan Amount:</b> "+format(P)+"<br>"+
+"<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
+"<b>Moratorium:</b> "+moratorium+" Months<br>"+
+"<b>Effective Tenure:</b> "+effectiveMonths+" Months<br><hr>"+
+
+"<b>Principal Phase:</b> "+principalMonths+" Months<br>"+
+"<b>Interest Phase:</b> "+interestMonths+" Months<br><hr>"+
+
+"<b>Monthly Principal EMI:</b> "+format(monthlyPrincipal)+"<br>"+
+"<b>Monthly Interest EMI:</b> "+format(emi)+"<br><hr>"+
+
+"<b>5% Interest:</b> "+format(s1)+"<br>"+
+"<b>5.5% Interest:</b> "+format(s2)+"<br>"+
+"<b>6% Interest:</b> "+format(s3)+"<br><hr>"+
+
+"<b>Total Interest:</b> "+format(accInt)+"<br>"+
+"<b>Total Payment:</b> "+format(P+accInt);
 
 document.getElementById("summary").style.display="block";
 
