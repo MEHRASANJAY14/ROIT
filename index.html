@@ -1,261 +1,152 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MPGB Secure Login</title>
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPGB Login</title>
 
 <style>
-
-:root{
-  --primary:#1c4fa3;
-  --secondary:#2e6dd8;
-  --glass:rgba(255,255,255,0.1);
-}
-
-/* BODY FIXED */
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
-  height:100vh;
   background:linear-gradient(135deg,#1c4fa3,#000428);
+  height:100vh;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   color:white;
-  overflow:hidden; /* FIX UI JUMP */
 }
 
-/* CARD */
-.login-card{
-  width:90%;
-  max-width:350px;
-  min-height:420px; /* STABLE HEIGHT */
+.box{
+  background:rgba(255,255,255,0.1);
   padding:25px;
-  border-radius:18px;
-  background:var(--glass);
-  backdrop-filter:blur(15px);
-  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  border-radius:12px;
+  width:90%;
+  max-width:340px;
   text-align:center;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
-/* LOGO FIXED */
 .logo{
   width:100%;
-  max-width:240px;
-  height:80px;
-  object-fit:contain;
-  background:white;
-  padding:5px;
-  border-radius:8px;
+  max-width:220px;
   margin-bottom:10px;
 }
 
-/* TEXT */
-.bank-name{
-  font-size:16px;
-  font-weight:600;
+h2{
+  margin:5px 0 15px;
 }
 
-.subtitle{
-  font-size:12px;
-  opacity:0.8;
-  margin-bottom:12px;
-}
-
-/* INPUT */
-.input-group{
-  position:relative;
-  margin:10px 0;
-}
-
-.input-group i{
-  position:absolute;
-  top:50%;
-  left:12px;
-  transform:translateY(-50%);
-  color:#ccc;
-}
-
-.input-group input{
+/* INPUT FIX */
+input{
   width:100%;
-  padding:12px 12px 12px 38px;
+  padding:12px;
+  margin:10px 0;
   border:none;
   border-radius:8px;
-  outline:none;
+  box-sizing:border-box;
+  font-size:14px;
 }
 
 /* CAPTCHA */
 .captcha-box{
-  background:white;
-  color:#333;
-  padding:8px;
+  display:flex;
+  gap:10px;
+}
+
+.captcha-text{
+  flex:1;
+  background:#fff;
+  color:#000;
+  padding:10px;
   border-radius:8px;
   font-weight:bold;
-  letter-spacing:3px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin-top:5px;
+  letter-spacing:2px;
 }
 
 .refresh{
+  background:#fff;
+  border:none;
+  border-radius:8px;
+  padding:10px;
   cursor:pointer;
-  margin-left:10px;
 }
 
 /* BUTTON */
 button{
   width:100%;
   padding:12px;
-  margin-top:12px;
+  background:#00c6ff;
   border:none;
-  border-radius:8px;
-  background:linear-gradient(135deg,#00c6ff,#0072ff);
   color:white;
   font-weight:bold;
+  border-radius:8px;
   cursor:pointer;
+  box-sizing:border-box;
 }
 
-/* MESSAGE */
+button:hover{
+  background:#0072ff;
+}
+
 #msg{
-  margin-top:8px;
-  color:#ffd54f;
-  font-size:13px;
+  margin-top:10px;
+  color:yellow;
 }
-
-/* SUCCESS POPUP */
-#successBox{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-
-.success-card{
-  background:white;
-  color:#333;
-  padding:25px;
-  border-radius:15px;
-  text-align:center;
-  animation:pop 0.4s ease;
-}
-
-.success-card i{
-  font-size:40px;
-  color:green;
-}
-
-@keyframes pop{
-  from{transform:scale(0.5); opacity:0;}
-  to{transform:scale(1); opacity:1;}
-}
-
-.footer{
-  margin-top:8px;
-  font-size:10px;
-  opacity:0.7;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="login-card">
+<div class="box">
 
-  <!-- LOGO -->
-  <img src="mpgb_header_small.png" class="logo"
-       onerror="this.style.display='none'">
+  <img src="mpgb_header_small.png" class="logo">
 
-  <div class="bank-name">Madhya Pradesh Gramin Bank</div>
-  <div class="subtitle">RO Jabalpur Digital Portal</div>
+  <h2>MPGB Login</h2>
 
-  <!-- USERNAME -->
-  <div class="input-group">
-    <i class="fa-solid fa-id-card"></i>
-    <input type="text" id="username" placeholder="Enter SOL ID">
-  </div>
+  <input type="text" id="username" placeholder="Enter SOL ID">
+  <input type="password" id="password" placeholder="Enter Password">
 
-  <!-- PASSWORD -->
-  <div class="input-group">
-    <i class="fa-solid fa-lock"></i>
-    <input type="password" id="password" placeholder="Enter Password">
-  </div>
-
-  <!-- CAPTCHA -->
   <div class="captcha-box">
-    <span id="captcha"></span>
-    <i class="fa-solid fa-rotate refresh" onclick="generateCaptcha()"></i>
+    <div class="captcha-text" id="captcha"></div>
+    <button class="refresh" onclick="generateCaptcha()">⟳</button>
   </div>
 
-  <div class="input-group">
-    <input type="text" id="captchaInput" placeholder="Enter CAPTCHA">
-  </div>
+  <input type="text" id="captchaInput" placeholder="Enter CAPTCHA">
 
-  <!-- BUTTON -->
   <button onclick="login()">Login</button>
 
   <p id="msg"></p>
 
-  <div class="footer">© MPGB Secure System</div>
-
-</div>
-
-<!-- SUCCESS POPUP -->
-<div id="successBox">
-  <div class="success-card">
-    <i class="fa-solid fa-circle-check"></i>
-    <h3>Login Successful</h3>
-    <p id="welcomeText"></p>
-  </div>
 </div>
 
 <script>
 
-let currentCaptcha = "";
+let captchaValue = "";
 
 /* CAPTCHA GENERATE */
 function generateCaptcha(){
-  let chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let captcha = "";
-  for(let i=0;i<5;i++){
-    captcha += chars.charAt(Math.floor(Math.random()*chars.length));
-  }
-  currentCaptcha = captcha;
-  document.getElementById("captcha").innerText = captcha;
+  captchaValue = Math.random().toString(36).substring(2,7).toUpperCase();
+  document.getElementById("captcha").innerText = captchaValue;
 }
 generateCaptcha();
 
 /* LOGIN */
 function login(){
 
-  let user = document.getElementById("username").value;
-  let pass = document.getElementById("password").value;
-  let captchaInput = document.getElementById("captchaInput").value;
+  let user = document.getElementById("username").value.trim();
+  let pass = document.getElementById("password").value.trim();
+  let captchaInput = document.getElementById("captchaInput").value.trim();
 
-  if(!user || !pass){
-    document.getElementById("msg").innerHTML = "Enter SOL ID & Password!";
-    return;
-  }
-
-  if(captchaInput !== currentCaptcha){
-    document.getElementById("msg").innerHTML = "Invalid CAPTCHA!";
+  if(captchaInput !== captchaValue){
+    document.getElementById("msg").innerText = "Invalid CAPTCHA!";
     generateCaptcha();
     return;
   }
 
   let url = "https://script.google.com/macros/s/AKfycbwQGrxhD6caEndOULRK0jMvzG5j9mQ7EA4Xb2n8BtniAFeWh0RGE8lCk0PZgV0uPzmkdQ/exec"
             + "?username=" + encodeURIComponent(user)
-            + "&password=" + encodeURIComponent(pass);
-
-  document.getElementById("msg").innerHTML = "Checking...";
+            + "&password=" + encodeURIComponent(pass)
+            + "&key=MPGB123";
 
   fetch(url)
     .then(res => res.json())
@@ -265,30 +156,18 @@ function login(){
 
         localStorage.setItem("login","true");
         localStorage.setItem("branch", data.branch);
-        localStorage.setItem("time", new Date().getTime());
 
-        showSuccess(data.branch);
+        window.location.href = "dashboard.html";
 
       } else {
-        document.getElementById("msg").innerHTML = "Invalid Login!";
+        document.getElementById("msg").innerText = "Invalid Login!";
         generateCaptcha();
       }
 
     })
     .catch(()=>{
-      document.getElementById("msg").innerHTML = "Server Error!";
+      document.getElementById("msg").innerText = "Server Error!";
     });
-}
-
-/* SUCCESS */
-function showSuccess(branch){
-  document.getElementById("successBox").style.display="flex";
-  document.getElementById("welcomeText").innerHTML =
-    "Welcome <b>" + branch + "</b>";
-
-  setTimeout(()=>{
-    window.location.href="dashboard.html";
-  },1500);
 }
 
 </script>
