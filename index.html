@@ -63,7 +63,7 @@ input{
   text-align:center;
 }
 
-/* REFRESH BUTTON (SVG) */
+/* REFRESH BUTTON */
 .refresh{
   width:50px;
   height:50px;
@@ -94,7 +94,9 @@ input{
 
 /* MESSAGE */
 #msg{
-  margin-top:10px;
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.5;
   font-weight:bold;
 }
 
@@ -113,6 +115,11 @@ input{
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+input:focus{
+  outline:none;
+  box-shadow:0 0 5px #00c6ff;
 }
 </style>
 </head>
@@ -158,7 +165,7 @@ function generateCaptcha(){
 }
 generateCaptcha();
 
-/* LOGIN */
+/* LOGIN FUNCTION */
 function login(){
 
   let btn = document.querySelector(".login-btn");
@@ -170,6 +177,7 @@ function login(){
 
   msg.innerHTML = "";
 
+  // CAPTCHA CHECK
   if(captchaInput !== captchaValue){
     msg.innerHTML = "❌ Invalid CAPTCHA!";
     generateCaptcha();
@@ -191,16 +199,21 @@ function login(){
 
       if(data.status === "success"){
 
-        msg.innerHTML = "✅ Login Successful!";
-        msg.style.color = "lightgreen";
+        let branch = data.branch;
 
+        // SAVE SESSION
         localStorage.setItem("login","true");
-        localStorage.setItem("branch", data.branch);
+        localStorage.setItem("branch", branch);
         localStorage.setItem("time", new Date().getTime());
 
+        // WELCOME MESSAGE
+        msg.innerHTML = "✅ Welcome to <br><b>" + branch + "</b>";
+        msg.style.color = "lightgreen";
+
+        // REDIRECT
         setTimeout(()=>{
           window.location.href = "dashboard.html";
-        },1000);
+        },1500);
 
       } else {
         msg.innerHTML = "❌ Invalid Login!";
