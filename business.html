@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script>
+(function(){
+
+  let login = localStorage.getItem("login");
+  let branch = localStorage.getItem("branch");
+  let time = localStorage.getItem("time");
+
+  let now = new Date().getTime();
+
+  // Not logged in
+  if(login !== "true" || !branch){
+    window.location.replace("index.html");
+  }
+
+  // Session expiry (30 min)
+  if(time && (now - time > 30*60*1000)){
+    localStorage.clear();
+    window.location.replace("index.html");
+  }
+
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RO Jabalpur Business Dashboard</title>
 
