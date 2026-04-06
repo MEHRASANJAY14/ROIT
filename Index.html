@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login - MPGB</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#1c4fa3,#000428);
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+}
+
+.box{
+  background:rgba(255,255,255,0.1);
+  padding:30px;
+  border-radius:10px;
+  width:300px;
+  text-align:center;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border:none;
+  border-radius:5px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:#00c6ff;
+  border:none;
+  color:white;
+  font-weight:bold;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+#msg{
+  margin-top:10px;
+  color:yellow;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+  <h2>🏦 MPGB Login</h2>
+
+  <input type="text" id="username" placeholder="SOL ID">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <p id="msg"></p>
+</div>
+
+<script>
+
+function login(){
+
+  let user = document.getElementById("username").value;
+  let pass = document.getElementById("password").value;
+
+  let url = "https://script.google.com/macros/s/AKfycbwQGrxhD6caEndOULRK0jMvzG5j9mQ7EA4Xb2n8BtniAFeWh0RGE8lCk0PZgV0uPzmkdQ/exec"
+            + "?username=" + user + "&password=" + pass;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+      if(data.status === "success"){
+
+        localStorage.setItem("login","true");
+        localStorage.setItem("branch", data.branch);
+
+        window.location.href = "dashboard.html";
+
+      } else {
+        document.getElementById("msg").innerHTML = "Invalid Login!";
+      }
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
