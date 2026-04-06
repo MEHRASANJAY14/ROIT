@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>
+// 🔐 STRONG LOGIN CHECK (RUN BEFORE PAGE LOAD)
+(function(){
+
+  let login = localStorage.getItem("login");
+  let branch = localStorage.getItem("branch");
+  let time = localStorage.getItem("time");
+
+  let now = new Date().getTime();
+
+  // Not logged in
+  if(login !== "true" || !branch){
+    window.location.replace("index.html");
+  }
+
+  // Session expiry (30 min)
+  if(time && (now - time > 30*60*1000)){
+    localStorage.clear();
+    window.location.replace("index.html");
+  }
+
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <button onclick="logout()">Logout</button>
 <title>MPGB RO Jabalpur</title>
