@@ -14,7 +14,7 @@ button{background:#006400;color:white;border:none;padding:9px 16px;border-radius
 button:hover{background:#004d00;}
 .result{margin-top:15px;margin-bottom:15px;background:#eef9f1;padding:18px;border-radius:6px;font-size:15px;line-height:1.8em;width:100%;word-break:break-word;}
 .table-wrapper{width:100%;overflow-x:auto;}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:950px;}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px;}
 th,td{border:1px solid #ddd;padding:6px;text-align:center;}
 th{background:#006400;color:white;}
 
@@ -74,14 +74,12 @@ if(moratorium >= totalMonths){
   return;
 }
 
-/* Effective Tenure */
 let effectiveMonths = totalMonths - moratorium;
 
-/* 3:1 Ratio */
 let principalMonths=Math.round((3/4)*effectiveMonths);
 let interestMonths=effectiveMonths-principalMonths;
 
-/* ✅ NEW 3 SLAB LOGIC */
+/* 3 SLABS */
 let slab1 = Math.min(P,110000);
 let slab2 = P>110000 ? Math.min(P-110000, 4000000-110000) : 0;
 let slab3 = P>4000000 ? P-4000000 : 0;
@@ -104,7 +102,7 @@ let slab3InterestTotal=0;
 let table=document.getElementById("schedule");
 table.innerHTML="";
 
-/* Header */
+/* HEADER */
 let headerRow=table.insertRow();
 headerRow.innerHTML=
 "<th>Month</th>"+
@@ -113,9 +111,10 @@ headerRow.innerHTML=
 "<th>5.5%</th>"+
 "<th>6%</th>"+
 "<th>Total Int</th>"+
-"<th>Outstanding</th>";
+"<th>Principal Outstanding</th>"+
+"<th>Total Outstanding</th>";
 
-/* Moratorium Phase */
+/* MORATORIUM */
 for(let i=1;i<=moratorium;i++){
 
   let interest1 = balance1*r1;
@@ -130,6 +129,8 @@ for(let i=1;i<=moratorium;i++){
 
   accumulatedInterest += totalInterestMonth;
 
+  let principalOutstanding = balance1 + balance2 + balance3;
+
   let row=table.insertRow();
   row.insertCell(0).innerText=i;
   row.insertCell(1).innerText="Moratorium";
@@ -137,10 +138,11 @@ for(let i=1;i<=moratorium;i++){
   row.insertCell(3).innerText=format(interest2);
   row.insertCell(4).innerText=format(interest3);
   row.insertCell(5).innerText=format(totalInterestMonth);
-  row.insertCell(6).innerText=format(P+accumulatedInterest);
+  row.insertCell(6).innerText=format(principalOutstanding);
+  row.insertCell(7).innerText=format(P+accumulatedInterest);
 }
 
-/* Principal Phase */
+/* PRINCIPAL PHASE */
 for(let i=1;i<=principalMonths;i++){
 
   let reductionRatio = monthlyPrincipal / P;
@@ -165,7 +167,9 @@ for(let i=1;i<=principalMonths;i++){
   balance2 -= principal2;
   balance3 -= principal3;
 
-  let totalOutstanding = (balance1+balance2+balance3) + accumulatedInterest;
+  let principalOutstanding = balance1 + balance2 + balance3;
+
+  let totalOutstanding = principalOutstanding + accumulatedInterest;
 
   let row=table.insertRow();
   row.insertCell(0).innerText=moratorium+i;
@@ -174,10 +178,11 @@ for(let i=1;i<=principalMonths;i++){
   row.insertCell(3).innerText=format(interest2);
   row.insertCell(4).innerText=format(interest3);
   row.insertCell(5).innerText=format(totalInterestMonth);
-  row.insertCell(6).innerText=format(totalOutstanding);
+  row.insertCell(6).innerText=format(principalOutstanding);
+  row.insertCell(7).innerText=format(totalOutstanding);
 }
 
-/* Interest Phase */
+/* INTEREST PHASE */
 let monthlyInterestRecovery=accumulatedInterest/interestMonths;
 let remainingInterest=accumulatedInterest;
 
@@ -192,10 +197,11 @@ for(let i=1;i<=interestMonths;i++){
   row.insertCell(3).innerText="0";
   row.insertCell(4).innerText="0";
   row.insertCell(5).innerText=format(monthlyInterestRecovery);
-  row.insertCell(6).innerText=format(remainingInterest);
+  row.insertCell(6).innerText="0";
+  row.insertCell(7).innerText=format(remainingInterest);
 }
 
-/* Summary */
+/* SUMMARY */
 document.getElementById("summary").innerHTML=
 "<b>Loan Amount:</b> "+format(P)+"<br>"+
 "<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
