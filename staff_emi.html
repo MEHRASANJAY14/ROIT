@@ -12,19 +12,14 @@ body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;}
 input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ccc;border-radius:5px;font-size:14px;}
 button{background:#006400;color:white;border:none;padding:9px 16px;border-radius:5px;cursor:pointer;font-size:14px;margin-right:6px;}
 button:hover{background:#004d00;}
-.result{margin-top:15px;margin-bottom:15px;background:#eef9f1;padding:18px;border-radius:6px;font-size:15px;line-height:1.8em;width:100%;}
+.result{margin-top:15px;margin-bottom:15px;background:#eef9f1;padding:18px;border-radius:6px;font-size:15px;line-height:1.8em;}
 .table-wrapper{width:100%;overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:1200px;}
 th,td{border:1px solid #ddd;padding:6px;text-align:center;}
 th{background:#006400;color:white;}
 
 @media print{
-  body{background:white;}
   .header,input,button{display:none !important;}
-  .container{width:100%;margin:0;padding:0;box-shadow:none;}
-  .result{page-break-inside:avoid;font-size:14px;}
-  table{font-size:11px;min-width:100%;}
-  @page{size:A4 landscape;margin:8mm;}
 }
 </style>
 </head>
@@ -40,12 +35,12 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 <input type="number" id="amount" placeholder="Loan Amount (₹)">
 <input type="number" id="tenure" placeholder="Total Tenure (Months)">
 <input type="number" id="moratorium" placeholder="Moratorium Period (Months)">
-<input type="date" id="accdate" placeholder="Account Open Date (Optional)">
+<input type="date" id="accdate">
 
 <button onclick="calculateStaff()">Calculate</button>
 <button onclick="window.print()">Print</button>
 
-<div class="result" id="summary" style="display:none;"></div>
+<div id="summary" class="result" style="display:none;"></div>
 
 <div class="table-wrapper">
 <table id="schedule"></table>
@@ -55,199 +50,127 @@ MPGB RO Jabalpur - Staff Loan EMI (Tier Based 3:1 Model)
 
 <script>
 
-function format(n){
-  return Number(n).toFixed(2);
-}
+function format(n){ return Number(n).toFixed(2); }
 
-function getLastDateOfMonth(baseDate, monthOffset){
+function getLastDateOfMonth(baseDate, m){
   if(!baseDate) return "";
-  let d = new Date(baseDate);
-  d.setMonth(d.getMonth() + monthOffset + 1);
+  let d=new Date(baseDate);
+  d.setMonth(d.getMonth()+m+1);
   d.setDate(0);
-  let day = d.getDate();
-  let month = d.toLocaleString('en-US', { month: 'short' });
-  let year = d.getFullYear();
-  return day + "-" + month + "-" + year;
+  return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
 }
 
 function calculateStaff(){
 
-let P=parseFloat(document.getElementById("amount").value);
-let totalMonths=parseInt(document.getElementById("tenure").value);
-let moratorium=parseInt(document.getElementById("moratorium").value) || 0;
+let P=parseFloat(amount.value);
+let totalMonths=parseInt(tenure.value);
+let moratorium=parseInt(moratorium.value)||0;
+let accDate=accdate.value?new Date(accdate.value):null;
 
-let accDateInput = document.getElementById("accdate").value;
-let accDate = accDateInput ? new Date(accDateInput) : null;
+if(!P||!totalMonths){ alert("Fill all fields"); return;}
+if(moratorium>=totalMonths){ alert("Invalid moratorium"); return;}
 
-if(!P || !totalMonths){
-  alert("Fill all fields");
-  return;
-}
-
-if(moratorium >= totalMonths){
-  alert("Moratorium must be less than total tenure");
-  return;
-}
-
-let effectiveMonths = totalMonths - moratorium;
-
+let effectiveMonths=totalMonths-moratorium;
 let principalMonths=Math.round((3/4)*effectiveMonths);
 let interestMonths=effectiveMonths-principalMonths;
 
-let slab1 = Math.min(P,110000);
-let slab2 = P>110000 ? Math.min(P-110000, 4000000-110000) : 0;
-let slab3 = P>4000000 ? P-4000000 : 0;
-
-let balance1 = slab1;
-let balance2 = slab2;
-let balance3 = slab3;
-
 let monthlyPrincipal=P/principalMonths;
 
-let r1=5/12/100;
-let r2=5.5/12/100;
-let r3=6/12/100;
+let r1=5/12/100, r2=5.5/12/100, r3=6/12/100;
 
+let balance=P;
 let accumulatedInterest=0;
-let slab1InterestTotal=0;
-let slab2InterestTotal=0;
-let slab3InterestTotal=0;
+
+let slab1InterestTotal=0, slab2InterestTotal=0, slab3InterestTotal=0;
 
 let table=document.getElementById("schedule");
 table.innerHTML="";
 
-let headerRow=table.insertRow();
-headerRow.innerHTML=
-"<th>Month</th>"+
-"<th>Principal EMI</th>"+
-"<th>Interest EMI</th>"+
-"<th>5%</th>"+
-"<th>5.5%</th>"+
-"<th>6%</th>"+
-"<th>Total Int</th>"+
-"<th>Principal Outstanding</th>"+
-"<th>Total Outstanding</th>";
+table.insertRow().innerHTML=
+"<th>Month</th><th>Principal EMI</th><th>Interest EMI</th><th>5%</th><th>5.5%</th><th>6%</th><th>Total Int</th><th>Principal Outstanding</th><th>Total Outstanding</th>";
 
 /* MORATORIUM */
 for(let i=1;i<=moratorium;i++){
 
-  let emiDate = getLastDateOfMonth(accDate, i-1);
-  let monthLabel = accDate ? (i+" ("+emiDate+")") : i;
+let date=getLastDateOfMonth(accDate,i-1);
+let label=accDate? i+" ("+date+")":i;
 
-  let interest1 = balance1*r1;
-  let interest2 = balance2*r2;
-  let interest3 = balance3*r3;
+let slab1=Math.min(balance,110000);
+let slab2=balance>110000?Math.min(balance-110000,4000000-110000):0;
+let slab3=balance>4000000?balance-4000000:0;
 
-  let totalInterestMonth = interest1 + interest2 + interest3;
+let i1=slab1*r1, i2=slab2*r2, i3=slab3*r3;
+let total=i1+i2+i3;
 
-  slab1InterestTotal += interest1;
-  slab2InterestTotal += interest2;
-  slab3InterestTotal += interest3;
+accumulatedInterest+=total;
+slab1InterestTotal+=i1;
+slab2InterestTotal+=i2;
+slab3InterestTotal+=i3;
 
-  accumulatedInterest += totalInterestMonth;
-
-  let principalOutstanding = balance1 + balance2 + balance3;
-
-  let row=table.insertRow();
-  row.insertCell(0).innerText=monthLabel;
-  row.insertCell(1).innerText="Moratorium";
-  row.insertCell(2).innerText="0";
-  row.insertCell(3).innerText=format(interest1);
-  row.insertCell(4).innerText=format(interest2);
-  row.insertCell(5).innerText=format(interest3);
-  row.insertCell(6).innerText=format(totalInterestMonth);
-  row.insertCell(7).innerText=format(principalOutstanding);
-  row.insertCell(8).innerText=format(P+accumulatedInterest);
+let row=table.insertRow();
+row.innerHTML=`<td>${label}</td><td>Moratorium</td><td>0</td>
+<td>${format(i1)}</td><td>${format(i2)}</td><td>${format(i3)}</td>
+<td>${format(total)}</td><td>${format(balance)}</td>
+<td>${format(balance+accumulatedInterest)}</td>`;
 }
 
 /* PRINCIPAL */
 for(let i=1;i<=principalMonths;i++){
 
-  let emiDate = getLastDateOfMonth(accDate, moratorium+i-1);
-  let monthLabel = accDate ? ((moratorium+i)+" ("+emiDate+")") : (moratorium+i);
+let date=getLastDateOfMonth(accDate,moratorium+i-1);
+let label=accDate?(moratorium+i)+" ("+date+")":(moratorium+i);
 
-  let interest1 = balance1*r1;
-  let interest2 = balance2*r2;
-  let interest3 = balance3*r3;
+let slab1=Math.min(balance,110000);
+let slab2=balance>110000?Math.min(balance-110000,4000000-110000):0;
+let slab3=balance>4000000?balance-4000000:0;
 
-  let totalInterestMonth = interest1 + interest2 + interest3;
+let i1=slab1*r1, i2=slab2*r2, i3=slab3*r3;
+let total=i1+i2+i3;
 
-  slab1InterestTotal += interest1;
-  slab2InterestTotal += interest2;
-  slab3InterestTotal += interest3;
+accumulatedInterest+=total;
+slab1InterestTotal+=i1;
+slab2InterestTotal+=i2;
+slab3InterestTotal+=i3;
 
-  accumulatedInterest += totalInterestMonth;
+let pay=(i===principalMonths)?balance:monthlyPrincipal;
+balance-=pay;
 
-  let remainingPrincipal = balance1 + balance2 + balance3;
-  let principalPay = (i === principalMonths) ? remainingPrincipal : monthlyPrincipal;
-
-  let ratio1 = balance1 / remainingPrincipal || 0;
-  let ratio2 = balance2 / remainingPrincipal || 0;
-  let ratio3 = balance3 / remainingPrincipal || 0;
-
-  balance1 -= principalPay * ratio1;
-  balance2 -= principalPay * ratio2;
-  balance3 -= principalPay * ratio3;
-
-  let principalOutstanding = balance1 + balance2 + balance3;
-  let totalOutstanding = principalOutstanding + accumulatedInterest;
-
-  let row=table.insertRow();
-  row.insertCell(0).innerText=monthLabel;
-  row.insertCell(1).innerText=format(principalPay);
-  row.insertCell(2).innerText="0";
-  row.insertCell(3).innerText=format(interest1);
-  row.insertCell(4).innerText=format(interest2);
-  row.insertCell(5).innerText=format(interest3);
-  row.insertCell(6).innerText=format(totalInterestMonth);
-  row.insertCell(7).innerText=format(principalOutstanding);
-  row.insertCell(8).innerText=format(totalOutstanding);
+let row=table.insertRow();
+row.innerHTML=`<td>${label}</td><td>${format(pay)}</td><td>0</td>
+<td>${format(i1)}</td><td>${format(i2)}</td><td>${format(i3)}</td>
+<td>${format(total)}</td><td>${format(balance)}</td>
+<td>${format(balance+accumulatedInterest)}</td>`;
 }
 
 /* INTEREST */
-let monthlyInterestRecovery=accumulatedInterest/interestMonths;
-let remainingInterest=accumulatedInterest;
+let emi=accumulatedInterest/interestMonths;
+let remain=accumulatedInterest;
 
 for(let i=1;i<=interestMonths;i++){
 
-  let emiDate = getLastDateOfMonth(accDate, moratorium+principalMonths+i-1);
-  let monthLabel = accDate ? ((moratorium+principalMonths+i)+" ("+emiDate+")") : (moratorium+principalMonths+i);
+let date=getLastDateOfMonth(accDate,moratorium+principalMonths+i-1);
+let label=accDate?(moratorium+principalMonths+i)+" ("+date+")":(moratorium+principalMonths+i);
 
-  remainingInterest-=monthlyInterestRecovery;
+remain-=emi;
 
-  let row=table.insertRow();
-  row.insertCell(0).innerText=monthLabel;
-  row.insertCell(1).innerText="0";
-  row.insertCell(2).innerText=format(monthlyInterestRecovery);
-  row.insertCell(3).innerText="0";
-  row.insertCell(4).innerText="0";
-  row.insertCell(5).innerText="0";
-  row.insertCell(6).innerText="0";
-  row.insertCell(7).innerText="0";
-  row.insertCell(8).innerText=format(remainingInterest);
+let row=table.insertRow();
+row.innerHTML=`<td>${label}</td><td>0</td><td>${format(emi)}</td>
+<td>0</td><td>0</td><td>0</td>
+<td>0</td><td>0</td><td>${format(remain)}</td>`;
 }
 
 /* SUMMARY */
-document.getElementById("summary").innerHTML=
-"<b>Loan Amount:</b> "+format(P)+"<br>"+
-"<b>Total Tenure:</b> "+totalMonths+" Months<br>"+
-"<b>Moratorium:</b> "+moratorium+" Months<br>"+
-"<b>Effective Tenure:</b> "+effectiveMonths+" Months<br><hr>"+
+summary.innerHTML=
+`Loan: ${format(P)}<br>
+Effective Tenure: ${effectiveMonths}<br>
+Principal EMI: ${format(monthlyPrincipal)}<br>
+Interest EMI: ${format(emi)}<br>
+5% Interest: ${format(slab1InterestTotal)}<br>
+5.5% Interest: ${format(slab2InterestTotal)}<br>
+6% Interest: ${format(slab3InterestTotal)}<br>
+Total Interest: ${format(accumulatedInterest)}`;
 
-"<b>Principal Phase:</b> "+principalMonths+" Months<br>"+
-"<b>Interest Phase:</b> "+interestMonths+" Months<br><hr>"+
-
-"<b>Monthly Principal EMI:</b> "+format(monthlyPrincipal)+"<br>"+
-"<b>Monthly Interest EMI:</b> "+format(monthlyInterestRecovery)+"<br><hr>"+
-
-"<b>5% Interest:</b> "+format(slab1InterestTotal)+"<br>"+
-"<b>5.5% Interest:</b> "+format(slab2InterestTotal)+"<br>"+
-"<b>6% Interest:</b> "+format(slab3InterestTotal)+"<br><hr>"+
-
-"<b>Total Interest:</b> "+format(accumulatedInterest)+"<br>"+
-"<b>Total Payment:</b> "+format(P+accumulatedInterest);
-
-document.getElementById("summary").style.display="block";
+summary.style.display="block";
 
 }
 
