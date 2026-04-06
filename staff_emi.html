@@ -5,136 +5,27 @@
 <title>MPGB Staff Loan EMI</title>
 
 <style>
+*{box-sizing:border-box;}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;}
+.header{background:#006400;color:white;text-align:center;padding:14px;font-size:16px;font-weight:bold;}
+.container{width:100%;max-width:1400px;margin:10px auto;background:white;padding:18px;border-radius:6px;box-shadow:0 3px 10px rgba(0,0,0,0.08);}
+input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ccc;border-radius:5px;font-size:14px;}
+button{background:#006400;color:white;border:none;padding:9px 16px;border-radius:5px;cursor:pointer;font-size:14px;margin-right:6px;}
+button:hover{background:#004d00;}
+.result{margin-top:15px;margin-bottom:15px;background:#eef9f1;padding:18px;border-radius:6px;font-size:15px;line-height:1.8em;width:100%;word-break:break-word;}
+.table-wrapper{width:100%;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:950px;}
+th,td{border:1px solid #ddd;padding:6px;text-align:center;}
+th{background:#006400;color:white;}
 
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#f4f6f9;
-}
-
-.header{
-  background:#006400;
-  color:white;
-  text-align:center;
-  padding:14px;
-  font-size:16px;
-  font-weight:bold;
-}
-
-.container{
-  width:100%;
-  max-width:1400px;
-  margin:10px auto;
-  background:white;
-  padding:18px;
-  border-radius:6px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
-}
-
-/* Inputs Mobile Safe */
-input{
-  width:100%;
-  padding:10px;
-  margin-bottom:12px;
-  border:1px solid #ccc;
-  border-radius:5px;
-  font-size:14px;
-}
-
-/* Buttons */
-button{
-  background:#006400;
-  color:white;
-  border:none;
-  padding:9px 16px;
-  border-radius:5px;
-  cursor:pointer;
-  font-size:14px;
-  margin-right:6px;
-}
-
-button:hover{
-  background:#004d00;
-}
-
-/* Summary Safe Box */
-.result{
-  margin-top:15px;
-  margin-bottom:15px;
-  background:#eef9f1;
-  padding:18px;
-  border-radius:6px;
-  font-size:15px;
-  line-height:1.8em;
-  width:100%;
-  word-break:break-word;
-}
-
-/* Table */
-.table-wrapper{
-  width:100%;
-  overflow-x:auto;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-  min-width:950px;
-}
-
-th,td{
-  border:1px solid #ddd;
-  padding:6px;
-  text-align:center;
-}
-
-th{
-  background:#006400;
-  color:white;
-}
-
-/* PRINT FIX */
 @media print{
-
-  body{
-    background:white;
-  }
-
-  .header,
-  input,
-  button{
-    display:none !important;
-  }
-
-  .container{
-    width:100%;
-    margin:0;
-    padding:0;
-    box-shadow:none;
-  }
-
-  .result{
-    page-break-inside:avoid;
-    font-size:14px;
-  }
-
-  table{
-    font-size:11px;
-    min-width:100%;
-  }
-
-  @page{
-    size:A4 landscape;
-    margin:8mm;
-  }
-
+  body{background:white;}
+  .header,input,button{display:none !important;}
+  .container{width:100%;margin:0;padding:0;box-shadow:none;}
+  .result{page-break-inside:avoid;font-size:14px;}
+  table{font-size:11px;min-width:100%;}
+  @page{size:A4 landscape;margin:8mm;}
 }
-
 </style>
 </head>
 
@@ -190,21 +81,25 @@ let effectiveMonths = totalMonths - moratorium;
 let principalMonths=Math.round((3/4)*effectiveMonths);
 let interestMonths=effectiveMonths-principalMonths;
 
-/* Slab */
-let slab1=Math.min(P,4000000);
-let slab2=P>4000000?P-4000000:0;
+/* ✅ NEW 3 SLAB LOGIC */
+let slab1 = Math.min(P,110000);
+let slab2 = P>110000 ? Math.min(P-110000, 4000000-110000) : 0;
+let slab3 = P>4000000 ? P-4000000 : 0;
 
-let balance1=slab1;
-let balance2=slab2;
+let balance1 = slab1;
+let balance2 = slab2;
+let balance3 = slab3;
 
 let monthlyPrincipal=P/principalMonths;
 
-let r1=5.5/12/100;
-let r2=6/12/100;
+let r1=5/12/100;
+let r2=5.5/12/100;
+let r3=6/12/100;
 
 let accumulatedInterest=0;
 let slab1InterestTotal=0;
 let slab2InterestTotal=0;
+let slab3InterestTotal=0;
 
 let table=document.getElementById("schedule");
 table.innerHTML="";
@@ -214,6 +109,7 @@ let headerRow=table.insertRow();
 headerRow.innerHTML=
 "<th>Month</th>"+
 "<th>Principal EMI</th>"+
+"<th>5%</th>"+
 "<th>5.5%</th>"+
 "<th>6%</th>"+
 "<th>Total Int</th>"+
@@ -224,10 +120,14 @@ for(let i=1;i<=moratorium;i++){
 
   let interest1 = balance1*r1;
   let interest2 = balance2*r2;
-  let totalInterestMonth = interest1 + interest2;
+  let interest3 = balance3*r3;
+
+  let totalInterestMonth = interest1 + interest2 + interest3;
 
   slab1InterestTotal += interest1;
   slab2InterestTotal += interest2;
+  slab3InterestTotal += interest3;
+
   accumulatedInterest += totalInterestMonth;
 
   let row=table.insertRow();
@@ -235,8 +135,9 @@ for(let i=1;i<=moratorium;i++){
   row.insertCell(1).innerText="Moratorium";
   row.insertCell(2).innerText=format(interest1);
   row.insertCell(3).innerText=format(interest2);
-  row.insertCell(4).innerText=format(totalInterestMonth);
-  row.insertCell(5).innerText=format(P+accumulatedInterest);
+  row.insertCell(4).innerText=format(interest3);
+  row.insertCell(5).innerText=format(totalInterestMonth);
+  row.insertCell(6).innerText=format(P+accumulatedInterest);
 }
 
 /* Principal Phase */
@@ -246,28 +147,34 @@ for(let i=1;i<=principalMonths;i++){
 
   let principal1 = balance1 * reductionRatio;
   let principal2 = balance2 * reductionRatio;
+  let principal3 = balance3 * reductionRatio;
 
   let interest1 = balance1*r1;
   let interest2 = balance2*r2;
+  let interest3 = balance3*r3;
 
-  let totalInterestMonth = interest1 + interest2;
+  let totalInterestMonth = interest1 + interest2 + interest3;
 
   slab1InterestTotal += interest1;
   slab2InterestTotal += interest2;
+  slab3InterestTotal += interest3;
+
   accumulatedInterest += totalInterestMonth;
 
   balance1 -= principal1;
   balance2 -= principal2;
+  balance3 -= principal3;
 
-  let totalOutstanding = (balance1+balance2) + accumulatedInterest;
+  let totalOutstanding = (balance1+balance2+balance3) + accumulatedInterest;
 
   let row=table.insertRow();
   row.insertCell(0).innerText=moratorium+i;
   row.insertCell(1).innerText=format(monthlyPrincipal);
   row.insertCell(2).innerText=format(interest1);
   row.insertCell(3).innerText=format(interest2);
-  row.insertCell(4).innerText=format(totalInterestMonth);
-  row.insertCell(5).innerText=format(totalOutstanding);
+  row.insertCell(4).innerText=format(interest3);
+  row.insertCell(5).innerText=format(totalInterestMonth);
+  row.insertCell(6).innerText=format(totalOutstanding);
 }
 
 /* Interest Phase */
@@ -283,8 +190,9 @@ for(let i=1;i<=interestMonths;i++){
   row.insertCell(1).innerText="0";
   row.insertCell(2).innerText="0";
   row.insertCell(3).innerText="0";
-  row.insertCell(4).innerText=format(monthlyInterestRecovery);
-  row.insertCell(5).innerText=format(remainingInterest);
+  row.insertCell(4).innerText="0";
+  row.insertCell(5).innerText=format(monthlyInterestRecovery);
+  row.insertCell(6).innerText=format(remainingInterest);
 }
 
 /* Summary */
@@ -300,8 +208,9 @@ document.getElementById("summary").innerHTML=
 "<b>Monthly Principal EMI:</b> "+format(monthlyPrincipal)+"<br>"+
 "<b>Monthly Interest EMI:</b> "+format(monthlyInterestRecovery)+"<br><hr>"+
 
-"<b>5.5% Interest on "+format(slab1)+" :</b> "+format(slab1InterestTotal)+"<br>"+
-"<b>6% Interest on "+format(slab2)+" :</b> "+format(slab2InterestTotal)+"<br><hr>"+
+"<b>5% Interest on "+format(slab1)+" :</b> "+format(slab1InterestTotal)+"<br>"+
+"<b>5.5% Interest on "+format(slab2)+" :</b> "+format(slab2InterestTotal)+"<br>"+
+"<b>6% Interest on "+format(slab3)+" :</b> "+format(slab3InterestTotal)+"<br><hr>"+
 
 "<b>Total Interest:</b> "+format(accumulatedInterest)+"<br>"+
 "<b>Total Payment:</b> "+format(P+accumulatedInterest);
