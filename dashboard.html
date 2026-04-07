@@ -222,6 +222,7 @@ body{
     <div class="app-tile" onclick="go('inventory.html')">
       <i class="fa-solid fa-desktop"></i>
       <span>Asset Entry</span>
+      <div id="adminTileContainer"></div>
     </div>
 
     <div class="app-tile" onclick="go('business.html')">
@@ -321,6 +322,23 @@ setInterval(updateDateTime,1000);
 updateDateTime();
 
 </script>
+<script>
 
+let user = localStorage.getItem("userid");
+
+// 🔐 ONLY ADMIN (N07550)
+if(user === "N07550"){
+
+  let html = `
+    <div class="app-tile" onclick="go('reset_password.html')">
+      <i class="fa-solid fa-key"></i>
+      <span>Reset Password</span>
+    </div>
+  `;
+
+  document.getElementById("adminTileContainer").innerHTML = html;
+}
+
+</script>
 </body>
 </html>
