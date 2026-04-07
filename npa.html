@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NPA Premium Dashboard</title>
+  <title>NPA Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <style>
     body { font-family:'Segoe UI'; background:#f4f6fb; padding:15px; }
     h2 { text-align:center; }
@@ -18,14 +17,9 @@
     .btn-red { background:red; }
     .btn-grey { background:#555; }
 
-    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:10px 0; }
-    .card { background:white; padding:10px; border-radius:10px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-
     table { width:100%; border-collapse:collapse; background:white; }
     th,td { padding:8px; border-bottom:1px solid #eee; text-align:center; }
-    th { background:#d32f2f; color:white; position:sticky; top:0; }
-
-    tr:hover { background:#f1f1f1; }
+    th { background:#d32f2f; color:white; }
 
     .green { color:green; font-weight:bold; }
     .red { color:red; font-weight:bold; }
@@ -37,26 +31,14 @@
 
 <body>
 
-<!-- 🔐 LOGIN -->
 <script>
 (function(){
   let login = localStorage.getItem("login");
-  let branch = localStorage.getItem("branch");
-  let time = localStorage.getItem("time");
-  let now = new Date().getTime();
-
-  if(login !== "true" || !branch){
-    window.location.replace("index.html");
-  }
-
-  if(time && (now - time > 30*60*1000)){
-    localStorage.clear();
-    window.location.replace("index.html");
-  }
+  if(login!=="true"){ window.location="index.html"; }
 })();
 </script>
 
-<h2>🏦 NPA Premium Dashboard</h2>
+<h2>🏦 NPA Dashboard</h2>
 <h3 id="reportDate"></h3>
 
 <div class="top-bar">
@@ -76,174 +58,106 @@
   <button class="btn-red" onclick="logout()">Logout</button>
 </div>
 
-<div class="cards">
-  <div class="card">
-    <h3>Total Records</h3>
-    <p id="totalCount">0</p>
-  </div>
-</div>
+<div>Total Records: <b id="totalCount">0</b></div>
 
-<div id="loader">Select a branch to load data</div>
+<div id="loader">Select branch</div>
 
 <table id="dataTable">
-  <thead></thead>
-  <tbody></tbody>
+<thead></thead>
+<tbody></tbody>
 </table>
 
-<div id="pageInfo">Select a branch to view data</div>
+<div id="pageInfo"></div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbz3v4s6qtAIRkbLYaq4V-yrveix3-glPv8YjWrTSav4fzbvfvfxiOhzyQ2CLcJQMe3FFw/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbz3v4s6qtAIRkbLYaq4V-yrveix3-glPv8YjWrTSav4fzbvfvfxiOhzyQ2CLcJQMe3FFw/exec";
 
-let currentPage = 1;
-let currentSol = "";
-let fullData = [];
+let currentPage=1;
+let currentSol="";
+let fullData=[];
 
-// Dropdown
 function loadDropdown(){
-  fetch(API_URL+"?type=dropdown")
-  .then(res=>res.json())
-  .then(data=>{
-    let d=document.getElementById("solSelect");
-
-    data.forEach(i=>{
-      let opt=document.createElement("option");
-      opt.value=i.display;
-      opt.text=i.display;
-      d.appendChild(opt);
-    });
+ fetch(API_URL+"?type=dropdown")
+ .then(r=>r.json())
+ .then(d=>{
+  let s=document.getElementById("solSelect");
+  d.forEach(i=>{
+    let o=document.createElement("option");
+    o.value=i.display;
+    o.text=i.display;
+    s.appendChild(o);
   });
+ });
 }
 
-// Date format fix
-function formatDate(reportDate){
-  if(!reportDate) return "";
-
-  let d;
-
-  if(typeof reportDate==="string" && reportDate.includes("T")){
-    d=new Date(reportDate);
-  } else {
-    let parts=reportDate.toString().split(/[\/\-]/);
-    if(parts.length===3){
-      d=new Date(parts[2],parts[1]-1,parts[0]);
-    }
-  }
-
-  if(!d || isNaN(d)) return reportDate;
-
-  return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
-}
-
-// Load Data ONLY when branch selected
 function loadData(){
+ if(!currentSol) return;
 
-  if(!currentSol){
-    return;
-  }
+ document.getElementById("loader").style.display="block";
 
-  document.getElementById("loader").innerText="Loading...";
-  document.getElementById("loader").style.display="block";
+ fetch(API_URL+"?sol="+encodeURIComponent(currentSol)+"&page="+currentPage)
+ .then(r=>r.json())
+ .then(res=>{
 
-  fetch(API_URL+"?sol="+encodeURIComponent(currentSol)+"&page="+currentPage)
-  .then(res=>res.json())
-  .then(res=>{
+  document.getElementById("loader").style.display="none";
 
-    document.getElementById("loader").style.display="none";
+  fullData=res.data;
 
-    let data=res.data;
-    let total=res.total;
-    let reportDate=res.date;
+  document.getElementById("totalCount").innerText=res.total;
 
-    fullData=data;
+  document.getElementById("reportDate").innerText=
+    "Data as on: "+res.date;
 
-    document.getElementById("totalCount").innerText=total;
+  render(res.data);
 
-    document.getElementById("reportDate").innerText =
-      "Data as on: "+formatDate(reportDate);
-
-    document.getElementById("searchBox").disabled=false;
-
-    renderTable(data);
-
-    let totalPages=Math.ceil(total/20);
-    document.getElementById("pageInfo").innerText =
-      "Page "+currentPage+" of "+totalPages;
-
-  });
+  let pages=Math.ceil(res.total/20);
+  document.getElementById("pageInfo").innerText="Page "+currentPage+" of "+pages;
+ });
 }
 
-// Render
-function renderTable(data){
-  let head=document.querySelector("#dataTable thead");
-  let body=document.querySelector("#dataTable tbody");
+function render(data){
+ let h=document.querySelector("#dataTable thead");
+ let b=document.querySelector("#dataTable tbody");
 
-  head.innerHTML="";
-  body.innerHTML="";
+ h.innerHTML=""; b.innerHTML="";
 
-  if(data.length===0) return;
+ if(!data.length) return;
 
-  let headers=Object.keys(data[0]);
+ let keys=Object.keys(data[0]);
 
-  let hrow="<tr>";
-  headers.forEach(h=>hrow+=`<th>${h}</th>`);
-  hrow+="</tr>";
-  head.innerHTML=hrow;
+ h.innerHTML="<tr>"+keys.map(k=>"<th>"+k+"</th>").join("")+"</tr>";
 
-  data.forEach(row=>{
-    let tr="<tr>";
-    headers.forEach(h=>{
-      let val=row[h];
-
-      if(h.toLowerCase().includes("outstanding"))
-        tr+=`<td class="green">${val}</td>`;
-      else if(h.toLowerCase().includes("overdue"))
-        tr+=`<td class="red">${val}</td>`;
-      else
-        tr+=`<td>${val}</td>`;
-    });
-    tr+="</tr>";
-    body.innerHTML+=tr;
+ data.forEach(r=>{
+  let tr="<tr>";
+  keys.forEach(k=>{
+   let v=r[k];
+   if(k.toLowerCase().includes("outstanding")) tr+=`<td class="green">${v}</td>`;
+   else if(k.toLowerCase().includes("overdue")) tr+=`<td class="red">${v}</td>`;
+   else tr+=`<td>${v}</td>`;
   });
+  tr+="</tr>";
+  b.innerHTML+=tr;
+ });
 }
 
-// Search
-document.getElementById("searchBox").addEventListener("keyup",function(){
-  let val=this.value.toLowerCase();
-  let filtered=fullData.filter(r=>
-    Object.values(r).join(" ").toLowerCase().includes(val)
-  );
-  renderTable(filtered);
-});
+document.getElementById("solSelect").onchange=function(){
+ currentSol=this.value;
+ currentPage=1;
+ document.getElementById("searchBox").disabled=false;
+ loadData();
+};
 
-// Pagination
+document.getElementById("searchBox").onkeyup=function(){
+ let v=this.value.toLowerCase();
+ render(fullData.filter(r=>JSON.stringify(r).toLowerCase().includes(v)));
+};
+
 function nextPage(){currentPage++;loadData();}
 function prevPage(){if(currentPage>1){currentPage--;loadData();}}
 
-// Change
-document.getElementById("solSelect").addEventListener("change",function(){
-  currentSol=this.value;
-  currentPage=1;
-  loadData();
-});
+function logout(){localStorage.clear();location="index.html";}
+function goBack(){location="dashboard.html";}
 
-// Logout
-function logout(){
-  localStorage.clear();
-  location.href="index.html";
-}
-
-// Back
-function goBack(){
-  location.href="dashboard.html";
-}
-
-// Session refresh
-document.addEventListener("click",()=>{
-  localStorage.setItem("time", new Date().getTime());
-});
-
-// Init
 loadDropdown();
 </script>
 
