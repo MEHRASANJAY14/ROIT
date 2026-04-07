@@ -61,9 +61,7 @@
 
 <div class="top-bar">
   <button class="btn-grey" onclick="goBack()">⬅ Back</button>
-
   <select id="solSelect"></select>
-
   <input type="text" id="searchBox" placeholder="Search...">
 
   <div>
@@ -114,6 +112,31 @@ function loadDropdown(){
   });
 }
 
+// 🔥 DATE FIX FUNCTION
+function formatDate(reportDate){
+  if(!reportDate) return "";
+
+  let d;
+
+  if(typeof reportDate === "string" && reportDate.includes("T")){
+    d = new Date(reportDate); // ISO
+  } else {
+    let parts = reportDate.toString().split(/[\/\-]/);
+
+    if(parts.length === 3){
+      d = new Date(parts[2], parts[1]-1, parts[0]); // DD/MM/YYYY
+    }
+  }
+
+  if(!d || isNaN(d)) return reportDate;
+
+  let day = d.getDate();
+  let month = d.toLocaleString('en-US',{month:'short'});
+  let year = d.getFullYear();
+
+  return day+"-"+month+"-"+year;
+}
+
 // Load Data
 function loadData(){
   document.getElementById("loader").style.display="block";
@@ -130,22 +153,17 @@ function loadData(){
 
     fullData=data;
 
-    // ✅ CORRECT TOTAL (FULL BRANCH)
+    // ✅ TOTAL FIX
     document.getElementById("totalCount").innerText=total;
 
-    // Date
-    if(reportDate){
-      let d=new Date(reportDate);
-      let ist=new Date(d.getTime()+5.5*60*60*1000);
-
-      document.getElementById("reportDate").innerText=
-        "Data as on: "+ist.getDate()+"-"+ist.toLocaleString('en-US',{month:'short'})+"-"+ist.getFullYear();
-    }
+    // ✅ DATE FIX
+    document.getElementById("reportDate").innerText =
+      "Data as on: " + formatDate(reportDate);
 
     renderTable(data);
 
     let totalPages=Math.ceil(total/20);
-    document.getElementById("pageInfo").innerText=
+    document.getElementById("pageInfo").innerText =
       "Page "+currentPage+" of "+totalPages;
 
   });
