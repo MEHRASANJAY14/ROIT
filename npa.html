@@ -78,7 +78,6 @@
 
     #loader { text-align:center; margin:10px; }
     #pageInfo { text-align:center; margin-top:10px; font-weight:bold; }
-
   </style>
 </head>
 
@@ -148,11 +147,29 @@ function loadDropdown(){
  });
 }
 
-// Format Date (FAST + FIXED)
+// 🔥 FINAL DATE FIX (NO MORE APRIL→JUNE ISSUE)
 function formatDate(val){
   if(!val) return "-";
-  let d=new Date(val);
-  if(isNaN(d)) return val;
+
+  let d;
+
+  // ISO format
+  if(typeof val==="string" && val.includes("T")){
+    d=new Date(val);
+  } else {
+    let parts=val.toString().split(/[\/\-]/);
+
+    if(parts.length===3){
+      let day=parseInt(parts[0]);
+      let month=parseInt(parts[1])-1;
+      let year=parseInt(parts[2]);
+
+      d=new Date(year,month,day);
+    }
+  }
+
+  if(!d || isNaN(d)) return val;
+
   return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
 }
 
@@ -161,7 +178,7 @@ function loadData(){
  if(!currentSol) return;
 
  document.getElementById("loader").innerText="Loading...";
- 
+
  fetch(API_URL+"?sol="+encodeURIComponent(currentSol)+"&page="+currentPage)
  .then(r=>r.json())
  .then(res=>{
@@ -182,7 +199,7 @@ function loadData(){
  });
 }
 
-// Render
+// Render Table
 function render(data){
  let head=document.querySelector("#dataTable thead");
  let body=document.querySelector("#dataTable tbody");
