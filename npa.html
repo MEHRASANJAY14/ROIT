@@ -12,76 +12,50 @@
       padding: 20px;
     }
 
-    h2 {
-      text-align: center;
-      color: #333;
-    }
+    h2 { text-align: center; color: #333; }
 
     #reportDate {
       text-align: center;
       color: #666;
-      margin-top: -10px;
       margin-bottom: 10px;
     }
 
     .top-bar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 15px;
     }
 
-    select {
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      padding: 8px 12px;
-      border: none;
+    select, button {
+      padding: 8px;
       border-radius: 5px;
-      color: white;
-      cursor: pointer;
+      border: none;
     }
 
-    .btn-blue { background: #1976d2; }
-    .btn-red { background: red; }
-    .btn-grey { background: #555; }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin-bottom: 15px;
-    }
+    .btn-blue { background: #1976d2; color: white; }
+    .btn-red { background: red; color: white; }
+    .btn-grey { background: #555; color: white; }
 
     .card {
       background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
       text-align: center;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
+      border-collapse: collapse;
+      background: white;
     }
 
     th, td {
-      padding: 10px;
+      padding: 8px;
+      border: 1px solid #ddd;
       text-align: center;
-      border-bottom: 1px solid #eee;
     }
 
     th {
@@ -91,23 +65,22 @@
       top: 0;
     }
 
-    tr:hover { background: #f1f1f1; }
-
     .green { color: green; font-weight: bold; }
     .red { color: red; font-weight: bold; }
 
-    #loader {
+    #loader { text-align: center; display: none; }
+
+    #pageInfo {
       text-align: center;
-      display: none;
+      margin-top: 10px;
       font-weight: bold;
-      margin: 10px;
     }
   </style>
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN SESSION -->
+<!-- 🔐 LOGIN -->
 <script>
 (function(){
   let login = localStorage.getItem("login");
@@ -131,39 +104,31 @@
 
 <div class="top-bar">
 
-  <!-- ⬅ BACK -->
   <button class="btn-grey" onclick="goBack()">⬅ Back</button>
 
-  <!-- 🔽 DROPDOWN -->
   <select id="solSelect"></select>
 
-  <!-- PAGINATION -->
   <div>
     <button class="btn-blue" onclick="prevPage()">⬅ Prev</button>
     <button class="btn-blue" onclick="nextPage()">Next ➡</button>
   </div>
 
-  <!-- 🔓 LOGOUT -->
   <button class="btn-red" onclick="logout()">Logout</button>
 
 </div>
 
-<!-- 📊 SUMMARY -->
-<div class="cards">
-  <div class="card">
-    <h3>Total Records</h3>
-    <p id="totalCount">0</p>
-  </div>
+<div class="card">
+  Total Records: <span id="totalCount">0</span>
 </div>
 
-<div id="loader">⏳ Loading data...</div>
+<div id="loader">⏳ Loading...</div>
 
-<div class="table-container">
-  <table id="dataTable">
-    <thead></thead>
-    <tbody></tbody>
-  </table>
-</div>
+<table id="dataTable">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+<div id="pageInfo"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbz3v4s6qtAIRkbLYaq4V-yrveix3-glPv8YjWrTSav4fzbvfvfxiOhzyQ2CLcJQMe3FFw/exec";
@@ -199,14 +164,27 @@ function loadData() {
       document.getElementById("loader").style.display = "none";
 
       let data = response.data;
+      let total = response.total;
       let reportDate = response.date;
 
-      // 📅 Show Date
+      // 📅 Date format
       if (reportDate) {
         let d = new Date(reportDate);
+        let formatted = d.getDate() + "-" +
+          d.toLocaleString('en-US', { month: 'short' }) +
+          "-" + d.getFullYear();
+
         document.getElementById("reportDate").innerText =
-          "Data as on: " + d.toLocaleDateString("en-IN");
+          "Data as on: " + formatted;
       }
+
+      // Total
+      document.getElementById("totalCount").innerText = total;
+
+      // Page info
+      let totalPages = Math.ceil(total / 20);
+      document.getElementById("pageInfo").innerText =
+        "Page " + currentPage + " of " + totalPages;
 
       let head = document.querySelector("#dataTable thead");
       let body = document.querySelector("#dataTable tbody");
@@ -215,8 +193,6 @@ function loadData() {
       body.innerHTML = "";
 
       if (!data || data.length === 0) return;
-
-      document.getElementById("totalCount").innerText = data.length;
 
       let headers = Object.keys(data[0]);
 
@@ -247,7 +223,7 @@ function loadData() {
     });
 }
 
-// ⬅➡ Pagination
+// Pagination
 function nextPage() {
   currentPage++;
   loadData();
@@ -260,25 +236,25 @@ function prevPage() {
   }
 }
 
-// 🔽 Change
+// Change
 document.getElementById("solSelect").addEventListener("change", function() {
   currentSol = this.value;
   currentPage = 1;
   loadData();
 });
 
-// 🔐 Logout
+// Logout
 function logout(){
   localStorage.clear();
   window.location.href = "index.html";
 }
 
-// ⬅ Back
+// Back
 function goBack(){
   window.location.href = "dashboard.html";
 }
 
-// 🔄 Session refresh
+// Session refresh
 document.addEventListener("click", function(){
   localStorage.setItem("time", new Date().getTime());
 });
