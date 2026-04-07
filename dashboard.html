@@ -353,14 +353,20 @@ let user = localStorage.getItem("userid");
 // 🔐 ONLY ADMIN
 if(user === "N07550"){
 
-  let html = `
-    <div class="admin-tile" onclick="go('reset_password.html')">
-      <i class="fa-solid fa-key"></i>
-      <span>Reset Password</span>
-    </div>
+  let grid = document.querySelector(".app-grid");
+
+  let tile = document.createElement("div");
+  tile.className = "app-tile";
+  tile.onclick = function(){
+    go('reset_password.html');
+  };
+
+  tile.innerHTML = `
+    <i class="fa-solid fa-key"></i>
+    <span>Reset Password</span>
   `;
 
-  document.getElementById("adminTileContainer").innerHTML = html;
+  grid.appendChild(tile); // 🔥 THIS FIXES POSITION
 }
 
 </script>
