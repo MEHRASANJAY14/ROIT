@@ -39,7 +39,7 @@ th{background:#006400;color:white;}
 <input type="date" id="accdate">
 
 <button onclick="calcCar()">Calculate</button>
-<button onclick="emi.html">Back</button>
+<button onclick="goBack()">Back</button>
 <button onclick="window.print()">Print</button>
 
 <div id="summary" class="result" style="display:none;"></div>
@@ -61,17 +61,9 @@ function getLastDate(base,m){
  return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
 }
 
-/* BACK BUTTON FUNCTION */
-function resetForm(){
-
-document.getElementById("amount").value="";
-document.getElementById("tenure").value="";
-document.getElementById("moratorium").value="";
-document.getElementById("accdate").value="";
-
-document.getElementById("table").innerHTML="";
-document.getElementById("summary").style.display="none";
-
+/* BACK BUTTON REDIRECT */
+function goBack(){
+  window.location.href = "emi.html";
 }
 
 function calcCar(){
@@ -154,7 +146,7 @@ table.innerHTML+=`<tr>
 <td>${format(remain)}</td></tr>`;
 }
 
-/* SUMMARY (WITH INTEREST RATE) */
+/* SUMMARY */
 document.getElementById("summary").innerHTML=
 `Loan: ${format(P)}<br>
 Interest Rate: 5.5%<br>
