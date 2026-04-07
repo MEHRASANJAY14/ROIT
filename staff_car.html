@@ -8,14 +8,15 @@
 body{font-family:Arial;background:#f4f6f9;margin:0;}
 .header{background:#006400;color:white;text-align:center;padding:14px;font-weight:bold;}
 .container{max-width:1200px;margin:10px auto;background:white;padding:20px;border-radius:6px;}
+label{font-weight:bold;display:block;margin-top:8px;}
 input{width:100%;padding:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:5px;}
-button{background:#006400;color:white;border:none;padding:10px;border-radius:5px;margin-right:5px;}
+button{background:#006400;color:white;border:none;padding:10px;border-radius:5px;margin-right:5px;cursor:pointer;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
 th,td{border:1px solid #ddd;padding:6px;text-align:center;}
 th{background:#006400;color:white;}
 .result{background:#eef9f1;padding:15px;margin-top:10px;border-radius:5px;}
 
-@media print{input,button{display:none;}}
+@media print{input,button,label{display:none;}}
 </style>
 </head>
 
@@ -38,6 +39,7 @@ th{background:#006400;color:white;}
 <input type="date" id="accdate">
 
 <button onclick="calcCar()">Calculate</button>
+<button onclick="resetForm()">Back</button>
 <button onclick="window.print()">Print</button>
 
 <div id="summary" class="result" style="display:none;"></div>
@@ -57,6 +59,19 @@ function getLastDate(base,m){
  d.setMonth(d.getMonth()+m+1);
  d.setDate(0);
  return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
+}
+
+/* BACK BUTTON FUNCTION */
+function resetForm(){
+
+document.getElementById("amount").value="";
+document.getElementById("tenure").value="";
+document.getElementById("moratorium").value="";
+document.getElementById("accdate").value="";
+
+document.getElementById("table").innerHTML="";
+document.getElementById("summary").style.display="none";
+
 }
 
 function calcCar(){
@@ -139,14 +154,16 @@ table.innerHTML+=`<tr>
 <td>${format(remain)}</td></tr>`;
 }
 
-/* SUMMARY */
+/* SUMMARY (WITH INTEREST RATE) */
 document.getElementById("summary").innerHTML=
 `Loan: ${format(P)}<br>
-Tenure: ${total}<br>
-Principal Phase: ${principalMonths}<br>
-Interest Phase: ${interestMonths}<br>
+Interest Rate: 5.5%<br>
+Tenure: ${total} Months<br>
+Moratorium: ${mor} Months<br>
+Principal Phase: ${principalMonths} Months<br>
+Interest Phase: ${interestMonths} Months<br><hr>
 Monthly Principal EMI: ${format(monthlyPrincipal)}<br>
-Interest EMI: ${format(emi)}<br>
+Monthly Interest EMI: ${format(emi)}<br><hr>
 Total Interest: ${format(totalInterest)}<br>
 Total Payment: ${format(P+totalInterest)}`;
 
