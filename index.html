@@ -38,11 +38,20 @@ body{
 input{
   width:100%;
   padding:12px;
-  margin:10px 0;
+  margin:10px 0 2px;
   border:none;
   border-radius:8px;
   box-sizing:border-box;
   font-size:14px;
+}
+
+/* HINT TEXT */
+.hint{
+  font-size:11px;
+  color:#bcd4ff;
+  text-align:left;
+  margin-bottom:8px;
+  padding-left:2px;
 }
 
 /* CAPTCHA */
@@ -132,10 +141,13 @@ input:focus{
 
   <h2>MPGB Login</h2>
 
-  <!-- 🔥 USER ID -->
+  <!-- USER ID -->
   <input type="text" id="username" placeholder="Enter User ID">
+  <div class="hint">e.g. N01234</div>
 
+  <!-- PASSWORD -->
   <input type="password" id="password" placeholder="Enter Password">
+  <div class="hint">Default: User@1234</div>
 
   <!-- CAPTCHA -->
   <div class="captcha-box">
@@ -179,14 +191,12 @@ function login(){
 
   msg.innerHTML = "";
 
-  // CAPTCHA CHECK
   if(captchaInput !== captchaValue){
     msg.innerHTML = "❌ Invalid CAPTCHA!";
     generateCaptcha();
     return;
   }
 
-  // LOADING
   btn.disabled = true;
   msg.innerHTML = '<span class="loader"></span> Logging...';
 
@@ -201,18 +211,15 @@ function login(){
 
       if(data.status === "success"){
 
-        // 🔐 SAVE SESSION
         localStorage.setItem("login","true");
         localStorage.setItem("branch", data.branch);
         localStorage.setItem("sol", data.sol);
         localStorage.setItem("userid", data.userid);
         localStorage.setItem("time", new Date().getTime());
 
-        // 🎉 WELCOME MESSAGE
         msg.innerHTML = "✅ Welcome to <br><b>" + data.branch + "</b>";
         msg.style.color = "lightgreen";
 
-        // 🔥 FIRST LOGIN CHECK
         setTimeout(()=>{
           if(data.firstLogin){
             window.location.href = "change_password.html";
