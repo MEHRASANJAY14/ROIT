@@ -1,44 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NPA Dashboard</title>
+  <title>NPA Smart Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    body { font-family:'Segoe UI'; background:#f4f6fb; padding:15px; }
-    h2 { text-align:center; }
-    #reportDate { text-align:center; color:#666; }
+    body {
+      font-family: 'Segoe UI';
+      background: #eef2f7;
+      margin: 0;
+      padding: 15px;
+    }
 
-    .top-bar { display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; }
+    h2 { text-align: center; margin: 5px; }
+    #reportDate { text-align:center; color:#666; margin-bottom:10px; }
 
-    select,input { padding:8px; border-radius:5px; border:1px solid #ccc; }
+    .top-bar {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
 
-    button { padding:8px 12px; border:none; border-radius:5px; color:white; cursor:pointer; }
+    select, input {
+      padding:8px;
+      border-radius:6px;
+      border:1px solid #ccc;
+    }
+
+    button {
+      padding:8px 12px;
+      border:none;
+      border-radius:6px;
+      color:white;
+      cursor:pointer;
+    }
+
     .btn-blue { background:#1976d2; }
-    .btn-red { background:red; }
+    .btn-red { background:#e53935; }
     .btn-grey { background:#555; }
 
-    table { width:100%; border-collapse:collapse; background:white; }
-    th,td { padding:8px; border-bottom:1px solid #eee; text-align:center; }
-    th { background:#d32f2f; color:white; }
+    .card {
+      background:white;
+      padding:10px;
+      border-radius:8px;
+      text-align:center;
+      margin-bottom:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+      border-radius:10px;
+      overflow:hidden;
+    }
+
+    th, td {
+      padding:8px;
+      text-align:center;
+      border-bottom:1px solid #eee;
+    }
+
+    th {
+      background:#c62828;
+      color:white;
+      position:sticky;
+      top:0;
+    }
+
+    tr:hover { background:#f5f5f5; }
 
     .green { color:green; font-weight:bold; }
     .red { color:red; font-weight:bold; }
 
-    #loader { text-align:center; display:none; }
+    #loader { text-align:center; margin:10px; }
     #pageInfo { text-align:center; margin-top:10px; font-weight:bold; }
+
   </style>
 </head>
 
 <body>
 
+<!-- 🔐 LOGIN -->
 <script>
 (function(){
-  let login = localStorage.getItem("login");
-  if(login!=="true"){ window.location="index.html"; }
+  if(localStorage.getItem("login")!=="true"){
+    window.location="index.html";
+  }
 })();
 </script>
 
-<h2>🏦 NPA Dashboard</h2>
+<h2>🏦 NPA Smart Dashboard</h2>
 <h3 id="reportDate"></h3>
 
 <div class="top-bar">
@@ -58,13 +113,15 @@
   <button class="btn-red" onclick="logout()">Logout</button>
 </div>
 
-<div>Total Records: <b id="totalCount">0</b></div>
+<div class="card">
+  Total Records: <b id="totalCount">0</b>
+</div>
 
-<div id="loader">Select branch</div>
+<div id="loader">Select a branch to load data</div>
 
 <table id="dataTable">
-<thead></thead>
-<tbody></tbody>
+  <thead></thead>
+  <tbody></tbody>
 </table>
 
 <div id="pageInfo"></div>
@@ -76,6 +133,7 @@ let currentPage=1;
 let currentSol="";
 let fullData=[];
 
+// Dropdown
 function loadDropdown(){
  fetch(API_URL+"?type=dropdown")
  .then(r=>r.json())
@@ -90,56 +148,82 @@ function loadDropdown(){
  });
 }
 
+// Format Date (FAST + FIXED)
+function formatDate(val){
+  if(!val) return "-";
+  let d=new Date(val);
+  if(isNaN(d)) return val;
+  return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
+}
+
+// Load Data
 function loadData(){
  if(!currentSol) return;
 
- document.getElementById("loader").style.display="block";
-
+ document.getElementById("loader").innerText="Loading...";
+ 
  fetch(API_URL+"?sol="+encodeURIComponent(currentSol)+"&page="+currentPage)
  .then(r=>r.json())
  .then(res=>{
 
-  document.getElementById("loader").style.display="none";
-
   fullData=res.data;
 
+  document.getElementById("loader").innerText="";
   document.getElementById("totalCount").innerText=res.total;
 
-  document.getElementById("reportDate").innerText=
-    "Data as on: "+res.date;
+  document.getElementById("reportDate").innerText =
+    "Data as on: "+formatDate(res.date);
 
   render(res.data);
 
   let pages=Math.ceil(res.total/20);
-  document.getElementById("pageInfo").innerText="Page "+currentPage+" of "+pages;
+  document.getElementById("pageInfo").innerText =
+    "Page "+currentPage+" of "+pages;
  });
 }
 
+// Render
 function render(data){
- let h=document.querySelector("#dataTable thead");
- let b=document.querySelector("#dataTable tbody");
+ let head=document.querySelector("#dataTable thead");
+ let body=document.querySelector("#dataTable tbody");
 
- h.innerHTML=""; b.innerHTML="";
+ head.innerHTML="";
+ body.innerHTML="";
 
  if(!data.length) return;
 
  let keys=Object.keys(data[0]);
 
- h.innerHTML="<tr>"+keys.map(k=>"<th>"+k+"</th>").join("")+"</tr>";
+ head.innerHTML="<tr>"+keys.map(k=>"<th>"+k+"</th>").join("")+"</tr>";
 
  data.forEach(r=>{
   let tr="<tr>";
   keys.forEach(k=>{
    let v=r[k];
-   if(k.toLowerCase().includes("outstanding")) tr+=`<td class="green">${v}</td>`;
-   else if(k.toLowerCase().includes("overdue")) tr+=`<td class="red">${v}</td>`;
-   else tr+=`<td>${v}</td>`;
+
+   if(k.toLowerCase().includes("outstanding"))
+     tr+=`<td class="green">${v}</td>`;
+   else if(k.toLowerCase().includes("overdue"))
+     tr+=`<td class="red">${v}</td>`;
+   else
+     tr+=`<td>${v}</td>`;
   });
   tr+="</tr>";
-  b.innerHTML+=tr;
+  body.innerHTML+=tr;
  });
 }
 
+// Search
+document.getElementById("searchBox").onkeyup=function(){
+ let v=this.value.toLowerCase();
+ render(fullData.filter(r=>JSON.stringify(r).toLowerCase().includes(v)));
+};
+
+// Pagination
+function nextPage(){currentPage++;loadData();}
+function prevPage(){if(currentPage>1){currentPage--;loadData();}}
+
+// Select branch
 document.getElementById("solSelect").onchange=function(){
  currentSol=this.value;
  currentPage=1;
@@ -147,17 +231,11 @@ document.getElementById("solSelect").onchange=function(){
  loadData();
 };
 
-document.getElementById("searchBox").onkeyup=function(){
- let v=this.value.toLowerCase();
- render(fullData.filter(r=>JSON.stringify(r).toLowerCase().includes(v)));
-};
-
-function nextPage(){currentPage++;loadData();}
-function prevPage(){if(currentPage>1){currentPage--;loadData();}}
-
+// Logout & back
 function logout(){localStorage.clear();location="index.html";}
 function goBack(){location="dashboard.html";}
 
+// Init
 loadDropdown();
 </script>
 
