@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SOL Wise NPA Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    select { padding: 8px; font-size: 14px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: red; color: white; }
+    .green { color: green; font-weight: bold; }
+    .red { color: red; font-weight: bold; }
+  </style>
+</head>
+
+<body>
+
+<h2>SOL Wise NPA List</h2>
+
+<select id="solSelect" onchange="loadData()"></select>
+
+<table id="dataTable">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbz3v4s6qtAIRkbLYaq4V-yrveix3-glPv8YjWrTSav4fzbvfvfxiOhzyQ2CLcJQMe3FFw/exec";
+
+// 🔹 Load Dropdown
+function loadDropdown() {
+  fetch(API_URL + "?type=dropdown")
+    .then(res => res.json())
+    .then(data => {
+      let dropdown = document.getElementById("solSelect");
+
+      dropdown.innerHTML = '<option value="">All Branch</option>';
+
+      data.forEach(item => {
+        dropdown.innerHTML += `<option value="${item.display}">${item.display}</option>`;
+      });
+    });
+}
+
+// 🔹 Load Table Data
+function loadData() {
+  let sol = document.getElementById("solSelect").value;
+
+  fetch(API_URL + "?sol=" + encodeURIComponent(sol))
+    .then(res => res.json())
+    .then(data => {
+
+      let head = document.querySelector("#dataTable thead");
+      let body = document.querySelector("#dataTable tbody");
+
+      head.innerHTML = "";
+      body.innerHTML = "";
+
+      if (data.length === 0) return;
+
+      let headers = Object.keys(data[0]);
+
+      // Header
+      let hrow = "<tr>";
+      headers.forEach(h => hrow += `<th>${h}</th>`);
+      hrow += "</tr>";
+      head.innerHTML = hrow;
+
+      // Rows
+      data.forEach(row => {
+        let tr = "<tr>";
+
+        headers.forEach(h => {
+          let value = row[h];
+
+          // Color formatting
+          if (h === "Outstanding") {
+            tr += `<td class="green">${value}</td>`;
+          } else if (h === "Overdue") {
+            tr += `<td class="red">${value}</td>`;
+          } else {
+            tr += `<td>${value}</td>`;
+          }
+        });
+
+        tr += "</tr>";
+        body.innerHTML += tr;
+      });
+
+    });
+}
+
+// Load initial
+loadDropdown();
+loadData();
+
+</script>
+
+</body>
+</html>
