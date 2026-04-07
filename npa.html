@@ -61,8 +61,12 @@
 
 <div class="top-bar">
   <button class="btn-grey" onclick="goBack()">⬅ Back</button>
-  <select id="solSelect"></select>
-  <input type="text" id="searchBox" placeholder="Search...">
+
+  <select id="solSelect">
+    <option value="">Select Branch</option>
+  </select>
+
+  <input type="text" id="searchBox" placeholder="Search..." disabled>
 
   <div>
     <button class="btn-blue" onclick="prevPage()">⬅</button>
@@ -79,14 +83,14 @@
   </div>
 </div>
 
-<div id="loader">Loading...</div>
+<div id="loader">Select a branch to load data</div>
 
 <table id="dataTable">
   <thead></thead>
   <tbody></tbody>
 </table>
 
-<div id="pageInfo"></div>
+<div id="pageInfo">Select a branch to view data</div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbz3v4s6qtAIRkbLYaq4V-yrveix3-glPv8YjWrTSav4fzbvfvfxiOhzyQ2CLcJQMe3FFw/exec";
@@ -101,7 +105,6 @@ function loadDropdown(){
   .then(res=>res.json())
   .then(data=>{
     let d=document.getElementById("solSelect");
-    d.innerHTML='<option value="">All Branch</option>';
 
     data.forEach(i=>{
       let opt=document.createElement("option");
@@ -112,33 +115,34 @@ function loadDropdown(){
   });
 }
 
-// 🔥 DATE FIX FUNCTION
+// Date format fix
 function formatDate(reportDate){
   if(!reportDate) return "";
 
   let d;
 
-  if(typeof reportDate === "string" && reportDate.includes("T")){
-    d = new Date(reportDate); // ISO
+  if(typeof reportDate==="string" && reportDate.includes("T")){
+    d=new Date(reportDate);
   } else {
-    let parts = reportDate.toString().split(/[\/\-]/);
-
-    if(parts.length === 3){
-      d = new Date(parts[2], parts[1]-1, parts[0]); // DD/MM/YYYY
+    let parts=reportDate.toString().split(/[\/\-]/);
+    if(parts.length===3){
+      d=new Date(parts[2],parts[1]-1,parts[0]);
     }
   }
 
   if(!d || isNaN(d)) return reportDate;
 
-  let day = d.getDate();
-  let month = d.toLocaleString('en-US',{month:'short'});
-  let year = d.getFullYear();
-
-  return day+"-"+month+"-"+year;
+  return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
 }
 
-// Load Data
+// Load Data ONLY when branch selected
 function loadData(){
+
+  if(!currentSol){
+    return;
+  }
+
+  document.getElementById("loader").innerText="Loading...";
   document.getElementById("loader").style.display="block";
 
   fetch(API_URL+"?sol="+encodeURIComponent(currentSol)+"&page="+currentPage)
@@ -153,12 +157,12 @@ function loadData(){
 
     fullData=data;
 
-    // ✅ TOTAL FIX
     document.getElementById("totalCount").innerText=total;
 
-    // ✅ DATE FIX
     document.getElementById("reportDate").innerText =
-      "Data as on: " + formatDate(reportDate);
+      "Data as on: "+formatDate(reportDate);
+
+    document.getElementById("searchBox").disabled=false;
 
     renderTable(data);
 
@@ -241,7 +245,6 @@ document.addEventListener("click",()=>{
 
 // Init
 loadDropdown();
-loadData();
 </script>
 
 </body>
