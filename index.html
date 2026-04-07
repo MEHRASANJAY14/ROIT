@@ -132,7 +132,9 @@ input:focus{
 
   <h2>MPGB Login</h2>
 
-  <input type="text" id="username" placeholder="Enter SOL ID">
+  <!-- 🔥 USER ID -->
+  <input type="text" id="username" placeholder="Enter User ID">
+
   <input type="password" id="password" placeholder="Enter Password">
 
   <!-- CAPTCHA -->
@@ -184,7 +186,7 @@ function login(){
     return;
   }
 
-  // SHOW LOADING
+  // LOADING
   btn.disabled = true;
   msg.innerHTML = '<span class="loader"></span> Logging...';
 
@@ -199,20 +201,24 @@ function login(){
 
       if(data.status === "success"){
 
-        let branch = data.branch;
-
-        // SAVE SESSION
+        // 🔐 SAVE SESSION
         localStorage.setItem("login","true");
-        localStorage.setItem("branch", branch);
+        localStorage.setItem("branch", data.branch);
+        localStorage.setItem("sol", data.sol);
+        localStorage.setItem("userid", data.userid);
         localStorage.setItem("time", new Date().getTime());
 
-        // WELCOME MESSAGE
-        msg.innerHTML = "✅ Welcome to <br><b>" + branch + "</b>";
+        // 🎉 WELCOME MESSAGE
+        msg.innerHTML = "✅ Welcome to <br><b>" + data.branch + "</b>";
         msg.style.color = "lightgreen";
 
-        // REDIRECT
+        // 🔥 FIRST LOGIN CHECK
         setTimeout(()=>{
-          window.location.href = "dashboard.html";
+          if(data.firstLogin){
+            window.location.href = "change_password.html";
+          } else {
+            window.location.href = "dashboard.html";
+          }
         },1500);
 
       } else {
