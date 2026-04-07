@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPGB Staff Car Loan EMI</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;margin:0;}
+.header{background:#006400;color:white;text-align:center;padding:14px;font-weight:bold;}
+.container{max-width:1200px;margin:10px auto;background:white;padding:20px;border-radius:6px;}
+input{width:100%;padding:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:5px;}
+button{background:#006400;color:white;border:none;padding:10px;border-radius:5px;margin-right:5px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{border:1px solid #ddd;padding:6px;text-align:center;}
+th{background:#006400;color:white;}
+.result{background:#eef9f1;padding:15px;margin-top:10px;border-radius:5px;}
+
+@media print{input,button{display:none;}}
+</style>
+</head>
+
+<body>
+
+<div class="header">MPGB Staff Car Loan EMI (3:2 Model)</div>
+
+<div class="container">
+
+<label>Loan Amount</label>
+<input type="number" id="amount">
+
+<label>Total Tenure (Max 200 Months)</label>
+<input type="number" id="tenure">
+
+<label>Moratorium (Optional)</label>
+<input type="number" id="moratorium">
+
+<label>Account Open Date (Optional)</label>
+<input type="date" id="accdate">
+
+<button onclick="calcCar()">Calculate</button>
+<button onclick="window.print()">Print</button>
+
+<div id="summary" class="result" style="display:none;"></div>
+
+<table id="table"></table>
+
+</div>
+
+<script>
+
+function format(n){return Number(n).toFixed(2);}
+
+/* DATE FUNCTION */
+function getLastDate(base,m){
+ if(!base) return "";
+ let d=new Date(base);
+ d.setMonth(d.getMonth()+m+1);
+ d.setDate(0);
+ return d.getDate()+"-"+d.toLocaleString('en-US',{month:'short'})+"-"+d.getFullYear();
+}
+
+function calcCar(){
+
+let P=parseFloat(document.getElementById("amount").value);
+let total=parseInt(document.getElementById("tenure").value);
+let mor=parseInt(document.getElementById("moratorium").value)||0;
+let accDateInput=document.getElementById("accdate").value;
+let accDate=accDateInput?new Date(accDateInput):null;
+
+if(total>200){alert("Max 200 months allowed");return;}
+if(!P||!total){alert("Fill fields");return;}
+
+let eff=total-mor;
+
+/* 3:2 MODEL */
+let principalMonths=Math.round((3/5)*eff);
+let interestMonths=eff-principalMonths;
+
+let monthlyPrincipal=P/principalMonths;
+let rate=5.5/12/100;
+
+let balance=P;
+let totalInterest=0;
+
+let table=document.getElementById("table");
+table.innerHTML="<tr><th>Month</th><th>Principal EMI</th><th>Interest EMI</th><th>Interest</th><th>Principal Outstanding</th><th>Total Outstanding</th></tr>";
+
+/* MORATORIUM */
+for(let i=1;i<=mor;i++){
+
+let date=getLastDate(accDate,i-1);
+let label=accDate?i+" ("+date+")":i;
+
+let interest=balance*rate;
+totalInterest+=interest;
+
+table.innerHTML+=`<tr>
+<td>${label}</td><td>Moratorium</td><td>0</td>
+<td>${format(interest)}</td>
+<td>${format(balance)}</td>
+<td>${format(balance+totalInterest)}</td></tr>`;
+}
+
+/* PRINCIPAL */
+for(let i=1;i<=principalMonths;i++){
+
+let date=getLastDate(accDate,mor+i-1);
+let label=accDate?(mor+i)+" ("+date+")":(mor+i);
+
+let interest=balance*rate;
+totalInterest+=interest;
+
+let pay=(i===principalMonths)?balance:monthlyPrincipal;
+balance-=pay;
+
+table.innerHTML+=`<tr>
+<td>${label}</td><td>${format(pay)}</td><td>0</td>
+<td>${format(interest)}</td>
+<td>${format(balance)}</td>
+<td>${format(balance+totalInterest)}</td></tr>`;
+}
+
+/* INTEREST */
+let emi=totalInterest/interestMonths;
+let remain=totalInterest;
+
+for(let i=1;i<=interestMonths;i++){
+
+let date=getLastDate(accDate,mor+principalMonths+i-1);
+let label=accDate?(mor+principalMonths+i)+" ("+date+")":(mor+principalMonths+i);
+
+remain-=emi;
+
+table.innerHTML+=`<tr>
+<td>${label}</td><td>0</td>
+<td>${format(emi)}</td>
+<td>0</td>
+<td>0</td>
+<td>${format(remain)}</td></tr>`;
+}
+
+/* SUMMARY */
+document.getElementById("summary").innerHTML=
+`Loan: ${format(P)}<br>
+Tenure: ${total}<br>
+Principal Phase: ${principalMonths}<br>
+Interest Phase: ${interestMonths}<br>
+Monthly Principal EMI: ${format(monthlyPrincipal)}<br>
+Interest EMI: ${format(emi)}<br>
+Total Interest: ${format(totalInterest)}<br>
+Total Payment: ${format(P+totalInterest)}`;
+
+document.getElementById("summary").style.display="block";
+
+}
+
+</script>
+
+</body>
+</html>
