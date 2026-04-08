@@ -1,15 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Branch Dropdown Test</title>
-</head>
-
-<body>
-
-<h2>Select Branch</h2>
-
 <select id="branchSelect">
-  <option value="">-- Select Branch --</option>
+  <option>Select Branch</option>
 </select>
 
 <script>
@@ -24,21 +14,14 @@ fetch(branchAPI)
 
   data.forEach(item => {
     let opt = document.createElement("option");
-
     opt.value = item.sol;
-
-    // 🔥 Proper format
     opt.text = item.branch + " (" + item.sol + ")";
-
     select.appendChild(opt);
   });
 
 })
 .catch(err => {
-  console.error("Error:", err);
+  console.log("ERROR:", err);
 });
 
 </script>
-
-</body>
-</html>
