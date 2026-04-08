@@ -1,28 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script>
-(function(){
-
-  let login = localStorage.getItem("login");
-  let branch = localStorage.getItem("branch");
-  let time = localStorage.getItem("time");
-
-  let now = new Date().getTime();
-
-  // Not logged in
-  if(login !== "true" || !branch){
-    window.location.replace("index.html");
-  }
-
-  // Session expiry (30 min)
-  if(time && (now - time > 30*60*1000)){
-    localStorage.clear();
-    window.location.replace("index.html");
-  }
-
-})();
-</script>
   <title>Branch PDF Dashboard</title>
 
   <style>
@@ -40,7 +18,7 @@
     select {
       padding: 12px;
       font-size: 16px;
-      width: 300px;
+      width: 320px;
       border-radius: 8px;
       border: 1px solid #ccc;
       margin-top: 10px;
@@ -52,6 +30,22 @@
       margin-top: 20px;
       border-radius: 10px;
       border: 1px solid #ddd;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      margin-top: 15px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      background: #27ae60;
+      display: none;
+    }
+
+    .btn:hover {
+      background: #219150;
     }
 
     .loader {
@@ -71,6 +65,10 @@
   <option value="">-- Loading Branches... --</option>
 </select>
 
+<br>
+
+<button class="btn" id="downloadBtn">⬇ Download PDF</button>
+
 <div class="loader" id="loader">Loading PDF...</div>
 
 <iframe id="pdfFrame"></iframe>
@@ -80,13 +78,12 @@
 const apiURL = "https://script.google.com/macros/s/AKfycbwWjluBGmMpCxHEZ0nKinVxhtSioBUAgQ5Vg5GrBstVFY3XvFVLS3IvyAu47uNMLTmn/exec";
 
 let allData = [];
+let currentPDF = "";
 
-// 🔹 Load Branch + PDF data
+// 🔹 Load Data
 fetch(apiURL + "?t=" + new Date().getTime())
 .then(res => res.json())
 .then(data => {
-
-  console.log("API DATA:", data);
 
   allData = data;
 
@@ -114,6 +111,7 @@ document.getElementById("branchSelect").addEventListener("change", function(){
 
   const sol = this.value;
   const loader = document.getElementById("loader");
+  const downloadBtn = document.getElementById("downloadBtn");
 
   if(!sol) return;
 
@@ -125,13 +123,34 @@ document.getElementById("branchSelect").addEventListener("change", function(){
 
     document.getElementById("pdfFrame").src = match.pdf;
 
+    currentPDF = match.pdf;
+
+    downloadBtn.style.display = "inline-block";
+
     setTimeout(() => {
       loader.style.display = "none";
     }, 1000);
 
   } else {
     alert("PDF not found ❌");
+    downloadBtn.style.display = "none";
   }
+
+});
+
+
+// 🔹 Download PDF
+document.getElementById("downloadBtn").addEventListener("click", function(){
+
+  if(!currentPDF){
+    alert("No PDF selected ❌");
+    return;
+  }
+
+  // convert preview → download
+  const downloadLink = currentPDF.replace("/preview", "/export?format=pdf");
+
+  window.open(downloadLink, "_blank");
 
 });
 
