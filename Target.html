@@ -1,27 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Branch Dropdown Fix</title>
+</head>
+
+<body>
+
+<h2>Select Branch</h2>
+
 <select id="branchSelect">
-  <option>Select Branch</option>
+  <option>Loading...</option>
 </select>
 
 <script>
 
 const branchAPI = "https://script.google.com/macros/s/AKfycbwWjluBGmMpCxHEZ0nKinVxhtSioBUAgQ5Vg5GrBstVFY3XvFVLS3IvyAu47uNMLTmn/exec";
 
-fetch(branchAPI)
-.then(res => res.json())
-.then(data => {
+window.onload = function() {
 
-  const select = document.getElementById("branchSelect");
+  fetch(branchAPI)
+  .then(response => response.json())
+  .then(data => {
 
-  data.forEach(item => {
-    let opt = document.createElement("option");
-    opt.value = item.sol;
-    opt.text = item.branch + " (" + item.sol + ")";
-    select.appendChild(opt);
+    console.log("API DATA:", data); // DEBUG
+
+    const select = document.getElementById("branchSelect");
+
+    // clear old
+    select.innerHTML = '<option value="">-- Select Branch --</option>';
+
+    data.forEach(function(item) {
+
+      let option = document.createElement("option");
+      option.value = item.sol;
+      option.text = item.branch + " (" + item.sol + ")";
+
+      select.appendChild(option);
+    });
+
+  })
+  .catch(error => {
+    console.error("ERROR:", error);
+
+    document.getElementById("branchSelect").innerHTML =
+      '<option>Error loading data ❌</option>';
   });
 
-})
-.catch(err => {
-  console.log("ERROR:", err);
-});
+};
 
 </script>
+
+</body>
+</html>
