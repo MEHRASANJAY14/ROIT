@@ -47,17 +47,6 @@ border-radius:6px;
 cursor:pointer;
 }
 
-.logout{
-background:#ff4d4d;
-color:white;
-}
-
-.back{
-background:#007bff;
-color:white;
-margin-right:10px;
-}
-
 iframe{
 width:100%;
 height:550px;
@@ -66,17 +55,16 @@ border:1px solid #ccc;
 margin-top:10px;
 }
 
-.alert{
-color:red;
-font-weight:bold;
-display:none;
-text-align:center;
-}
-
 .loading{
 text-align:center;
 font-weight:bold;
 color:#006633;
+display:none;
+}
+
+.alert{
+color:red;
+text-align:center;
 display:none;
 }
 </style>
@@ -85,12 +73,11 @@ display:none;
 
 <body>
 
-<!-- 🔝 TOP BAR -->
 <div class="topbar">
 <div id="userInfo"></div>
 <div>
-<button class="back" onclick="goBack()">⬅ Back</button>
-<button class="logout" onclick="logout()">Logout</button>
+<button onclick="goBack()">⬅ Back</button>
+<button onclick="logout()">Logout</button>
 </div>
 </div>
 
@@ -98,72 +85,14 @@ display:none;
 
 <h2>📊 Overdue Dashboard</h2>
 
-<!-- 🔽 DROPDOWN (FIXED) -->
 <select id="solSelect" onchange="openReport()">
 <option value="">-- Select SOL --</option>
-
-<option value="12010">12010 - JABALPUR</option>
-<option value="12020">12020 - RANJHI</option>
-<option value="12030">12030 - SIHORA (JBP)</option>
-<option value="12040">12040 - KHITOLA BAZAR</option>
-<option value="12050">12050 - SAHAJPUR</option>
-<option value="12060">12060 - SHAHPURA (JBP)</option>
-<option value="12070">12070 - PANAGAR</option>
-<option value="12080">12080 - LAMKANA</option>
-<option value="12090">12090 - ADHARTAL JABALPUR</option>
-<option value="12100">12100 - PATAN</option>
 <option value="12110">12110 - MANJHOLI</option>
-<option value="12120">12120 - PISANHARI MADHIYA</option>
-<option value="12130">12130 - EKTA CHOUK</option>
-<option value="12140">12140 - KARMETA GRAM</option>
-<option value="12150">12150 - BARGI</option>
-<option value="12160">12160 - GWARIGHAT ROAD</option>
-<option value="12170">12170 - BILHARI</option>
-<option value="12180">12180 - KUA</option>
-<option value="12190">12190 - KYMORE</option>
-
-<option value="12200">12200 - DEORA KALA</option>
-<option value="12210">12210 - VILAYAT KALA</option>
-<option value="12220">12220 - DASHARMAN</option>
-<option value="12230">12230 - AMGAWAN</option>
-<option value="12240">12240 - KATNI</option>
-<option value="12250">12250 - DEORI TOLA</option>
-<option value="12260">12260 - UMARIYAPAN</option>
-<option value="12270">12270 - BADWARA</option>
-<option value="12280">12280 - VIJAY RAGHAVGARH</option>
-<option value="12290">12290 - KHIRHANI DURGA CHOWK</option>
-
-<option value="12300">12300 - BARAHI</option>
-<option value="12310">12310 - BAHORIBAND</option>
-<option value="12320">12320 - NARSINGHPUR</option>
-<option value="12330">12330 - STATION GANJ</option>
-<option value="12340">12340 - AMGAON BADA</option>
-<option value="12350">12350 - KANWAS</option>
-<option value="12360">12360 - PANARI</option>
-<option value="12370">12370 - BOHANI</option>
-<option value="12380">12380 - KARELI</option>
-<option value="12390">12390 - BAGASPUR</option>
-
-<option value="12400">12400 - SAIKHEDA</option>
-<option value="12410">12410 - CHICHALI</option>
-<option value="12420">12420 - BARAHATA</option>
-<option value="12430">12430 - KAMTI IMALYA</option>
-<option value="12440">12440 - SINGHPUR BADA</option>
-<option value="12450">12450 - GADARWARA</option>
-<option value="12460">12460 - DEORI LOLRI</option>
-<option value="12470">12470 - NARSINGHPUR BASTI</option>
-<option value="12480">12480 - KARAKBEL</option>
-<option value="12490">12490 - SOORWARI</option>
-
-<option value="12500">12500 - TENDUKHEDA</option>
-<option value="12510">12510 - GOTEGAON</option>
-<option value="12520">12520 - COLLECTORATE</option>
-<option value="12530">12530 - ASS KARELI</option>
-
+<option value="12060">12060 - SHAHPURA</option>
+<option value="12010">12010 - JABALPUR</option>
 </select>
 
 <div id="loading" class="loading">⏳ Loading report...</div>
-
 <div id="alertBox" class="alert">❌ Report not found!</div>
 
 <iframe id="reportFrame" onload="hideLoading()"></iframe>
@@ -172,28 +101,19 @@ display:none;
 
 <script>
 
-// 👤 USER INFO
 document.getElementById("userInfo").innerText =
 "👤 " + (localStorage.getItem("role") || "User") +
 " | 🏢 " + (localStorage.getItem("branch") || "Unknown");
 
-// 🔙 BACK BUTTON
 function goBack(){
 window.location.href = "dashboard.html";
 }
 
-// 🔓 LOGOUT
 function logout(){
 localStorage.clear();
 window.location.href = "index.html";
 }
 
-// 🔥 FILE MAP (IMPORTANT: PUT REAL IDs)
-var fileMap = {
-"12060":"PASTE_REAL_ID_HERE"
-};
-
-// 📂 OPEN REPORT
 function openReport(){
 
 var sol = document.getElementById("solSelect").value;
@@ -202,21 +122,14 @@ if(sol === "") return;
 
 document.getElementById("loading").style.display = "block";
 
-if(fileMap[sol]){
+// ✅ DIRECT HTML LOAD
+var filePath = "reports/" + sol + ".html";
 
-document.getElementById("reportFrame").src =
-"https://drive.google.com/uc?export=preview&id="+fileMap[sol];
-
+document.getElementById("reportFrame").src = filePath;
 document.getElementById("alertBox").style.display="none";
 
-}else{
-document.getElementById("loading").style.display = "none";
-document.getElementById("alertBox").style.display="block";
-document.getElementById("reportFrame").src="";
-}
 }
 
-// ⏳ HIDE LOADING
 function hideLoading(){
 document.getElementById("loading").style.display = "none";
 }
