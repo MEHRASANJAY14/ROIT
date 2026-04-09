@@ -1,103 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Overdue PDF Dashboard</title>
+<title>Overdue Dashboard</title>
 
 <style>
 body {
   font-family: Arial;
-  background: #f4f6f9;
   padding:20px;
   text-align:center;
 }
-
 select {
   padding:12px;
-  width:350px;
+  width:320px;
   font-size:16px;
-  border-radius:8px;
-}
-
-.loader {
-  margin-top:10px;
-  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📊 Overdue PDF Dashboard</h2>
+<h2>📊 Overdue Dashboard</h2>
 
 <select id="branchSelect">
-<option value="">-- Loading Branches... --</option>
+<option>Loading...</option>
 </select>
-
-<div id="loader" class="loader"></div>
 
 <script>
 
-const apiURL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsRN_sRb3oI9pqnOmZhOSNAcSl5YGAXzCNLRG1wfQsEJALBKg/exec";
+var apiURL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsRN_sRb3oI9pqnOmZhOSNAcSl5YGAXzCNLRG1wfQsEJALBKg/exec";
 
-// 🔥 IMPORTANT: cache avoid
-fetch(apiURL + "?t=" + new Date().getTime())
-.then(function(res){
-  return res.json();
-})
-.then(function(data){
+// 🔥 XMLHttpRequest (BEST FOR APPS SCRIPT)
+var xhr = new XMLHttpRequest();
+xhr.open("GET", apiURL, true);
 
-  console.log("DATA:", data);
+xhr.onreadystatechange = function(){
 
-  var select = document.getElementById("branchSelect");
+  if(xhr.readyState == 4 && xhr.status == 200){
 
-  // reset dropdown
-  select.innerHTML = '<option value="">-- Select Branch --</option>';
+    var data = JSON.parse(xhr.responseText);
 
-  for(var i=0; i<data.length; i++){
+    console.log("DATA:", data);
 
-    var item = data[i];
+    var select = document.getElementById("branchSelect");
+    select.innerHTML = '<option value="">-- Select Branch --</option>';
 
-    // 🔥 fallback keys (important)
-    var url = item.url || item.pdf || "";
-    var sol = item.sol || "";
-    var branch = item.branch || item.name || "Branch";
+    for(var i=0; i<data.length; i++){
 
-    if(url !== ""){
+      var item = data[i];
 
-      var opt = document.createElement("option");
-      opt.value = url;
-      opt.text = branch + " (" + sol + ")";
+      var url = item.url || "";
+      var sol = item.sol || "";
+      var branch = item.branch || "Branch";
 
-      select.appendChild(opt);
+      if(url !== ""){
+
+        var opt = document.createElement("option");
+        opt.value = url;
+        opt.text = branch + " (" + sol + ")";
+
+        select.appendChild(opt);
+      }
     }
   }
+};
 
-})
-.catch(function(err){
-  console.error(err);
-  document.getElementById("branchSelect").innerHTML =
-    "<option>❌ API Load Failed</option>";
-});
+xhr.send();
 
 
-// 🔹 ON SELECT
-document.getElementById("branchSelect").addEventListener("change", function(){
+// 🔹 SELECT → OPEN PDF
+document.getElementById("branchSelect").onchange = function(){
 
   var url = this.value;
   if(!url) return;
 
-  document.getElementById("loader").innerText = "⏳ Opening PDF...";
-
-  // 🔥 safe open
   var openURL = url.replace("/view", "/preview");
 
   window.open(openURL, "_blank");
 
-  setTimeout(function(){
-    document.getElementById("loader").innerText = "";
-  }, 1000);
-
-});
+};
 
 </script>
 
