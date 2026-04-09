@@ -3,6 +3,30 @@
 <head>
 <title>Overdue Dashboard</title>
 
+<!-- 🔐 LOGIN SECURITY (RUN FIRST) -->
+<script>
+(function(){
+
+  let login = localStorage.getItem("login");
+  let branch = localStorage.getItem("branch");
+  let time = localStorage.getItem("time");
+
+  let now = new Date().getTime();
+
+  // Not logged in
+  if(login !== "true" || !branch){
+    window.location.replace("index.html");
+  }
+
+  // Session expiry (30 min)
+  if(time && (now - time > 30*60*1000)){
+    localStorage.clear();
+    window.location.replace("index.html");
+  }
+
+})();
+</script>
+
 <style>
 body{
 font-family:Segoe UI;
@@ -12,7 +36,7 @@ padding:30px;
 }
 
 .container{
-max-width:950px;
+max-width:1000px;
 margin:auto;
 background:white;
 padding:25px;
@@ -23,37 +47,15 @@ box-shadow:0 15px 35px rgba(0,0,0,0.2);
 h1{
 text-align:center;
 color:#006633;
-margin-bottom:5px;
 }
 
-.subtitle{
-text-align:center;
-color:#555;
-margin-bottom:20px;
-}
-
-input{
+select{
 width:100%;
 padding:12px;
 border-radius:8px;
 border:1px solid #ccc;
 font-size:16px;
 margin-bottom:10px;
-}
-
-button{
-padding:10px 15px;
-border:none;
-border-radius:8px;
-background:#006633;
-color:white;
-cursor:pointer;
-font-weight:bold;
-margin-right:5px;
-}
-
-button:hover{
-background:#004d26;
 }
 
 iframe{
@@ -68,17 +70,7 @@ margin-top:10px;
 color:red;
 font-weight:bold;
 display:none;
-margin-top:5px;
-}
-
-.badge{
-background:#006633;
-color:white;
-padding:5px 10px;
-border-radius:20px;
-font-size:12px;
-display:inline-block;
-margin-top:5px;
+text-align:center;
 }
 </style>
 
@@ -89,11 +81,9 @@ margin-top:5px;
 <div class="container">
 
 <h1>📊 Overdue Dashboard</h1>
-<div class="subtitle">Select SOL ID to view overdue accounts</div>
 
-<input list="solList" id="solInput" placeholder="🔍 Type SOL ID (e.g. 12010)">
-
-<datalist id="solList">
+<select id="solSelect" onchange="openReport()">
+<option value="">-- Select SOL --</option>
 
 <option value="12010">12010 - JABALPUR</option>
 <option value="12020">12020 - RANJHI</option>
@@ -149,14 +139,7 @@ margin-top:5px;
 <option value="12520">12520 - COLLECTORATE</option>
 <option value="12530">12530 - ASS KARELI</option>
 
-</datalist>
-
-<div style="margin-bottom:10px;">
-<button onclick="openReport()">Open</button>
-<button onclick="openNew()">New Tab</button>
-</div>
-
-<div id="branchName" class="badge"></div>
+</select>
 
 <div id="alertBox" class="alert">❌ Report not found!</div>
 
@@ -166,52 +149,34 @@ margin-top:5px;
 
 <script>
 
-// Enter key
-document.getElementById("solInput").addEventListener("keypress", function(e){
-if(e.key === "Enter"){
-openReport();
-}
-});
+// 🔥 SOL → Google Drive FILE ID mapping
+var fileMap = {
+"12010": "FILE_ID_12010",
+"12020": "FILE_ID_12020",
+"12030": "FILE_ID_12030",
+"12040": "FILE_ID_12040"
+};
 
+// Open report
 function openReport(){
-var sol = document.getElementById("solInput").value.trim();
+
+var sol = document.getElementById("solSelect").value;
 
 if(sol === "") return;
 
-var url = "reports/" + sol + ".html";
+if(fileMap[sol]){
 
-// Show branch name
-var list = document.getElementById("solList").options;
-for(let i=0;i<list.length;i++){
-if(list[i].value === sol){
-document.getElementById("branchName").innerText = list[i].text;
-}
-}
+var url = "https://drive.google.com/file/d/" + fileMap[sol] + "/preview";
 
-// Check file
-fetch(url,{method:'HEAD'})
-.then(res=>{
-if(res.ok){
-document.getElementById("alertBox").style.display="none";
 document.getElementById("reportFrame").src = url;
+document.getElementById("alertBox").style.display = "none";
+
 }else{
-showError();
-}
-})
-.catch(()=>showError());
-}
-
-function openNew(){
-var sol = document.getElementById("solInput").value;
-if(sol !== ""){
-window.open("reports/" + sol + "_report.html","_blank");
+document.getElementById("alertBox").style.display = "block";
+document.getElementById("reportFrame").src = "";
 }
 }
 
-function showError(){
-document.getElementById("alertBox").style.display="block";
-document.getElementById("reportFrame").src="";
-}
 </script>
 
 </body>
