@@ -6,21 +6,20 @@
 <style>
 body {
   font-family: Arial;
-  background: linear-gradient(135deg,#e6ffe6,#d9f2ff);
+  background: #f4f6f9;
   padding:20px;
   text-align:center;
 }
 
 select {
   padding:12px;
-  width:300px;
+  width:350px;
   font-size:16px;
   border-radius:8px;
 }
 
 .loader {
-  display:none;
-  margin-top:15px;
+  margin-top:10px;
   font-weight:bold;
 }
 </style>
@@ -31,49 +30,72 @@ select {
 <h2>📊 Overdue PDF Dashboard</h2>
 
 <select id="branchSelect">
-<option value="">-- Select Branch --</option>
+<option value="">-- Loading Branches... --</option>
 </select>
 
-<div id="loader" class="loader">⏳ Opening PDF...</div>
+<div id="loader" class="loader"></div>
 
 <script>
 
 const apiURL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsRN_sRb3oI9pqnOmZhOSNAcSl5YGAXzCNLRG1wfQsEJALBKg/exec";
 
-// 🔹 LOAD DROPDOWN
-fetch(apiURL)
-.then(res => res.json())
-.then(data => {
+// 🔥 IMPORTANT: cache avoid
+fetch(apiURL + "?t=" + new Date().getTime())
+.then(function(res){
+  return res.json();
+})
+.then(function(data){
 
-  let select = document.getElementById("branchSelect");
+  console.log("DATA:", data);
 
-  data.forEach(item => {
-    if(item.url){
-      let opt = document.createElement("option");
-      opt.value = item.url;
-      opt.text = item.branch + " (" + item.sol + ")";
+  var select = document.getElementById("branchSelect");
+
+  // reset dropdown
+  select.innerHTML = '<option value="">-- Select Branch --</option>';
+
+  for(var i=0; i<data.length; i++){
+
+    var item = data[i];
+
+    // 🔥 fallback keys (important)
+    var url = item.url || item.pdf || "";
+    var sol = item.sol || "";
+    var branch = item.branch || item.name || "Branch";
+
+    if(url !== ""){
+
+      var opt = document.createElement("option");
+      opt.value = url;
+      opt.text = branch + " (" + sol + ")";
+
       select.appendChild(opt);
     }
-  });
+  }
 
+})
+.catch(function(err){
+  console.error(err);
+  document.getElementById("branchSelect").innerHTML =
+    "<option>❌ API Load Failed</option>";
 });
+
 
 // 🔹 ON SELECT
 document.getElementById("branchSelect").addEventListener("change", function(){
 
-  let url = this.value;
+  var url = this.value;
   if(!url) return;
 
-  let loader = document.getElementById("loader");
-  loader.style.display = "block";
+  document.getElementById("loader").innerText = "⏳ Opening PDF...";
 
-  // 🔥 OPEN PDF (WORKING METHOD)
-  let openURL = url.replace("/view", "/preview");
+  // 🔥 safe open
+  var openURL = url.replace("/view", "/preview");
 
-  setTimeout(()=>{
-    window.open(openURL, "_blank");
-    loader.style.display = "none";
-  }, 500);
+  window.open(openURL, "_blank");
+
+  setTimeout(function(){
+    document.getElementById("loader").innerText = "";
+  }, 1000);
 
 });
 
