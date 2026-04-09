@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Overdue Dashboard</title>
+<title>Overdue PDF Dashboard</title>
 
 <style>
 body {
@@ -23,7 +23,7 @@ body {
 }
 
 .container {
-  max-width:1000px;
+  max-width:1100px;
   margin:auto;
   background:white;
   padding:25px;
@@ -42,8 +42,17 @@ select {
 
 .loader {
   display:none;
-  margin-top:20px;
+  margin-top:15px;
   font-weight:bold;
+  color:#444;
+}
+
+iframe {
+  width:100%;
+  height:600px;
+  margin-top:20px;
+  border-radius:10px;
+  border:1px solid #ddd;
 }
 
 .btn {
@@ -52,10 +61,12 @@ select {
   border-radius:6px;
   cursor:pointer;
   color:white;
+  margin:5px;
 }
 
 .back { background:#007bff; }
 .logout { background:#e74c3c; }
+.download { background:#27ae60; }
 
 </style>
 </head>
@@ -72,13 +83,19 @@ select {
 
 <div class="container">
 
-<h2>📊 Overdue Dashboard</h2>
+<h2>📊 Overdue PDF Dashboard</h2>
 
 <select id="branchSelect">
 <option>Loading branches...</option>
 </select>
 
-<div id="loader" class="loader">⏳ Opening report...</div>
+<br>
+
+<button class="btn download" id="downloadBtn" style="display:none;">⬇ Download PDF</button>
+
+<div id="loader" class="loader">⏳ Loading PDF...</div>
+
+<iframe id="pdfFrame"></iframe>
 
 </div>
 
@@ -100,19 +117,18 @@ localStorage.clear();
 window.location.href = "index.html";
 }
 
-// 🔥 YOUR LIVE API
+// 🔥 YOUR API
 const apiURL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsRN_sRb3oI9pqnOmZhOSNAcSl5YGAXzCNLRG1wfQsEJALBKg/exec";
 
-let allData = [];
+let currentPDF = "";
 
 // 🔹 LOAD DATA
 fetch(apiURL)
 .then(res => res.json())
 .then(data => {
 
-  allData = data;
-
   let select = document.getElementById("branchSelect");
+
   select.innerHTML = '<option value="">-- Select Branch --</option>';
 
   data.forEach(item => {
@@ -131,20 +147,45 @@ fetch(apiURL)
   console.error(err);
 });
 
-// 🔹 ON SELECT
+// 🔹 ON SELECT → SHOW PDF
 document.getElementById("branchSelect").addEventListener("change", function(){
 
   let url = this.value;
 
   if(!url) return;
 
-  document.getElementById("loader").style.display = "block";
+  let loader = document.getElementById("loader");
+  let frame = document.getElementById("pdfFrame");
+  let downloadBtn = document.getElementById("downloadBtn");
 
-  // 🔥 OPEN HTML FILE
+  loader.style.display = "block";
+
+  // 🔥 Convert Drive link → preview
+  let pdfUrl = url.replace("/view", "/preview");
+
+  frame.src = pdfUrl;
+
+  currentPDF = url;
+
+  downloadBtn.style.display = "inline-block";
+
   setTimeout(()=>{
-    window.open(url, "_blank");
-    document.getElementById("loader").style.display = "none";
-  }, 500);
+    loader.style.display = "none";
+  }, 1000);
+
+});
+
+// 🔹 DOWNLOAD PDF
+document.getElementById("downloadBtn").addEventListener("click", function(){
+
+  if(!currentPDF){
+    alert("❌ No PDF selected");
+    return;
+  }
+
+  let downloadLink = currentPDF.replace("/view", "/export?format=pdf");
+
+  window.open(downloadLink, "_blank");
 
 });
 
