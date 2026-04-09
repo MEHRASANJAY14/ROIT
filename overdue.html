@@ -7,9 +7,10 @@
 <script>
 (function(){
 
+  if(window !== window.top) return;
+
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
-  let role = localStorage.getItem("role");
   let token = localStorage.getItem("token");
   let time = localStorage.getItem("time");
 
@@ -120,6 +121,7 @@ text-align:center;
 <option value="12170">12170 - BILHARI</option>
 <option value="12180">12180 - KUA</option>
 <option value="12190">12190 - KYMORE</option>
+
 <option value="12200">12200 - DEORA KALA</option>
 <option value="12210">12210 - VILAYAT KALA</option>
 <option value="12220">12220 - DASHARMAN</option>
@@ -130,6 +132,7 @@ text-align:center;
 <option value="12270">12270 - BADWARA</option>
 <option value="12280">12280 - VIJAY RAGHAVGARH</option>
 <option value="12290">12290 - KHIRHANI DURGA CHOWK</option>
+
 <option value="12300">12300 - BARAHI</option>
 <option value="12310">12310 - BAHORIBAND</option>
 <option value="12320">12320 - NARSINGHPUR</option>
@@ -140,6 +143,7 @@ text-align:center;
 <option value="12370">12370 - BOHANI</option>
 <option value="12380">12380 - KARELI</option>
 <option value="12390">12390 - BAGASPUR</option>
+
 <option value="12400">12400 - SAIKHEDA</option>
 <option value="12410">12410 - CHICHALI</option>
 <option value="12420">12420 - BARAHATA</option>
@@ -150,6 +154,7 @@ text-align:center;
 <option value="12470">12470 - NARSINGHPUR BASTI</option>
 <option value="12480">12480 - KARAKBEL</option>
 <option value="12490">12490 - SOORWARI</option>
+
 <option value="12500">12500 - TENDUKHEDA</option>
 <option value="12510">12510 - GOTEGAON</option>
 <option value="12520">12520 - COLLECTORATE</option>
@@ -166,12 +171,8 @@ text-align:center;
 <script>
 
 // 👤 USER INFO
-var branch = localStorage.getItem("branch");
-var role = localStorage.getItem("role");
-
 document.getElementById("userInfo").innerText =
-"👤 " + role + " | 🏢 " + branch;
-
+"👤 " + localStorage.getItem("role") + " | 🏢 " + localStorage.getItem("branch");
 
 // 🔓 LOGOUT
 function logout(){
@@ -179,49 +180,46 @@ localStorage.clear();
 window.location.href = "index.html";
 }
 
-
-// 🔥 FILE MAP (PUT REAL IDs)
+// 🔥 FULL FILE MAP
 var fileMap = {
-"12010": "PASTE_ID",
-"12020": "PASTE_ID",
-"12030": "PASTE_ID"
+"12010":"PASTE_ID_12010","12020":"PASTE_ID_12020","12030":"PASTE_ID_12030","12040":"PASTE_ID_12040","12050":"PASTE_ID_12050",
+"12060":"PASTE_ID_12060","12070":"PASTE_ID_12070","12080":"PASTE_ID_12080","12090":"PASTE_ID_12090","12100":"PASTE_ID_12100",
+"12110":"PASTE_ID_12110","12120":"PASTE_ID_12120","12130":"PASTE_ID_12130","12140":"PASTE_ID_12140","12150":"PASTE_ID_12150",
+"12160":"PASTE_ID_12160","12170":"PASTE_ID_12170","12180":"PASTE_ID_12180","12190":"PASTE_ID_12190",
+
+"12200":"PASTE_ID_12200","12210":"PASTE_ID_12210","12220":"PASTE_ID_12220","12230":"PASTE_ID_12230","12240":"PASTE_ID_12240",
+"12250":"PASTE_ID_12250","12260":"PASTE_ID_12260","12270":"PASTE_ID_12270","12280":"PASTE_ID_12280","12290":"PASTE_ID_12290",
+
+"12300":"PASTE_ID_12300","12310":"PASTE_ID_12310","12320":"PASTE_ID_12320","12330":"PASTE_ID_12330","12340":"PASTE_ID_12340",
+"12350":"PASTE_ID_12350","12360":"PASTE_ID_12360","12370":"PASTE_ID_12370","12380":"PASTE_ID_12380","12390":"PASTE_ID_12390",
+
+"12400":"PASTE_ID_12400","12410":"PASTE_ID_12410","12420":"PASTE_ID_12420","12430":"PASTE_ID_12430","12440":"PASTE_ID_12440",
+"12450":"PASTE_ID_12450","12460":"PASTE_ID_12460","12470":"PASTE_ID_12470","12480":"PASTE_ID_12480","12490":"PASTE_ID_12490",
+
+"12500":"PASTE_ID_12500","12510":"PASTE_ID_12510","12520":"PASTE_ID_12520","12530":"PASTE_ID_12530"
 };
 
+// 🔄 SESSION REFRESH
+setInterval(()=>localStorage.setItem("time", new Date().getTime()),300000);
 
-// ENTER KEY SUPPORT
-document.getElementById("solInput").addEventListener("keypress", function(e){
-if(e.key === "Enter"){
-openReport();
-}
+// ENTER KEY
+document.getElementById("solInput").addEventListener("keypress",function(e){
+if(e.key==="Enter") openReport();
 });
-
 
 // 📂 OPEN REPORT
 function openReport(){
-
-var sol = document.getElementById("solInput").value.trim();
-var role = localStorage.getItem("role");
-var userBranch = localStorage.getItem("branch");
-
-// 🔒 ROLE CONTROL
-if(role === "BRANCH" && sol !== userBranch){
-alert("❌ You can only access your branch!");
-return;
-}
+var sol=document.getElementById("solInput").value.trim();
 
 if(fileMap[sol]){
-
-var url = "https://drive.google.com/uc?export=preview&id=" + fileMap[sol];
-
-document.getElementById("reportFrame").src = url;
-document.getElementById("alertBox").style.display = "none";
-
+document.getElementById("reportFrame").src =
+"https://drive.google.com/uc?export=preview&id="+fileMap[sol];
+document.getElementById("alertBox").style.display="none";
 }else{
-document.getElementById("alertBox").style.display = "block";
-document.getElementById("reportFrame").src = "";
+document.getElementById("alertBox").style.display="block";
+document.getElementById("reportFrame").src="";
 }
 }
-
 </script>
 
 </body>
