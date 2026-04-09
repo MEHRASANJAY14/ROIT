@@ -1,33 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
-// 🔐 STRONG LOGIN CHECK (RUN BEFORE PAGE LOAD)
+// 🔐 STRONG LOGIN CHECK
 (function(){
-
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
   let time = localStorage.getItem("time");
-
   let now = new Date().getTime();
 
-  // Not logged in
   if(login !== "true" || !branch){
     window.location.replace("index.html");
   }
 
-  // Session expiry (30 min)
   if(time && (now - time > 30*60*1000)){
     localStorage.clear();
     window.location.replace("index.html");
   }
-
 })();
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>MPGB RO Jabalpur</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -36,79 +31,40 @@
 :root{
   --sbi-blue:#1c4fa3;
   --light-blue:#2e6dd8;
-  --bg:#f2f5fa;
-}
-.admin-tile{
-  background:linear-gradient(135deg,#ff9800,#ff5722);
-  color:white;
-  border-radius:14px;
-  text-align:center;
-  padding:18px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.2);
-  cursor:pointer;
-  transition:0.3s;
 }
 
-.admin-tile:hover{
-  transform:scale(1.05);
-}
-
-.admin-tile i{
-  font-size:22px;
-  margin-bottom:6px;
-}
-
-.admin-tile span{
-  display:block;
-  font-size:12px;
-}
+/* BODY */
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
-  background:var(--bg);
+  background:linear-gradient(135deg,#eaf1ff,#f7fbff);
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 .app-header{
-  background:var(--sbi-blue);
+  background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
   color:white;
   padding:15px 10px;
   text-align:center;
-  position:sticky;
-  top:0;
-  z-index:1000;
-   position:sticky;
-  top:0;
-  position:relative; /* 🔥 THIS IS IMPORTANT */
+  position:relative;
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
 }
 
 .logo{
   width:70%;
-  max-width:300px;
-  height:auto;
+  max-width:280px;
   margin-bottom:8px;
 }
 
-.app-header h1{
-  margin:0;
-  font-size:15px;
-}
+.app-header h1{margin:0;font-size:15px;}
+.app-header h2{margin:3px 0;font-size:12px;font-weight:normal;}
 
-.app-header h2{
-  margin:3px 0;
-  font-size:12px;
-  font-weight:normal;
-}
-
-/* Date & Time */
 .datetime{
   margin-top:6px;
   font-size:12px;
-  opacity:0.95;
-  letter-spacing:0.5px;
 }
 
-/* ===== CONTENT ===== */
+/* CONTENT */
 .content{
   padding:15px;
   padding-bottom:120px;
@@ -117,42 +73,70 @@ body{
 /* KPI */
 .kpi-card{
   background:white;
-  padding:18px;
-  border-radius:14px;
+  padding:20px;
+  border-radius:16px;
   text-align:center;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
   margin-bottom:20px;
-  border-left:5px solid var(--sbi-blue);
+  border:1px solid rgba(0,0,0,0.05);
+  transition:0.3s;
 }
 
-.kpi-card h4{
-  margin:0;
-  font-size:12px;
-  color:#555;
+.kpi-card:hover{
+  transform:translateY(-4px);
 }
 
 .kpi-card h1{
-  margin-top:8px;
-  font-size:28px;
-  color:var(--sbi-blue);
+  font-size:30px;
+  background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
+  -webkit-background-clip:text;
+  color:transparent;
 }
 
-/* Grid */
+/* GRID */
 .app-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:14px;
-  
 }
 
+/* TILE */
 .app-tile{
   background:white;
-  padding:18px;
-  border-radius:14px;
+  padding:20px;
+  border-radius:16px;
   text-align:center;
-  box-shadow:0 5px 15px rgba(0,0,0,0.08);
-  transition:0.2s;
+  box-shadow:0 6px 20px rgba(0,0,0,0.06);
   cursor:pointer;
+  transition:0.25s;
+  border:1px solid rgba(0,0,0,0.05);
+  position:relative;
+}
+
+/* GLOW BORDER */
+.app-tile::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:16px;
+  padding:1px;
+  background:linear-gradient(135deg,#1c4fa3,#2e6dd8,#00c6ff);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  opacity:0;
+  transition:0.3s;
+}
+
+.app-tile:hover::before{
+  opacity:1;
+}
+
+.app-tile:hover{
+  transform:translateY(-5px) scale(1.02);
+  box-shadow:0 12px 30px rgba(0,0,0,0.15);
 }
 
 .app-tile:active{
@@ -160,220 +144,184 @@ body{
 }
 
 .app-tile i{
-  font-size:22px;
-  color:var(--sbi-blue);
-  margin-bottom:6px;
+  font-size:24px;
+  margin-bottom:8px;
+  background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
+  -webkit-background-clip:text;
+  color:transparent;
 }
 
 .app-tile span{
-  display:block;
   font-size:12px;
-  color:#333;
+  font-weight:500;
 }
 
-/* Bottom Nav */
+/* BOTTOM NAV */
 .bottom-nav{
   position:fixed;
   bottom:50px;
   width:100%;
-  background:white;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(10px);
   display:flex;
   justify-content:space-around;
-  padding:10px 0;
-  box-shadow:0 -4px 12px rgba(0,0,0,0.08);
+  padding:12px 0;
+  box-shadow:0 -5px 20px rgba(0,0,0,0.1);
 }
 
 .bottom-nav i{
   font-size:20px;
-  color:var(--sbi-blue);
+  color:#1c4fa3;
 }
 
-/* Footer */
+/* FOOTER */
 .footer{
   position:fixed;
   bottom:0;
   width:100%;
-  background:var(--sbi-blue);
+  background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
   color:white;
   text-align:center;
-  padding:8px 5px;
+  padding:8px;
   font-size:11px;
 }
-
-.developer{
-  font-size:9px;
-  opacity:0.9;
-}
-
-.developer span{
-  font-weight:600;
-  color:#e3f2fd;
-}
 </style>
+
 </head>
 
 <body>
+
 <!-- HEADER -->
 <div class="app-header">
 
-  <button onclick="logout()" 
-  style="position:absolute;right:10px;top:10px;padding:6px 12px;border:none;background:#ff4d4d;color:white;border-radius:5px;cursor:pointer;">
-  Logout
-  </button>
+<button onclick="logout()" 
+style="position:absolute;right:10px;top:10px;padding:6px 12px;border:none;background:#ff4d4d;color:white;border-radius:5px;cursor:pointer;">
+Logout
+</button>
 
-  <img src="mpgb_header_small.png" class="logo">
-  <h1>MADHYA PRADESH GRAMIN BANK</h1>
-  <h2>RO Jabalpur – Digital Dashboard</h2>
-  <div class="datetime" id="datetime"></div>
+<img src="mpgb_header_small.png" class="logo">
+<h1>MADHYA PRADESH GRAMIN BANK</h1>
+<h2>RO Jabalpur – Digital Dashboard</h2>
+<div class="datetime" id="datetime"></div>
 
 </div>
 
 <!-- CONTENT -->
 <div class="content">
 
-  <div class="kpi-card">
-    <h4>Total Branches</h4>
-    <h1 id="branchCount">0</h1>
-  </div>
+<div class="kpi-card">
+<h4>Total Branches</h4>
+<h1 id="branchCount">0</h1>
+</div>
 
-  <div class="app-grid">
+<div class="app-grid">
 
-    <div class="app-tile" onclick="go('inventory.html')">
-      <i class="fa-solid fa-desktop"></i>
-      <span>Asset Entry</span>
-   
-    </div>
+<div class="app-tile" onclick="go('inventory.html')">
+<i class="fa-solid fa-desktop"></i>
+<span>Asset Entry</span>
+</div>
 
-    <div class="app-tile" onclick="go('business.html')">
-      <i class="fa-solid fa-chart-line"></i>
-      <span>Business</span>
-    </div>
+<div class="app-tile" onclick="go('business.html')">
+<i class="fa-solid fa-chart-line"></i>
+<span>Business</span>
+</div>
 
-    <div class="app-tile" onclick="go('ecs.html')">
-      <i class="fa-solid fa-file-signature"></i>
-      <span>ECS Monitoring</span>
-    </div>
+<div class="app-tile" onclick="go('ecs.html')">
+<i class="fa-solid fa-file-signature"></i>
+<span>ECS Monitoring</span>
+</div>
 
-    <div class="app-tile" onclick="go('emi.html')">
-      <i class="fa-solid fa-calculator"></i>
-      <span>EMI Calculator</span>
-    </div>
+<div class="app-tile" onclick="go('emi.html')">
+<i class="fa-solid fa-calculator"></i>
+<span>EMI Calculator</span>
+</div>
 
-    <div class="app-tile" onclick="go('Loan_calculators.html')">
-      <i class="fa-solid fa-landmark"></i>
-      <span>Loan Tools</span>
-    </div>
+<div class="app-tile" onclick="go('Loan_calculators.html')">
+<i class="fa-solid fa-landmark"></i>
+<span>Loan Tools</span>
+</div>
 
-    <div class="app-tile" onclick="go('calendar2026.html')">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>Calendar</span>
-    </div>
+<div class="app-tile" onclick="go('calendar2026.html')">
+<i class="fa-solid fa-calendar-days"></i>
+<span>Calendar</span>
+</div>
 
-    <div class="app-tile" onclick="go('setting.html')">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>Internet Options</span>
-    </div>
+<div class="app-tile" onclick="go('setting.html')">
+<i class="fa-solid fa-calendar-days"></i>
+<span>Internet Options</span>
+</div>
 
-    <div class="app-tile" onclick="go('npa.html')">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>Npa</span>
-    </div>
+<div class="app-tile" onclick="go('npa.html')">
+<i class="fa-solid fa-calendar-days"></i>
+<span>Npa</span>
+</div>
 
-    <div class="app-tile" onclick="go('Target.html')">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>FY 2026-27 Target Sheet</span>
-    </div>
+<div class="app-tile" onclick="go('Target.html')">
+<i class="fa-solid fa-calendar-days"></i>
+<span>FY 2026-27 Target Sheet</span>
+</div>
 
-    <div class="app-tile" onclick="go('overdue.html')">
-      <i class="fa-solid fa-calendar-days"></i>
-      <span>Overdue Ac List</span>
-    </div>
-
-  </div>
+<div class="app-tile" onclick="go('overdue.html')">
+<i class="fa-solid fa-calendar-days"></i>
+<span>Overdue Ac List</span>
+</div>
 
 </div>
 
-<!-- Bottom Nav -->
+</div>
+
+<!-- NAV -->
 <div class="bottom-nav">
-  <i class="fa-solid fa-house"></i>
-  <i class="fa-solid fa-bell"></i>
-  <i class="fa-solid fa-user"></i>
+<i class="fa-solid fa-house"></i>
+<i class="fa-solid fa-bell"></i>
+<i class="fa-solid fa-user"></i>
 </div>
 
-<!-- Footer -->
+<!-- FOOTER -->
 <div class="footer">
-  © MPGB | RO Jabalpur IT Cell
-  <div class="developer">
-    Developed & Maintained by <span>Sanjay Mehra</span>
-  </div>
+© MPGB | RO Jabalpur IT Cell
+<div>Developed by Sanjay Mehra</div>
 </div>
 
 <script>
 function logout(){
   localStorage.clear();
-  window.location.href = "index.html";
+  window.location.href="index.html";
 }
 function go(page){
-  window.location.href = page;
+  window.location.href=page;
 }
 
-/* Branch Counter Animation */
-function animateCounter(){
-  let count=0;
-  let target=53;
-  let interval=setInterval(()=>{
-    count++;
-    document.getElementById("branchCount").innerText=count;
-    if(count>=target) clearInterval(interval);
-  },20);
-}
-animateCounter();
+/* Counter */
+let count=0;
+let target=53;
+let interval=setInterval(()=>{
+  count++;
+  document.getElementById("branchCount").innerText=count;
+  if(count>=target) clearInterval(interval);
+},20);
 
-/* Live Date & Time */
+/* Date Time */
 function updateDateTime(){
-  const now = new Date();
-
-  const options = { 
-    day:'2-digit',
-    month:'long',
-    year:'numeric',
-    weekday:'long'
-  };
-
-  const date = now.toLocaleDateString('en-IN', options);
-  const time = now.toLocaleTimeString('en-IN');
-
-  document.getElementById("datetime").innerHTML =
-    date + " | " + time + " IST";
+  const now=new Date();
+  const date=now.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric',weekday:'long'});
+  const time=now.toLocaleTimeString('en-IN');
+  document.getElementById("datetime").innerHTML=date+" | "+time+" IST";
 }
-
 setInterval(updateDateTime,1000);
 updateDateTime();
 
-</script>
-<script>
-
+/* ADMIN TILE */
 let user = localStorage.getItem("userid");
-
-// 🔐 ONLY ADMIN
 if(user === "N07550"){
-
-  let grid = document.querySelector(".app-grid");
-
-  let tile = document.createElement("div");
-  tile.className = "app-tile";
-  tile.onclick = function(){
-    go('reset_password.html');
-  };
-
-  tile.innerHTML = `
-    <i class="fa-solid fa-key"></i>
-    <span>Reset Password</span>
-  `;
-
-  grid.appendChild(tile); // 🔥 THIS FIXES POSITION
+  let grid=document.querySelector(".app-grid");
+  let tile=document.createElement("div");
+  tile.className="app-tile";
+  tile.onclick=function(){go('reset_password.html');};
+  tile.innerHTML=`<i class="fa-solid fa-key"></i><span>Reset Password</span>`;
+  grid.appendChild(tile);
 }
-
 </script>
+
 </body>
 </html>
