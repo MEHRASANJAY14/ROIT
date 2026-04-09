@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
-// 🔐 LOGIN CHECK
 (function(){
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
@@ -28,11 +27,6 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-:root{
-  --sbi-blue:#1c4fa3;
-}
-
-/* BODY */
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
@@ -43,21 +37,26 @@ body{
 .app-header{
   background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
   color:white;
-  padding:10px;
+  padding:14px 10px 16px;
   text-align:center;
   position:relative;
 }
 
-/* 🔔 Notification */
+.logo{
+  width:65%;
+  max-width:260px;
+}
+
+.app-header h1{font-size:14px;margin:0;}
+.app-header h2{font-size:12px;margin:2px;}
+.datetime{font-size:11px;}
+
+/* NOTIFICATION */
 .notification{
   position:absolute;
   right:55px;
-  top:10px;
+  top:12px;
   cursor:pointer;
-}
-
-.notification i{
-  font-size:18px;
 }
 
 .badge{
@@ -71,16 +70,15 @@ body{
   border-radius:50%;
 }
 
-/* 👤 Profile */
+/* PROFILE */
 .profile{
   position:absolute;
   right:10px;
-  top:8px;
+  top:10px;
   cursor:pointer;
 }
 
 .profile i{
-  font-size:18px;
   background:rgba(255,255,255,0.2);
   padding:8px;
   border-radius:50%;
@@ -90,14 +88,12 @@ body{
 .dropdown{
   position:absolute;
   right:10px;
-  top:38px;
+  top:42px;
   background:white;
-  color:#333;
   border-radius:10px;
   width:180px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.15);
   display:none;
-  z-index:999;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
 }
 
 .dropdown div{
@@ -105,31 +101,21 @@ body{
   font-size:12px;
   border-bottom:1px solid #eee;
 }
-
-.dropdown div:last-child{
-  color:red;
-  cursor:pointer;
-}
-
-.dropdown div:hover{
-  background:#f5f5f5;
-}
+.dropdown div:last-child{color:red;cursor:pointer;}
 
 /* CONTENT */
-.content{
-  padding:15px;
-  padding-bottom:120px;
-}
+.content{padding:15px;padding-bottom:120px;}
 
-/* KPI */
 .kpi-card{
   background:white;
-  padding:18px;
+  padding:14px;
   border-radius:14px;
   text-align:center;
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
-  margin-bottom:20px;
 }
+
+.kpi-card h4{font-size:11px;}
+.kpi-card h1{font-size:24px;}
 
 /* GRID */
 .app-grid{
@@ -161,7 +147,7 @@ body{
   background:white;
   display:flex;
   justify-content:space-around;
-  padding:10px 0;
+  padding:10px;
 }
 
 .footer{
@@ -180,36 +166,31 @@ body{
 
 <body>
 
-<!-- HEADER -->
 <div class="app-header">
 
-<!-- 🔔 Notification -->
-<div class="notification">
-  <i class="fa-solid fa-bell"></i>
-  <span class="badge" id="notifCount">3</span>
+<div class="notification" onclick="showNotif()">
+<i class="fa-solid fa-bell"></i>
+<span class="badge" id="notifCount">0</span>
 </div>
 
-<!-- 👤 Profile -->
 <div class="profile" onclick="toggleMenu()">
-  <i class="fa-solid fa-user"></i>
+<i class="fa-solid fa-user"></i>
 </div>
 
-<!-- ⬇️ Dropdown -->
 <div class="dropdown" id="dropdown">
-  <div id="userName">User</div>
-  <div id="branchName">Branch</div>
-  <div onclick="go('change_password.html')">Change Password</div>
-  <div onclick="logout()">Logout</div>
+<div id="userName"></div>
+<div id="branchName"></div>
+<div onclick="go('change_password.html')">Change Password</div>
+<div onclick="logout()">Logout</div>
 </div>
 
-<img src="mpgb_header_small.png" style="width:60%;max-width:240px;">
-<h1 style="font-size:13px;margin:0;">MADHYA PRADESH GRAMIN BANK</h1>
-<h2 style="font-size:11px;margin:2px;">RO Jabalpur – Digital Dashboard</h2>
-<div id="datetime" style="font-size:10px;"></div>
+<img src="mpgb_header_small.png" class="logo">
+<h1>MADHYA PRADESH GRAMIN BANK</h1>
+<h2>RO Jabalpur – Digital Dashboard</h2>
+<div id="datetime" class="datetime"></div>
 
 </div>
 
-<!-- CONTENT -->
 <div class="content">
 
 <div class="kpi-card">
@@ -273,14 +254,12 @@ body{
 
 </div>
 
-<!-- NAV -->
 <div class="bottom-nav">
 <i class="fa-solid fa-house"></i>
 <i class="fa-solid fa-bell"></i>
 <i class="fa-solid fa-user"></i>
 </div>
 
-<!-- FOOTER -->
 <div class="footer">
 © MPGB | RO Jabalpur IT Cell
 <div>Developed by Sanjay Mehra</div>
@@ -291,12 +270,19 @@ function logout(){
   localStorage.clear();
   window.location.href="index.html";
 }
-
 function go(page){
   window.location.href=page;
 }
 
-/* Dropdown */
+/* PROFILE DATA */
+let name = localStorage.getItem("username") || "User";
+let id   = localStorage.getItem("userid") || "-";
+let branch = localStorage.getItem("branch") || "-";
+
+document.getElementById("userName").innerText = name + " ("+id+")";
+document.getElementById("branchName").innerText = "Branch: " + branch;
+
+/* DROPDOWN */
 function toggleMenu(){
   let menu=document.getElementById("dropdown");
   menu.style.display = menu.style.display==="block"?"none":"block";
@@ -308,35 +294,65 @@ document.addEventListener("click",function(e){
   }
 });
 
-/* USER DATA */
-document.getElementById("userName").innerText =
-  "User: " + (localStorage.getItem("username") || localStorage.getItem("userid") || "User");
+/* NOTIFICATION SYSTEM */
+function showNotif(){
+  let list=[
+    "3 Overdue Accounts pending",
+    "ECS missing in 2 branches",
+    "Target update required"
+  ];
 
-document.getElementById("branchName").innerText =
-  "Branch: " + (localStorage.getItem("branch") || "-");
+  let msg="🔔 Notifications:\n\n";
+  list.forEach((n,i)=> msg+=(i+1)+". "+n+"\n");
 
-/* Notification */
-document.getElementById("notifCount").innerText =
-  localStorage.getItem("notif") || 3;
+  alert(msg);
 
-/* Counter */
-let count=0;
-let target=53;
-let interval=setInterval(()=>{
+  localStorage.setItem("notif",0);
+  document.getElementById("notifCount").innerText=0;
+}
+
+function simulateUpdates(){
+  let last=localStorage.getItem("lastCheck")||0;
+  let now=new Date().getTime();
+
+  if(now-last>300000){
+    let c=parseInt(localStorage.getItem("notif")||0);
+    c++;
+    localStorage.setItem("notif",c);
+    localStorage.setItem("lastCheck",now);
+  }
+}
+simulateUpdates();
+
+document.getElementById("notifCount").innerText=
+localStorage.getItem("notif")||0;
+
+/* COUNTER */
+let count=0,target=53;
+let int=setInterval(()=>{
   count++;
   document.getElementById("branchCount").innerText=count;
-  if(count>=target) clearInterval(interval);
+  if(count>=target) clearInterval(int);
 },20);
 
-/* Date Time */
-function updateDateTime(){
-  const now=new Date();
-  const date=now.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric',weekday:'long'});
-  const time=now.toLocaleTimeString('en-IN');
-  document.getElementById("datetime").innerHTML=date+" | "+time+" IST";
+/* DATE TIME */
+setInterval(()=>{
+  let now=new Date();
+  document.getElementById("datetime").innerText=
+  now.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})+
+  " | "+now.toLocaleTimeString('en-IN')+" IST";
+},1000);
+
+/* ADMIN RESET TILE */
+let user = localStorage.getItem("userid");
+if(user==="N07550"){
+  let grid=document.querySelector(".app-grid");
+  let tile=document.createElement("div");
+  tile.className="app-tile";
+  tile.onclick=()=>go('reset_password.html');
+  tile.innerHTML=`<i class="fa-solid fa-key"></i><span>Reset Password</span>`;
+  grid.appendChild(tile);
 }
-setInterval(updateDateTime,1000);
-updateDateTime();
 </script>
 
 </body>
