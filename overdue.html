@@ -3,22 +3,18 @@
 <head>
 <title>Overdue Dashboard</title>
 
-<!-- 🔐 SAFE LOGIN CHECK (NO AUTO LOGOUT) -->
+<!-- 🔐 SAFE LOGIN (NO LOGOUT ISSUE) -->
 <script>
 (function(){
-
-  // iframe ignore
   if(window !== window.top) return;
 
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
   let token = localStorage.getItem("token");
 
-  // ❌ DO NOT redirect (fix logout issue)
   if(login !== "true" || !branch || !token){
-    console.warn("User not properly logged in");
+    console.warn("User not logged properly");
   }
-
 })();
 </script>
 
@@ -89,8 +85,8 @@ text-align:center;
 
 <h2>📊 Overdue Dashboard</h2>
 
-<!-- 🔍 SEARCH -->
-<input list="solList" id="solInput" placeholder="🔍 Type SOL ID or Branch">
+<!-- 🔍 INPUT (AUTO OPEN ENABLED) -->
+<input list="solList" id="solInput" placeholder="🔍 Type or Select SOL" onchange="openReport()">
 
 <datalist id="solList">
 <option value="12010">12010 - JABALPUR</option>
@@ -167,39 +163,20 @@ localStorage.clear();
 window.location.href = "index.html";
 }
 
-// 🔥 FILE MAP
+// 🔥 FILE MAP (IMPORTANT: Replace IDs)
 var fileMap = {
 "12010":"PASTE_ID_12010",
 "12020":"PASTE_ID_12020",
 "12030":"PASTE_ID_12030",
-"12040":"PASTE_ID_12040"
+"12040":"PASTE_ID_12040",
+"12050":"PASTE_ID_12050",
+"12060":"PASTE_ID_12060"
 };
-
-// 🔄 SESSION CONTROL (SAFE)
-setInterval(function(){
-
-let time = localStorage.getItem("time");
-let now = new Date().getTime();
-
-if(time && (now - time > 30*60*1000)){
-alert("Session expired. Please login again.");
-localStorage.clear();
-window.location.href = "index.html";
-}
-
-// keep alive
-localStorage.setItem("time", now);
-
-}, 60000);
-
-// ENTER KEY
-document.getElementById("solInput").addEventListener("keypress",function(e){
-if(e.key==="Enter") openReport();
-});
 
 // 📂 OPEN REPORT
 function openReport(){
-var sol=document.getElementById("solInput").value.trim();
+
+var sol = document.getElementById("solInput").value.trim();
 
 if(fileMap[sol]){
 document.getElementById("reportFrame").src =
