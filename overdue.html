@@ -3,37 +3,21 @@
 <head>
 <title>Overdue Dashboard</title>
 
-<!-- 🔐 LOGIN SECURITY (FINAL FIX) -->
+<!-- 🔐 SAFE LOGIN CHECK (NO AUTO LOGOUT) -->
 <script>
 (function(){
 
-  // ✅ Run only in main window (not iframe)
+  // iframe ignore
   if(window !== window.top) return;
-
-  // ✅ Run only once per session (prevents logout issue)
-  if(sessionStorage.getItem("checked") === "true") return;
-  sessionStorage.setItem("checked","true");
 
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
   let token = localStorage.getItem("token");
-  let time = localStorage.getItem("time");
 
-  let now = new Date().getTime();
-
-  // ❌ Not logged in
+  // ❌ DO NOT redirect (fix logout issue)
   if(login !== "true" || !branch || !token){
-    window.location.replace("index.html");
+    console.warn("User not properly logged in");
   }
-
-  // ⏳ Session expiry (30 min)
-  if(time && (now - time > 30*60*1000)){
-    localStorage.clear();
-    window.location.replace("index.html");
-  }
-
-  // 🔄 Update session time
-  localStorage.setItem("time", now);
 
 })();
 </script>
@@ -105,11 +89,10 @@ text-align:center;
 
 <h2>📊 Overdue Dashboard</h2>
 
-<!-- 🔍 SEARCHABLE DROPDOWN -->
+<!-- 🔍 SEARCH -->
 <input list="solList" id="solInput" placeholder="🔍 Type SOL ID or Branch">
 
 <datalist id="solList">
-
 <option value="12010">12010 - JABALPUR</option>
 <option value="12020">12020 - RANJHI</option>
 <option value="12030">12030 - SIHORA (JBP)</option>
@@ -129,7 +112,6 @@ text-align:center;
 <option value="12170">12170 - BILHARI</option>
 <option value="12180">12180 - KUA</option>
 <option value="12190">12190 - KYMORE</option>
-
 <option value="12200">12200 - DEORA KALA</option>
 <option value="12210">12210 - VILAYAT KALA</option>
 <option value="12220">12220 - DASHARMAN</option>
@@ -140,7 +122,6 @@ text-align:center;
 <option value="12270">12270 - BADWARA</option>
 <option value="12280">12280 - VIJAY RAGHAVGARH</option>
 <option value="12290">12290 - KHIRHANI DURGA CHOWK</option>
-
 <option value="12300">12300 - BARAHI</option>
 <option value="12310">12310 - BAHORIBAND</option>
 <option value="12320">12320 - NARSINGHPUR</option>
@@ -151,7 +132,6 @@ text-align:center;
 <option value="12370">12370 - BOHANI</option>
 <option value="12380">12380 - KARELI</option>
 <option value="12390">12390 - BAGASPUR</option>
-
 <option value="12400">12400 - SAIKHEDA</option>
 <option value="12410">12410 - CHICHALI</option>
 <option value="12420">12420 - BARAHATA</option>
@@ -162,12 +142,10 @@ text-align:center;
 <option value="12470">12470 - NARSINGHPUR BASTI</option>
 <option value="12480">12480 - KARAKBEL</option>
 <option value="12490">12490 - SOORWARI</option>
-
 <option value="12500">12500 - TENDUKHEDA</option>
 <option value="12510">12510 - GOTEGAON</option>
 <option value="12520">12520 - COLLECTORATE</option>
 <option value="12530">12530 - ASS KARELI</option>
-
 </datalist>
 
 <div id="alertBox" class="alert">❌ Report not found!</div>
@@ -180,16 +158,16 @@ text-align:center;
 
 // 👤 USER INFO
 document.getElementById("userInfo").innerText =
-"👤 " + localStorage.getItem("role") + " | 🏢 " + localStorage.getItem("branch");
+"👤 " + (localStorage.getItem("role") || "User") +
+" | 🏢 " + (localStorage.getItem("branch") || "Unknown");
 
 // 🔓 LOGOUT
 function logout(){
 localStorage.clear();
-sessionStorage.clear();
 window.location.href = "index.html";
 }
 
-// 🔥 FILE MAP (ADD YOUR DRIVE IDs)
+// 🔥 FILE MAP
 var fileMap = {
 "12010":"PASTE_ID_12010",
 "12020":"PASTE_ID_12020",
@@ -197,10 +175,22 @@ var fileMap = {
 "12040":"PASTE_ID_12040"
 };
 
-// 🔄 KEEP SESSION ALIVE
+// 🔄 SESSION CONTROL (SAFE)
 setInterval(function(){
-localStorage.setItem("time", new Date().getTime());
-}, 300000);
+
+let time = localStorage.getItem("time");
+let now = new Date().getTime();
+
+if(time && (now - time > 30*60*1000)){
+alert("Session expired. Please login again.");
+localStorage.clear();
+window.location.href = "index.html";
+}
+
+// keep alive
+localStorage.setItem("time", now);
+
+}, 60000);
 
 // ENTER KEY
 document.getElementById("solInput").addEventListener("keypress",function(e){
