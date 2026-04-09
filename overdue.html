@@ -40,13 +40,6 @@ font-size:16px;
 margin-bottom:10px;
 }
 
-button{
-padding:8px 12px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
 iframe{
 width:100%;
 height:550px;
@@ -59,12 +52,6 @@ margin-top:10px;
 text-align:center;
 font-weight:bold;
 color:#006633;
-display:none;
-}
-
-.alert{
-color:red;
-text-align:center;
 display:none;
 }
 </style>
@@ -87,13 +74,12 @@ display:none;
 
 <select id="solSelect" onchange="openReport()">
 <option value="">-- Select SOL --</option>
-<option value="12110">12110 - MANJHOLI</option>
-<option value="12060">12060 - SHAHPURA</option>
 <option value="12010">12010 - JABALPUR</option>
+<option value="12060">12060 - SHAHPURA</option>
+<option value="12110">12110 - MANJHOLI</option>
 </select>
 
 <div id="loading" class="loading">⏳ Loading report...</div>
-<div id="alertBox" class="alert">❌ Report not found!</div>
 
 <iframe id="reportFrame" onload="hideLoading()"></iframe>
 
@@ -101,6 +87,7 @@ display:none;
 
 <script>
 
+// 👤 USER INFO
 document.getElementById("userInfo").innerText =
 "👤 " + (localStorage.getItem("role") || "User") +
 " | 🏢 " + (localStorage.getItem("branch") || "Unknown");
@@ -114,6 +101,14 @@ localStorage.clear();
 window.location.href = "index.html";
 }
 
+// 🔥 FILE MAP (PUT REAL FILE IDs HERE)
+var fileMap = {
+"12010":"PUT_FILE_ID_HERE",
+"12060":"PUT_FILE_ID_HERE",
+"12110":"PUT_FILE_ID_HERE"
+};
+
+// 📂 OPEN REPORT
 function openReport(){
 
 var sol = document.getElementById("solSelect").value;
@@ -122,14 +117,19 @@ if(sol === "") return;
 
 document.getElementById("loading").style.display = "block";
 
-// ✅ Correct folder name used
-var filePath = "Overdue/" + sol + ".html";
+if(fileMap[sol]){
 
-document.getElementById("reportFrame").src = filePath;
+var url = "https://drive.google.com/file/d/" + fileMap[sol] + "/preview";
 
-document.getElementById("alertBox").style.display="none";
+document.getElementById("reportFrame").src = url;
+
+}else{
+alert("❌ File ID not mapped!");
+document.getElementById("loading").style.display = "none";
+}
 }
 
+// ⏳ HIDE LOADING
 function hideLoading(){
 document.getElementById("loading").style.display = "none";
 }
