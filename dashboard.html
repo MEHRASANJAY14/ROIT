@@ -104,7 +104,11 @@ body{
 .dropdown div:last-child{color:red;cursor:pointer;}
 
 /* CONTENT */
-.content{padding:15px;padding-bottom:120px;}
+.content{
+  padding:15px;
+  padding-top:20px;
+  padding-bottom:120px;
+}
 
 .kpi-card{
   background:white;
@@ -112,6 +116,7 @@ body{
   border-radius:14px;
   text-align:center;
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  margin-bottom:18px;
 }
 
 .kpi-card h4{font-size:11px;}
@@ -140,6 +145,11 @@ body{
   margin-bottom:6px;
 }
 
+.app-tile span{
+  font-size:11px;
+}
+
+/* NAV */
 .bottom-nav{
   position:fixed;
   bottom:50px;
@@ -150,6 +160,7 @@ body{
   padding:10px;
 }
 
+/* FOOTER */
 .footer{
   position:fixed;
   bottom:0;
@@ -274,7 +285,7 @@ function go(page){
   window.location.href=page;
 }
 
-/* PROFILE DATA */
+/* PROFILE */
 let name = localStorage.getItem("username") || "User";
 let id   = localStorage.getItem("userid") || "-";
 let branch = localStorage.getItem("branch") || "-";
@@ -294,23 +305,52 @@ document.addEventListener("click",function(e){
   }
 });
 
-/* NOTIFICATION SYSTEM */
+/* 🔔 NOTIFICATION */
 function showNotif(){
-  let list=[
-    "3 Overdue Accounts pending",
-    "ECS missing in 2 branches",
-    "Target update required"
+
+  let branch = localStorage.getItem("branch") || "Your Branch";
+
+  let list = [
+    "🎯 Check your branch target (" + branch + ")",
+    "📊 Check business progress",
+    "⏰ Check overdue accounts",
+    "📄 Check ECS status",
+    "⚠️ Review NPA accounts"
   ];
 
-  let msg="🔔 Notifications:\n\n";
-  list.forEach((n,i)=> msg+=(i+1)+". "+n+"\n");
+  let html = "<b>🔔 Branch Alerts</b><br><br>";
 
-  alert(msg);
+  list.forEach((n,i)=>{
+    html += (i+1)+". "+n+"<br>";
+  });
+
+  let box = document.createElement("div");
+  box.style.position="fixed";
+  box.style.top="50%";
+  box.style.left="50%";
+  box.style.transform="translate(-50%,-50%)";
+  box.style.background="#fff";
+  box.style.padding="18px";
+  box.style.borderRadius="14px";
+  box.style.boxShadow="0 10px 30px rgba(0,0,0,0.3)";
+  box.style.zIndex="9999";
+  box.style.width="85%";
+  box.style.maxWidth="320px";
+
+  box.innerHTML = html + `
+  <br>
+  <button onclick="this.parentElement.remove()" 
+  style="margin-top:10px;padding:6px 12px;border:none;background:#1c4fa3;color:white;border-radius:6px;">
+  OK
+  </button>`;
+
+  document.body.appendChild(box);
 
   localStorage.setItem("notif",0);
   document.getElementById("notifCount").innerText=0;
 }
 
+/* Notification count */
 function simulateUpdates(){
   let last=localStorage.getItem("lastCheck")||0;
   let now=new Date().getTime();
@@ -343,7 +383,7 @@ setInterval(()=>{
   " | "+now.toLocaleTimeString('en-IN')+" IST";
 },1000);
 
-/* ADMIN RESET TILE */
+/* ADMIN RESET */
 let user = localStorage.getItem("userid");
 if(user==="N07550"){
   let grid=document.querySelector(".app-grid");
