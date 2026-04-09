@@ -3,11 +3,16 @@
 <head>
 <title>Overdue Dashboard</title>
 
-<!-- 🔐 LOGIN SECURITY -->
+<!-- 🔐 LOGIN SECURITY (FINAL FIX) -->
 <script>
 (function(){
 
+  // ✅ Run only in main window (not iframe)
   if(window !== window.top) return;
+
+  // ✅ Run only once per session (prevents logout issue)
+  if(sessionStorage.getItem("checked") === "true") return;
+  sessionStorage.setItem("checked","true");
 
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
@@ -16,15 +21,18 @@
 
   let now = new Date().getTime();
 
+  // ❌ Not logged in
   if(login !== "true" || !branch || !token){
     window.location.replace("index.html");
   }
 
+  // ⏳ Session expiry (30 min)
   if(time && (now - time > 30*60*1000)){
     localStorage.clear();
     window.location.replace("index.html");
   }
 
+  // 🔄 Update session time
   localStorage.setItem("time", now);
 
 })();
@@ -177,30 +185,22 @@ document.getElementById("userInfo").innerText =
 // 🔓 LOGOUT
 function logout(){
 localStorage.clear();
+sessionStorage.clear();
 window.location.href = "index.html";
 }
 
-// 🔥 FULL FILE MAP
+// 🔥 FILE MAP (ADD YOUR DRIVE IDs)
 var fileMap = {
-"12010":"PASTE_ID_12010","12020":"PASTE_ID_12020","12030":"PASTE_ID_12030","12040":"PASTE_ID_12040","12050":"PASTE_ID_12050",
-"12060":"PASTE_ID_12060","12070":"PASTE_ID_12070","12080":"PASTE_ID_12080","12090":"PASTE_ID_12090","12100":"PASTE_ID_12100",
-"12110":"PASTE_ID_12110","12120":"PASTE_ID_12120","12130":"PASTE_ID_12130","12140":"PASTE_ID_12140","12150":"PASTE_ID_12150",
-"12160":"PASTE_ID_12160","12170":"PASTE_ID_12170","12180":"PASTE_ID_12180","12190":"PASTE_ID_12190",
-
-"12200":"PASTE_ID_12200","12210":"PASTE_ID_12210","12220":"PASTE_ID_12220","12230":"PASTE_ID_12230","12240":"PASTE_ID_12240",
-"12250":"PASTE_ID_12250","12260":"PASTE_ID_12260","12270":"PASTE_ID_12270","12280":"PASTE_ID_12280","12290":"PASTE_ID_12290",
-
-"12300":"PASTE_ID_12300","12310":"PASTE_ID_12310","12320":"PASTE_ID_12320","12330":"PASTE_ID_12330","12340":"PASTE_ID_12340",
-"12350":"PASTE_ID_12350","12360":"PASTE_ID_12360","12370":"PASTE_ID_12370","12380":"PASTE_ID_12380","12390":"PASTE_ID_12390",
-
-"12400":"PASTE_ID_12400","12410":"PASTE_ID_12410","12420":"PASTE_ID_12420","12430":"PASTE_ID_12430","12440":"PASTE_ID_12440",
-"12450":"PASTE_ID_12450","12460":"PASTE_ID_12460","12470":"PASTE_ID_12470","12480":"PASTE_ID_12480","12490":"PASTE_ID_12490",
-
-"12500":"PASTE_ID_12500","12510":"PASTE_ID_12510","12520":"PASTE_ID_12520","12530":"PASTE_ID_12530"
+"12010":"PASTE_ID_12010",
+"12020":"PASTE_ID_12020",
+"12030":"PASTE_ID_12030",
+"12040":"PASTE_ID_12040"
 };
 
-// 🔄 SESSION REFRESH
-setInterval(()=>localStorage.setItem("time", new Date().getTime()),300000);
+// 🔄 KEEP SESSION ALIVE
+setInterval(function(){
+localStorage.setItem("time", new Date().getTime());
+}, 300000);
 
 // ENTER KEY
 document.getElementById("solInput").addEventListener("keypress",function(e){
@@ -220,6 +220,7 @@ document.getElementById("alertBox").style.display="block";
 document.getElementById("reportFrame").src="";
 }
 }
+
 </script>
 
 </body>
