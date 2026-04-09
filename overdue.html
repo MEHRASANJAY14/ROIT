@@ -3,26 +3,28 @@
 <head>
 <title>Overdue Dashboard</title>
 
-<!-- 🔐 LOGIN SECURITY (RUN FIRST) -->
+<!-- 🔐 LOGIN SECURITY -->
 <script>
 (function(){
 
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
+  let role = localStorage.getItem("role");
+  let token = localStorage.getItem("token");
   let time = localStorage.getItem("time");
 
   let now = new Date().getTime();
 
-  // Not logged in
-  if(login !== "true" || !branch){
+  if(login !== "true" || !branch || !token){
     window.location.replace("index.html");
   }
 
-  // Session expiry (30 min)
   if(time && (now - time > 30*60*1000)){
     localStorage.clear();
     window.location.replace("index.html");
   }
+
+  localStorage.setItem("time", now);
 
 })();
 </script>
@@ -32,7 +34,18 @@ body{
 font-family:Segoe UI;
 background:linear-gradient(135deg,#e6ffe6,#d9f2ff);
 margin:0;
-padding:30px;
+padding:20px;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#006633;
+color:white;
+padding:12px 20px;
+border-radius:10px;
+margin-bottom:15px;
 }
 
 .container{
@@ -44,12 +57,7 @@ border-radius:15px;
 box-shadow:0 15px 35px rgba(0,0,0,0.2);
 }
 
-h1{
-text-align:center;
-color:#006633;
-}
-
-select{
+input{
 width:100%;
 padding:12px;
 border-radius:8px;
@@ -78,12 +86,20 @@ text-align:center;
 
 <body>
 
+<!-- 🔝 TOP BAR -->
+<div class="topbar">
+<div id="userInfo"></div>
+<button onclick="logout()">Logout</button>
+</div>
+
 <div class="container">
 
-<h1>📊 Overdue Dashboard</h1>
+<h2>📊 Overdue Dashboard</h2>
 
-<select id="solSelect" onchange="openReport()">
-<option value="">-- Select SOL --</option>
+<!-- 🔍 SEARCHABLE DROPDOWN -->
+<input list="solList" id="solInput" placeholder="🔍 Type SOL ID or Branch">
+
+<datalist id="solList">
 
 <option value="12010">12010 - JABALPUR</option>
 <option value="12020">12020 - RANJHI</option>
@@ -139,7 +155,7 @@ text-align:center;
 <option value="12520">12520 - COLLECTORATE</option>
 <option value="12530">12530 - ASS KARELI</option>
 
-</select>
+</datalist>
 
 <div id="alertBox" class="alert">❌ Report not found!</div>
 
@@ -149,24 +165,53 @@ text-align:center;
 
 <script>
 
-// 🔥 SOL → Google Drive FILE ID mapping
+// 👤 USER INFO
+var branch = localStorage.getItem("branch");
+var role = localStorage.getItem("role");
+
+document.getElementById("userInfo").innerText =
+"👤 " + role + " | 🏢 " + branch;
+
+
+// 🔓 LOGOUT
+function logout(){
+localStorage.clear();
+window.location.href = "index.html";
+}
+
+
+// 🔥 FILE MAP (PUT REAL IDs)
 var fileMap = {
-"12010": "FILE_ID_12010",
-"12020": "FILE_ID_12020",
-"12030": "FILE_ID_12030",
-"12040": "FILE_ID_12040"
+"12010": "PASTE_ID",
+"12020": "PASTE_ID",
+"12030": "PASTE_ID"
 };
 
-// Open report
+
+// ENTER KEY SUPPORT
+document.getElementById("solInput").addEventListener("keypress", function(e){
+if(e.key === "Enter"){
+openReport();
+}
+});
+
+
+// 📂 OPEN REPORT
 function openReport(){
 
-var sol = document.getElementById("solSelect").value;
+var sol = document.getElementById("solInput").value.trim();
+var role = localStorage.getItem("role");
+var userBranch = localStorage.getItem("branch");
 
-if(sol === "") return;
+// 🔒 ROLE CONTROL
+if(role === "BRANCH" && sol !== userBranch){
+alert("❌ You can only access your branch!");
+return;
+}
 
 if(fileMap[sol]){
 
-var url = "https://drive.google.com/file/d/" + fileMap[sol] + "/preview";
+var url = "https://drive.google.com/uc?export=preview&id=" + fileMap[sol];
 
 document.getElementById("reportFrame").src = url;
 document.getElementById("alertBox").style.display = "none";
