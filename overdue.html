@@ -1,7 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Smart PDF Dashboard</title>
+  <title>PDF Viewer</title>
+
+  <!-- 🔐 LOGIN CHECK -->
+  <script>
+  (function(){
+    let login = localStorage.getItem("login");
+    let time = localStorage.getItem("time");
+    let now = new Date().getTime();
+
+    if(login !== "true"){
+      window.location.replace("index.html");
+    }
+
+    if(time && (now - time > 30*60*1000)){
+      localStorage.clear();
+      window.location.replace("index.html");
+    }
+  })();
+  </script>
 
   <style>
     body {
@@ -11,13 +29,34 @@
       color: white;
     }
 
+    .topbar {
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .btnTop {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .backBtn {
+      background: linear-gradient(45deg,#ff9800,#ff5722);
+    }
+
+    .logoutBtn {
+      background: linear-gradient(45deg,#ff1744,#d50000);
+    }
+
     .container {
       padding: 20px;
       text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 20px;
     }
 
     select {
@@ -26,16 +65,12 @@
       border-radius: 10px;
       border: none;
       font-size: 16px;
-      outline: none;
     }
 
-    .card {
-      margin-top: 20px;
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 15px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    #loader {
+      display: none;
+      margin-top: 15px;
+      font-size: 18px;
     }
 
     iframe {
@@ -43,14 +78,9 @@
       height: 80vh;
       border: none;
       border-radius: 12px;
-      margin-top: 10px;
       display: none;
-    }
-
-    #loader {
-      display: none;
-      margin-top: 20px;
-      font-size: 18px;
+      margin-top: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
 
     .btn {
@@ -63,17 +93,6 @@
       cursor: pointer;
       font-weight: bold;
     }
-
-    .btn:hover {
-      background: #00b248;
-    }
-
-    .topbar {
-      background: rgba(0,0,0,0.3);
-      padding: 10px;
-      font-size: 14px;
-    }
-
   </style>
 
 </head>
@@ -81,12 +100,14 @@
 <body>
 
 <div class="topbar">
-  📍 Regional Office Dashboard | Live PDF Viewer
+  <button class="btnTop backBtn" onclick="goBack()">⬅ Back</button>
+  <div>📄 PDF Viewer</div>
+  <button class="btnTop logoutBtn" onclick="logout()">Logout</button>
 </div>
 
 <div class="container">
 
-  <h1>📊 Branch PDF Viewer</h1>
+  <h2>Select Branch</h2>
 
   <select id="branchSelect">
     <option value="">-- Select Branch --</option>
@@ -94,11 +115,10 @@
 
   <div id="loader">⏳ Loading PDF...</div>
 
-  <div class="card">
-    <iframe id="pdfFrame"></iframe>
+  <iframe id="pdfFrame"></iframe>
 
-    <button class="btn" onclick="downloadPDF()">⬇ Download</button>
-  </div>
+  <br>
+  <button class="btn" onclick="downloadPDF()">⬇ Download</button>
 
 </div>
 
@@ -108,26 +128,25 @@ const API_URL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsR
 
 let currentPDF = "";
 
-// 🔹 Fetch data
-async function loadBranches() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
+// 🔹 Load dropdown
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
 
-  const select = document.getElementById("branchSelect");
+    const select = document.getElementById("branchSelect");
 
-  data.forEach(item => {
-    if(item.url){
-      const option = document.createElement("option");
-      option.value = item.url;
-      option.text = item.sol + " - " + item.branch;
-      select.appendChild(option);
-    }
+    data.forEach(item => {
+      if(item.url){
+        const option = document.createElement("option");
+        option.value = item.url;
+        option.text = item.sol + " - " + item.branch;
+        select.appendChild(option);
+      }
+    });
+
   });
-}
 
-loadBranches();
-
-// 🔹 Dynamic PDF load (same page)
+// 🔹 Load PDF SAME PAGE
 document.getElementById("branchSelect").addEventListener("change", function(){
 
   const url = this.value;
@@ -144,7 +163,7 @@ document.getElementById("branchSelect").addEventListener("change", function(){
     frame.style.display = "block";
   };
 
-  frame.src = url;   // 🔥 same page load
+  frame.src = url;
   currentPDF = url;
 
 });
@@ -156,6 +175,17 @@ function downloadPDF(){
   } else {
     alert("Please select a branch first");
   }
+}
+
+// 🔹 Back
+function goBack(){
+  window.location.href = "dashboard.html";
+}
+
+// 🔹 Logout
+function logout(){
+  localStorage.clear();
+  window.location.href = "index.html";
 }
 
 </script>
