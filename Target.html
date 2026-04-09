@@ -9,39 +9,44 @@
 
   <style>
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg,#eaf1ff,#f7fbff);
+    /* 🔥 REMOVE DEFAULT GAP */
+    html,body{
       margin:0;
       padding:0;
+      font-family:'Segoe UI',sans-serif;
+      background:#f4f7fb;
       text-align:center;
-      font-size:16px;
     }
 
-    /* 🔷 HEADER FULL PATTI */
+    /* 🔥 FULL WIDTH HEADER STRIP */
     .header{
-      width:100%;
-      background: linear-gradient(135deg,#1c4fa3,#2e6dd8);
+      width:100vw;                 /* 🔥 full screen */
+      background:#1c4fa3;
       color:white;
       padding:18px 10px;
-      box-shadow:0 4px 15px rgba(0,0,0,0.2);
+      box-shadow:0 4px 12px rgba(0,0,0,0.2);
+      position:relative;
+      left:0;
     }
 
     .header h1{
       margin:0;
-      font-size:20px;
+      font-size:22px;             /* 🔥 bigger */
+      font-weight:700;
+      letter-spacing:0.5px;
     }
 
     .header h2{
-      margin:5px 0;
-      font-size:14px;
-      opacity:0.9;
+      margin:6px 0 0;
+      font-size:15px;             /* 🔥 clearer */
+      font-weight:500;
+      opacity:0.95;
     }
 
-    /* 🔷 CARD */
+    /* CARD */
     .container{
       background:white;
-      margin:25px auto;
+      margin:20px auto;
       width:95%;
       max-width:950px;
       border-radius:16px;
@@ -49,14 +54,12 @@
       box-shadow:0 10px 30px rgba(0,0,0,0.08);
     }
 
-    h2 {
+    h2{
       font-size:18px;
       color:#2c3e50;
-      margin-bottom:15px;
     }
 
-    /* 🔷 SELECT */
-    select {
+    select{
       padding:14px;
       font-size:16px;
       width:90%;
@@ -65,7 +68,6 @@
       border:1px solid #ccc;
     }
 
-    /* 🔷 BUTTON WRAPPER */
     .btn-group{
       margin-top:15px;
       display:flex;
@@ -74,28 +76,25 @@
       flex-wrap:wrap;
     }
 
-    /* 🔷 BUTTON */
-    .btn {
+    .btn{
       padding:12px 18px;
       font-size:14px;
       border:none;
       border-radius:20px;
       cursor:pointer;
       color:white;
-      display:none;
     }
 
     .download{
-      background:linear-gradient(135deg,#00c853,#2ecc71);
+      background:#2ecc71;
+      display:none;
     }
 
     .back{
-      background:linear-gradient(135deg,#ff5252,#e53935);
-      display:inline-block;
+      background:#e53935;
     }
 
-    /* 🔷 LOADER */
-    .loader {
+    .loader{
       display:none;
       margin-top:15px;
       font-size:15px;
@@ -103,8 +102,7 @@
       color:#555;
     }
 
-    /* 🔷 PDF */
-    iframe {
+    iframe{
       width:100%;
       height:75vh;
       margin-top:25px;
@@ -117,7 +115,7 @@
 
 <body>
 
-<!-- 🔷 HEADER -->
+<!-- 🔥 HEADER -->
 <div class="header">
   <h1>Regional Office Jabalpur</h1>
   <h2>Target Sheet Viewer FY 2026-27</h2>
@@ -131,7 +129,6 @@
   <option value="">-- Loading Branches... --</option>
 </select>
 
-<!-- 🔷 BUTTONS SIDE BY SIDE -->
 <div class="btn-group">
 
   <button class="btn download" id="downloadBtn">
@@ -161,7 +158,6 @@ const apiURL = "https://script.google.com/macros/s/AKfycbwWjluBGmMpCxHEZ0nKinVxh
 let allData = [];
 let currentPDF = "";
 
-// LOAD
 fetch(apiURL + "?t=" + new Date().getTime())
 .then(res => res.json())
 .then(data => {
@@ -179,13 +175,8 @@ fetch(apiURL + "?t=" + new Date().getTime())
     select.appendChild(opt);
   });
 
-})
-.catch(()=>{
-  document.getElementById("branchSelect").innerHTML =
-    '<option>Error loading data ❌</option>';
 });
 
-// SELECT
 document.getElementById("branchSelect").addEventListener("change", function(){
 
   const sol = this.value;
@@ -213,7 +204,6 @@ document.getElementById("branchSelect").addEventListener("change", function(){
 
 });
 
-// DOWNLOAD
 document.getElementById("downloadBtn").addEventListener("click", function(){
 
   if(!currentPDF){
