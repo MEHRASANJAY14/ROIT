@@ -1,71 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Branch PDF Dashboard</title>
+  <title>Smart PDF Dashboard</title>
 
   <style>
     body {
-      font-family: Arial;
-      background: linear-gradient(135deg,#d9f2ff,#e6ffe6);
-      text-align: center;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg,#1e3c72,#2a5298);
+      color: white;
+    }
+
+    .container {
       padding: 20px;
+      text-align: center;
     }
 
     h1 {
-      color: #333;
+      margin-bottom: 20px;
     }
 
     select {
       padding: 12px;
-      width: 300px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      width: 320px;
+      border-radius: 10px;
+      border: none;
       font-size: 16px;
-      margin-bottom: 15px;
+      outline: none;
+    }
+
+    .card {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     }
 
     iframe {
       width: 100%;
-      height: 500px;
+      height: 80vh;
       border: none;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      margin-top: 10px;
+      display: none;
     }
 
     #loader {
       display: none;
+      margin-top: 20px;
       font-size: 18px;
-      color: blue;
-      margin: 10px;
     }
 
-    button {
+    .btn {
+      margin-top: 10px;
       padding: 10px 20px;
       border: none;
-      background: green;
+      border-radius: 8px;
+      background: #00c853;
       color: white;
-      border-radius: 6px;
       cursor: pointer;
-      margin-top: 10px;
+      font-weight: bold;
     }
+
+    .btn:hover {
+      background: #00b248;
+    }
+
+    .topbar {
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      font-size: 14px;
+    }
+
   </style>
 
 </head>
 
 <body>
 
-<h1>📊 Branch PDF Dashboard</h1>
+<div class="topbar">
+  📍 Regional Office Dashboard | Live PDF Viewer
+</div>
 
-<select id="branchSelect">
-  <option value="">-- Select Branch --</option>
-</select>
+<div class="container">
 
-<div id="loader">⏳ Loading PDF...</div>
+  <h1>📊 Branch PDF Viewer</h1>
 
-<iframe id="pdfFrame"></iframe>
+  <select id="branchSelect">
+    <option value="">-- Select Branch --</option>
+  </select>
 
-<br>
-<button onclick="downloadPDF()">⬇ Download PDF</button>
+  <div id="loader">⏳ Loading PDF...</div>
+
+  <div class="card">
+    <iframe id="pdfFrame"></iframe>
+
+    <button class="btn" onclick="downloadPDF()">⬇ Download</button>
+  </div>
+
+</div>
 
 <script>
 
@@ -73,39 +108,43 @@ const API_URL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsR
 
 let currentPDF = "";
 
-// 🔹 Load dropdown
-fetch(API_URL)
-  .then(res => res.json())
-  .then(data => {
+// 🔹 Fetch data
+async function loadBranches() {
+  const res = await fetch(API_URL);
+  const data = await res.json();
 
-    const select = document.getElementById("branchSelect");
+  const select = document.getElementById("branchSelect");
 
-    data.forEach(item => {
-      if(item.url){
-        const option = document.createElement("option");
-        option.value = item.url;
-        option.text = item.sol + " - " + item.branch;
-        select.appendChild(option);
-      }
-    });
-
+  data.forEach(item => {
+    if(item.url){
+      const option = document.createElement("option");
+      option.value = item.url;
+      option.text = item.sol + " - " + item.branch;
+      select.appendChild(option);
+    }
   });
+}
 
-// 🔹 On select
+loadBranches();
+
+// 🔹 Dynamic PDF load (same page)
 document.getElementById("branchSelect").addEventListener("change", function(){
 
   const url = this.value;
   if(!url) return;
 
-  document.getElementById("loader").style.display = "block";
-
+  const loader = document.getElementById("loader");
   const frame = document.getElementById("pdfFrame");
 
+  loader.style.display = "block";
+  frame.style.display = "none";
+
   frame.onload = function(){
-    document.getElementById("loader").style.display = "none";
+    loader.style.display = "none";
+    frame.style.display = "block";
   };
 
-  frame.src = url;
+  frame.src = url;   // 🔥 same page load
   currentPDF = url;
 
 });
