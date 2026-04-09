@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
+// 🔐 LOGIN CHECK
 (function(){
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
@@ -29,7 +30,6 @@
 <style>
 :root{
   --sbi-blue:#1c4fa3;
-  --light-blue:#2e6dd8;
 }
 
 /* BODY */
@@ -43,40 +43,76 @@ body{
 .app-header{
   background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
   color:white;
-  padding:15px 10px;
+  padding:10px;
   text-align:center;
   position:relative;
-  box-shadow:0 4px 20px rgba(0,0,0,0.2);
 }
 
-/* LOGOUT BUTTON */
-.logout-btn{
+/* 🔔 Notification */
+.notification{
   position:absolute;
-  right:12px;
-  top:12px;
-  padding:8px 14px;
-  border:none;
-  border-radius:30px;
+  right:55px;
+  top:10px;
   cursor:pointer;
-  font-size:12px;
-  font-weight:600;
-  color:white;
-  background:linear-gradient(135deg,#ff416c,#ff4b2b);
-  box-shadow:0 4px 12px rgba(0,0,0,0.25);
-  display:flex;
-  align-items:center;
-  gap:6px;
-  transition:0.3s;
-}
-.logout-btn:hover{
-  transform:translateY(-2px);
 }
 
-/* LOGO */
-.logo{
-  width:70%;
-  max-width:280px;
-  margin-bottom:8px;
+.notification i{
+  font-size:18px;
+}
+
+.badge{
+  position:absolute;
+  top:-5px;
+  right:-6px;
+  background:red;
+  color:white;
+  font-size:9px;
+  padding:2px 5px;
+  border-radius:50%;
+}
+
+/* 👤 Profile */
+.profile{
+  position:absolute;
+  right:10px;
+  top:8px;
+  cursor:pointer;
+}
+
+.profile i{
+  font-size:18px;
+  background:rgba(255,255,255,0.2);
+  padding:8px;
+  border-radius:50%;
+}
+
+/* DROPDOWN */
+.dropdown{
+  position:absolute;
+  right:10px;
+  top:38px;
+  background:white;
+  color:#333;
+  border-radius:10px;
+  width:180px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+  display:none;
+  z-index:999;
+}
+
+.dropdown div{
+  padding:10px;
+  font-size:12px;
+  border-bottom:1px solid #eee;
+}
+
+.dropdown div:last-child{
+  color:red;
+  cursor:pointer;
+}
+
+.dropdown div:hover{
+  background:#f5f5f5;
 }
 
 /* CONTENT */
@@ -88,12 +124,11 @@ body{
 /* KPI */
 .kpi-card{
   background:white;
-  padding:20px;
-  border-radius:16px;
+  padding:18px;
+  border-radius:14px;
   text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
   margin-bottom:20px;
-  transition:0.3s;
 }
 
 /* GRID */
@@ -106,55 +141,34 @@ body{
 /* TILE */
 .app-tile{
   background:white;
-  padding:20px;
-  border-radius:16px;
+  padding:18px;
+  border-radius:14px;
   text-align:center;
-  box-shadow:0 6px 20px rgba(0,0,0,0.06);
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
   cursor:pointer;
-  transition:0.25s;
-  position:relative;
 }
 
-.app-tile:hover{
-  transform:translateY(-5px);
-}
-
-/* ICON */
 .app-tile i{
-  font-size:24px;
-  margin-bottom:8px;
+  font-size:22px;
   color:#1c4fa3;
+  margin-bottom:6px;
 }
 
-/* TEXT */
-.app-tile span{
-  font-size:12px;
-  font-weight:500;
-}
-
-/* NAV */
 .bottom-nav{
   position:fixed;
   bottom:50px;
   width:100%;
-  background:rgba(255,255,255,0.85);
-  backdrop-filter:blur(10px);
+  background:white;
   display:flex;
   justify-content:space-around;
-  padding:12px 0;
+  padding:10px 0;
 }
 
-.bottom-nav i{
-  font-size:20px;
-  color:#1c4fa3;
-}
-
-/* FOOTER */
 .footer{
   position:fixed;
   bottom:0;
   width:100%;
-  background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
+  background:#1c4fa3;
   color:white;
   text-align:center;
   padding:8px;
@@ -169,14 +183,29 @@ body{
 <!-- HEADER -->
 <div class="app-header">
 
-<button onclick="logout()" class="logout-btn">
-  <i class="fa-solid fa-right-from-bracket"></i> Logout
-</button>
+<!-- 🔔 Notification -->
+<div class="notification">
+  <i class="fa-solid fa-bell"></i>
+  <span class="badge" id="notifCount">3</span>
+</div>
 
-<img src="mpgb_header_small.png" class="logo">
-<h1>MADHYA PRADESH GRAMIN BANK</h1>
-<h2>RO Jabalpur – Digital Dashboard</h2>
-<div id="datetime"></div>
+<!-- 👤 Profile -->
+<div class="profile" onclick="toggleMenu()">
+  <i class="fa-solid fa-user"></i>
+</div>
+
+<!-- ⬇️ Dropdown -->
+<div class="dropdown" id="dropdown">
+  <div id="userName">User</div>
+  <div id="branchName">Branch</div>
+  <div onclick="go('change_password.html')">Change Password</div>
+  <div onclick="logout()">Logout</div>
+</div>
+
+<img src="mpgb_header_small.png" style="width:60%;max-width:240px;">
+<h1 style="font-size:13px;margin:0;">MADHYA PRADESH GRAMIN BANK</h1>
+<h2 style="font-size:11px;margin:2px;">RO Jabalpur – Digital Dashboard</h2>
+<div id="datetime" style="font-size:10px;"></div>
 
 </div>
 
@@ -262,9 +291,33 @@ function logout(){
   localStorage.clear();
   window.location.href="index.html";
 }
+
 function go(page){
   window.location.href=page;
 }
+
+/* Dropdown */
+function toggleMenu(){
+  let menu=document.getElementById("dropdown");
+  menu.style.display = menu.style.display==="block"?"none":"block";
+}
+
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".profile")){
+    document.getElementById("dropdown").style.display="none";
+  }
+});
+
+/* USER DATA */
+document.getElementById("userName").innerText =
+  "User: " + (localStorage.getItem("username") || localStorage.getItem("userid") || "User");
+
+document.getElementById("branchName").innerText =
+  "Branch: " + (localStorage.getItem("branch") || "-");
+
+/* Notification */
+document.getElementById("notifCount").innerText =
+  localStorage.getItem("notif") || 3;
 
 /* Counter */
 let count=0;
@@ -284,17 +337,6 @@ function updateDateTime(){
 }
 setInterval(updateDateTime,1000);
 updateDateTime();
-
-/* ADMIN TILE */
-let user = localStorage.getItem("userid");
-if(user === "N07550"){
-  let grid=document.querySelector(".app-grid");
-  let tile=document.createElement("div");
-  tile.className="app-tile";
-  tile.onclick=function(){go('reset_password.html');};
-  tile.innerHTML=`<i class="fa-solid fa-key"></i><span>Reset</span>`;
-  grid.appendChild(tile);
-}
 </script>
 
 </body>
