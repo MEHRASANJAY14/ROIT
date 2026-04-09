@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Regional Office Jabalpur - Branch PDF Dashboard</title>
+  <title>Target Sheet Viewer FY 2026-27</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,12 +18,12 @@
       font-size:16px;
     }
 
-    /* HEADER */
+    /* 🔷 HEADER FULL PATTI */
     .header{
+      width:100%;
       background: linear-gradient(135deg,#1c4fa3,#2e6dd8);
       color:white;
-      padding:20px 10px;
-      position:relative;
+      padding:18px 10px;
       box-shadow:0 4px 15px rgba(0,0,0,0.2);
     }
 
@@ -38,24 +38,7 @@
       opacity:0.9;
     }
 
-    /* BACK BUTTON */
-    .back-btn{
-      position:absolute;
-      left:12px;
-      top:14px;
-      background:white;
-      color:#1c4fa3;
-      padding:8px 14px;
-      border-radius:20px;
-      font-size:13px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      gap:5px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    /* CARD */
+    /* 🔷 CARD */
     .container{
       background:white;
       margin:25px auto;
@@ -72,7 +55,7 @@
       margin-bottom:15px;
     }
 
-    /* SELECT */
+    /* 🔷 SELECT */
     select {
       padding:14px;
       font-size:16px;
@@ -82,20 +65,36 @@
       border:1px solid #ccc;
     }
 
-    /* BUTTON */
-    .btn {
-      padding:12px 22px;
+    /* 🔷 BUTTON WRAPPER */
+    .btn-group{
       margin-top:15px;
-      font-size:15px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    /* 🔷 BUTTON */
+    .btn {
+      padding:12px 18px;
+      font-size:14px;
       border:none;
       border-radius:20px;
       cursor:pointer;
       color:white;
-      background:linear-gradient(135deg,#00c853,#2ecc71);
       display:none;
     }
 
-    /* LOADER */
+    .download{
+      background:linear-gradient(135deg,#00c853,#2ecc71);
+    }
+
+    .back{
+      background:linear-gradient(135deg,#ff5252,#e53935);
+      display:inline-block;
+    }
+
+    /* 🔷 LOADER */
     .loader {
       display:none;
       margin-top:15px;
@@ -104,7 +103,7 @@
       color:#555;
     }
 
-    /* PDF */
+    /* 🔷 PDF */
     iframe {
       width:100%;
       height:75vh;
@@ -118,30 +117,32 @@
 
 <body>
 
+<!-- 🔷 HEADER -->
 <div class="header">
-
-  <div class="back-btn" onclick="goBack()">
-    <i class="fa-solid fa-arrow-left"></i> Dashboard
-  </div>
-
   <h1>Regional Office Jabalpur</h1>
-  <h2>Branch PDF Dashboard</h2>
-
+  <h2>Target Sheet Viewer FY 2026-27</h2>
 </div>
 
 <div class="container">
 
-<h2>📊 View Branch Reports</h2>
+<h2>📊 Select Branch</h2>
 
 <select id="branchSelect">
   <option value="">-- Loading Branches... --</option>
 </select>
 
-<br>
+<!-- 🔷 BUTTONS SIDE BY SIDE -->
+<div class="btn-group">
 
-<button class="btn" id="downloadBtn">
-  <i class="fa-solid fa-download"></i> Download PDF
-</button>
+  <button class="btn download" id="downloadBtn">
+    <i class="fa-solid fa-download"></i> Download
+  </button>
+
+  <button class="btn back" onclick="goBack()">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
+
+</div>
 
 <div class="loader" id="loader">Loading PDF...</div>
 
