@@ -47,16 +47,17 @@ body{
   max-width:260px;
 }
 
-.app-header h1{font-size:14px;margin:0;}
-.app-header h2{font-size:12px;margin:2px;}
-.datetime{font-size:11px;}
-
-/* NOTIFICATION */
+/* 🔔 Notification (GAP FIX) */
 .notification{
   position:absolute;
-  right:55px;
-  top:12px;
+  right:60px;   /* 🔥 more spacing */
+  top:18px;     /* 🔥 thoda niche */
   cursor:pointer;
+}
+
+.notification i{
+  font-size:18px;
+  color:white;
 }
 
 .badge{
@@ -70,11 +71,11 @@ body{
   border-radius:50%;
 }
 
-/* PROFILE */
+/* 👤 Profile */
 .profile{
   position:absolute;
   right:10px;
-  top:10px;
+  top:14px;
   cursor:pointer;
 }
 
@@ -88,7 +89,7 @@ body{
 .dropdown{
   position:absolute;
   right:10px;
-  top:42px;
+  top:48px;
   background:white;
   border-radius:10px;
   width:180px;
@@ -101,7 +102,10 @@ body{
   font-size:12px;
   border-bottom:1px solid #eee;
 }
-.dropdown div:last-child{color:red;cursor:pointer;}
+.dropdown div:last-child{
+  color:red;
+  cursor:pointer;
+}
 
 /* CONTENT */
 .content{
@@ -179,15 +183,18 @@ body{
 
 <div class="app-header">
 
+<!-- 🔔 Notification -->
 <div class="notification" onclick="showNotif()">
 <i class="fa-solid fa-bell"></i>
 <span class="badge" id="notifCount">0</span>
 </div>
 
+<!-- 👤 Profile -->
 <div class="profile" onclick="toggleMenu()">
 <i class="fa-solid fa-user"></i>
 </div>
 
+<!-- ⬇️ Dropdown -->
 <div class="dropdown" id="dropdown">
 <div id="userName"></div>
 <div id="branchName"></div>
@@ -196,9 +203,9 @@ body{
 </div>
 
 <img src="mpgb_header_small.png" class="logo">
-<h1>MADHYA PRADESH GRAMIN BANK</h1>
-<h2>RO Jabalpur – Digital Dashboard</h2>
-<div id="datetime" class="datetime"></div>
+<h1 style="font-size:14px;margin:0;">MADHYA PRADESH GRAMIN BANK</h1>
+<h2 style="font-size:12px;margin:2px;">RO Jabalpur – Digital Dashboard</h2>
+<div id="datetime" style="font-size:11px;"></div>
 
 </div>
 
@@ -285,12 +292,11 @@ function go(page){
   window.location.href=page;
 }
 
-/* PROFILE */
-let name = localStorage.getItem("username") || "User";
-let id   = localStorage.getItem("userid") || "-";
-let branch = localStorage.getItem("branch") || "-";
+/* 👤 PROFILE (ONLY ID + BRANCH) */
+let id = localStorage.getItem("userid") || "ID";
+let branch = localStorage.getItem("branch") || "Branch";
 
-document.getElementById("userName").innerText = name + " ("+id+")";
+document.getElementById("userName").innerText = "ID: " + id;
 document.getElementById("branchName").innerText = "Branch: " + branch;
 
 /* DROPDOWN */
@@ -308,10 +314,8 @@ document.addEventListener("click",function(e){
 /* 🔔 NOTIFICATION */
 function showNotif(){
 
-  let branch = localStorage.getItem("branch") || "Your Branch";
-
   let list = [
-    "🎯 Check your branch target (" + branch + ")",
+    "🎯 Check your branch target",
     "📊 Check business progress",
     "⏰ Check overdue accounts",
     "📄 Check ECS status",
@@ -350,22 +354,9 @@ function showNotif(){
   document.getElementById("notifCount").innerText=0;
 }
 
-/* Notification count */
-function simulateUpdates(){
-  let last=localStorage.getItem("lastCheck")||0;
-  let now=new Date().getTime();
-
-  if(now-last>300000){
-    let c=parseInt(localStorage.getItem("notif")||0);
-    c++;
-    localStorage.setItem("notif",c);
-    localStorage.setItem("lastCheck",now);
-  }
-}
-simulateUpdates();
-
-document.getElementById("notifCount").innerText=
-localStorage.getItem("notif")||0;
+/* Badge */
+document.getElementById("notifCount").innerText =
+localStorage.getItem("notif") || 0;
 
 /* COUNTER */
 let count=0,target=53;
@@ -383,7 +374,7 @@ setInterval(()=>{
   " | "+now.toLocaleTimeString('en-IN')+" IST";
 },1000);
 
-/* ADMIN RESET */
+/* ADMIN TILE */
 let user = localStorage.getItem("userid");
 if(user==="N07550"){
   let grid=document.querySelector(".app-grid");
