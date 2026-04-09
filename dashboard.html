@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script>
-// 🔐 STRONG LOGIN CHECK
 (function(){
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
@@ -50,18 +49,34 @@ body{
   box-shadow:0 4px 20px rgba(0,0,0,0.2);
 }
 
+/* LOGOUT BUTTON */
+.logout-btn{
+  position:absolute;
+  right:12px;
+  top:12px;
+  padding:8px 14px;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  color:white;
+  background:linear-gradient(135deg,#ff416c,#ff4b2b);
+  box-shadow:0 4px 12px rgba(0,0,0,0.25);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  transition:0.3s;
+}
+.logout-btn:hover{
+  transform:translateY(-2px);
+}
+
+/* LOGO */
 .logo{
   width:70%;
   max-width:280px;
   margin-bottom:8px;
-}
-
-.app-header h1{margin:0;font-size:15px;}
-.app-header h2{margin:3px 0;font-size:12px;font-weight:normal;}
-
-.datetime{
-  margin-top:6px;
-  font-size:12px;
 }
 
 /* CONTENT */
@@ -78,19 +93,7 @@ body{
   text-align:center;
   box-shadow:0 10px 30px rgba(0,0,0,0.08);
   margin-bottom:20px;
-  border:1px solid rgba(0,0,0,0.05);
   transition:0.3s;
-}
-
-.kpi-card:hover{
-  transform:translateY(-4px);
-}
-
-.kpi-card h1{
-  font-size:30px;
-  background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
-  -webkit-background-clip:text;
-  color:transparent;
 }
 
 /* GRID */
@@ -109,54 +112,27 @@ body{
   box-shadow:0 6px 20px rgba(0,0,0,0.06);
   cursor:pointer;
   transition:0.25s;
-  border:1px solid rgba(0,0,0,0.05);
   position:relative;
 }
 
-/* GLOW BORDER */
-.app-tile::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:16px;
-  padding:1px;
-  background:linear-gradient(135deg,#1c4fa3,#2e6dd8,#00c6ff);
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  opacity:0;
-  transition:0.3s;
-}
-
-.app-tile:hover::before{
-  opacity:1;
-}
-
 .app-tile:hover{
-  transform:translateY(-5px) scale(1.02);
-  box-shadow:0 12px 30px rgba(0,0,0,0.15);
+  transform:translateY(-5px);
 }
 
-.app-tile:active{
-  transform:scale(0.96);
-}
-
+/* ICON */
 .app-tile i{
   font-size:24px;
   margin-bottom:8px;
-  background:linear-gradient(135deg,#1c4fa3,#2e6dd8);
-  -webkit-background-clip:text;
-  color:transparent;
+  color:#1c4fa3;
 }
 
+/* TEXT */
 .app-tile span{
   font-size:12px;
   font-weight:500;
 }
 
-/* BOTTOM NAV */
+/* NAV */
 .bottom-nav{
   position:fixed;
   bottom:50px;
@@ -166,7 +142,6 @@ body{
   display:flex;
   justify-content:space-around;
   padding:12px 0;
-  box-shadow:0 -5px 20px rgba(0,0,0,0.1);
 }
 
 .bottom-nav i{
@@ -194,15 +169,14 @@ body{
 <!-- HEADER -->
 <div class="app-header">
 
-<button onclick="logout()" 
-style="position:absolute;right:10px;top:10px;padding:6px 12px;border:none;background:#ff4d4d;color:white;border-radius:5px;cursor:pointer;">
-Logout
+<button onclick="logout()" class="logout-btn">
+  <i class="fa-solid fa-right-from-bracket"></i> Logout
 </button>
 
 <img src="mpgb_header_small.png" class="logo">
 <h1>MADHYA PRADESH GRAMIN BANK</h1>
 <h2>RO Jabalpur – Digital Dashboard</h2>
-<div class="datetime" id="datetime"></div>
+<div id="datetime"></div>
 
 </div>
 
@@ -217,8 +191,8 @@ Logout
 <div class="app-grid">
 
 <div class="app-tile" onclick="go('inventory.html')">
-<i class="fa-solid fa-desktop"></i>
-<span>Asset Entry</span>
+<i class="fa-solid fa-box"></i>
+<span>Assets</span>
 </div>
 
 <div class="app-tile" onclick="go('business.html')">
@@ -227,43 +201,43 @@ Logout
 </div>
 
 <div class="app-tile" onclick="go('ecs.html')">
-<i class="fa-solid fa-file-signature"></i>
-<span>ECS Monitoring</span>
+<i class="fa-solid fa-file-contract"></i>
+<span>ECS</span>
 </div>
 
 <div class="app-tile" onclick="go('emi.html')">
 <i class="fa-solid fa-calculator"></i>
-<span>EMI Calculator</span>
+<span>EMI</span>
 </div>
 
 <div class="app-tile" onclick="go('Loan_calculators.html')">
-<i class="fa-solid fa-landmark"></i>
+<i class="fa-solid fa-hand-holding-dollar"></i>
 <span>Loan Tools</span>
 </div>
 
 <div class="app-tile" onclick="go('calendar2026.html')">
-<i class="fa-solid fa-calendar-days"></i>
+<i class="fa-solid fa-calendar"></i>
 <span>Calendar</span>
 </div>
 
 <div class="app-tile" onclick="go('setting.html')">
-<i class="fa-solid fa-calendar-days"></i>
-<span>Internet Options</span>
+<i class="fa-solid fa-globe"></i>
+<span>Internet</span>
 </div>
 
 <div class="app-tile" onclick="go('npa.html')">
-<i class="fa-solid fa-calendar-days"></i>
-<span>Npa</span>
+<i class="fa-solid fa-triangle-exclamation"></i>
+<span>NPA</span>
 </div>
 
 <div class="app-tile" onclick="go('Target.html')">
-<i class="fa-solid fa-calendar-days"></i>
-<span>FY 2026-27 Target Sheet</span>
+<i class="fa-solid fa-bullseye"></i>
+<span>Targets</span>
 </div>
 
 <div class="app-tile" onclick="go('overdue.html')">
-<i class="fa-solid fa-calendar-days"></i>
-<span>Overdue Ac List</span>
+<i class="fa-solid fa-clock"></i>
+<span>Overdue</span>
 </div>
 
 </div>
@@ -318,7 +292,7 @@ if(user === "N07550"){
   let tile=document.createElement("div");
   tile.className="app-tile";
   tile.onclick=function(){go('reset_password.html');};
-  tile.innerHTML=`<i class="fa-solid fa-key"></i><span>Reset Password</span>`;
+  tile.innerHTML=`<i class="fa-solid fa-key"></i><span>Reset</span>`;
   grid.appendChild(tile);
 }
 </script>
