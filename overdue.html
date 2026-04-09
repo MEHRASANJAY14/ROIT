@@ -122,12 +122,12 @@ if(sol === "") return;
 
 document.getElementById("loading").style.display = "block";
 
-// ✅ DIRECT HTML LOAD
-var filePath = "reports/" + sol + ".html";
+// ✅ Correct folder name used
+var filePath = "Overdue/" + sol + ".html";
 
 document.getElementById("reportFrame").src = filePath;
-document.getElementById("alertBox").style.display="none";
 
+document.getElementById("alertBox").style.display="none";
 }
 
 function hideLoading(){
