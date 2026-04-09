@@ -3,21 +3,6 @@
 <head>
 <title>Overdue Dashboard</title>
 
-<!-- 🔐 SAFE LOGIN (NO LOGOUT ISSUE) -->
-<script>
-(function(){
-  if(window !== window.top) return;
-
-  let login = localStorage.getItem("login");
-  let branch = localStorage.getItem("branch");
-  let token = localStorage.getItem("token");
-
-  if(login !== "true" || !branch || !token){
-    console.warn("User not logged properly");
-  }
-})();
-</script>
-
 <style>
 body{
 font-family:Segoe UI;
@@ -46,13 +31,31 @@ border-radius:15px;
 box-shadow:0 15px 35px rgba(0,0,0,0.2);
 }
 
-input{
+select{
 width:100%;
 padding:12px;
 border-radius:8px;
 border:1px solid #ccc;
 font-size:16px;
 margin-bottom:10px;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.logout{
+background:#ff4d4d;
+color:white;
+}
+
+.back{
+background:#007bff;
+color:white;
+margin-right:10px;
 }
 
 iframe{
@@ -69,6 +72,13 @@ font-weight:bold;
 display:none;
 text-align:center;
 }
+
+.loading{
+text-align:center;
+font-weight:bold;
+color:#006633;
+display:none;
+}
 </style>
 
 </head>
@@ -78,17 +88,20 @@ text-align:center;
 <!-- 🔝 TOP BAR -->
 <div class="topbar">
 <div id="userInfo"></div>
-<button onclick="logout()">Logout</button>
+<div>
+<button class="back" onclick="goBack()">⬅ Back</button>
+<button class="logout" onclick="logout()">Logout</button>
+</div>
 </div>
 
 <div class="container">
 
 <h2>📊 Overdue Dashboard</h2>
 
-<!-- 🔍 INPUT (AUTO OPEN ENABLED) -->
-<input list="solList" id="solInput" placeholder="🔍 Type or Select SOL" onchange="openReport()">
+<!-- 🔽 DROPDOWN (FIXED) -->
+<select id="solSelect" onchange="openReport()">
+<option value="">-- Select SOL --</option>
 
-<datalist id="solList">
 <option value="12010">12010 - JABALPUR</option>
 <option value="12020">12020 - RANJHI</option>
 <option value="12030">12030 - SIHORA (JBP)</option>
@@ -108,6 +121,7 @@ text-align:center;
 <option value="12170">12170 - BILHARI</option>
 <option value="12180">12180 - KUA</option>
 <option value="12190">12190 - KYMORE</option>
+
 <option value="12200">12200 - DEORA KALA</option>
 <option value="12210">12210 - VILAYAT KALA</option>
 <option value="12220">12220 - DASHARMAN</option>
@@ -118,6 +132,7 @@ text-align:center;
 <option value="12270">12270 - BADWARA</option>
 <option value="12280">12280 - VIJAY RAGHAVGARH</option>
 <option value="12290">12290 - KHIRHANI DURGA CHOWK</option>
+
 <option value="12300">12300 - BARAHI</option>
 <option value="12310">12310 - BAHORIBAND</option>
 <option value="12320">12320 - NARSINGHPUR</option>
@@ -128,6 +143,7 @@ text-align:center;
 <option value="12370">12370 - BOHANI</option>
 <option value="12380">12380 - KARELI</option>
 <option value="12390">12390 - BAGASPUR</option>
+
 <option value="12400">12400 - SAIKHEDA</option>
 <option value="12410">12410 - CHICHALI</option>
 <option value="12420">12420 - BARAHATA</option>
@@ -138,15 +154,19 @@ text-align:center;
 <option value="12470">12470 - NARSINGHPUR BASTI</option>
 <option value="12480">12480 - KARAKBEL</option>
 <option value="12490">12490 - SOORWARI</option>
+
 <option value="12500">12500 - TENDUKHEDA</option>
 <option value="12510">12510 - GOTEGAON</option>
 <option value="12520">12520 - COLLECTORATE</option>
 <option value="12530">12530 - ASS KARELI</option>
-</datalist>
+
+</select>
+
+<div id="loading" class="loading">⏳ Loading report...</div>
 
 <div id="alertBox" class="alert">❌ Report not found!</div>
 
-<iframe id="reportFrame"></iframe>
+<iframe id="reportFrame" onload="hideLoading()"></iframe>
 
 </div>
 
@@ -157,35 +177,48 @@ document.getElementById("userInfo").innerText =
 "👤 " + (localStorage.getItem("role") || "User") +
 " | 🏢 " + (localStorage.getItem("branch") || "Unknown");
 
+// 🔙 BACK BUTTON
+function goBack(){
+window.location.href = "dashboard.html";
+}
+
 // 🔓 LOGOUT
 function logout(){
 localStorage.clear();
 window.location.href = "index.html";
 }
 
-// 🔥 FILE MAP (IMPORTANT: Replace IDs)
+// 🔥 FILE MAP (IMPORTANT: PUT REAL IDs)
 var fileMap = {
-"12010":"PASTE_ID_12010",
-"12020":"PASTE_ID_12020",
-"12030":"PASTE_ID_12030",
-"12040":"PASTE_ID_12040",
-"12050":"PASTE_ID_12050",
-"12060":"PASTE_ID_12060"
+"12060":"PASTE_REAL_ID_HERE"
 };
 
 // 📂 OPEN REPORT
 function openReport(){
 
-var sol = document.getElementById("solInput").value.trim();
+var sol = document.getElementById("solSelect").value;
+
+if(sol === "") return;
+
+document.getElementById("loading").style.display = "block";
 
 if(fileMap[sol]){
+
 document.getElementById("reportFrame").src =
 "https://drive.google.com/uc?export=preview&id="+fileMap[sol];
+
 document.getElementById("alertBox").style.display="none";
+
 }else{
+document.getElementById("loading").style.display = "none";
 document.getElementById("alertBox").style.display="block";
 document.getElementById("reportFrame").src="";
 }
+}
+
+// ⏳ HIDE LOADING
+function hideLoading(){
+document.getElementById("loading").style.display = "none";
 }
 
 </script>
