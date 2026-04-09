@@ -1,83 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Overdue Dashboard</title>
+  <title>Branch PDF Dashboard</title>
 
-<style>
-body {
-  font-family: Arial;
-  padding:20px;
-  text-align:center;
-}
-select {
-  padding:12px;
-  width:320px;
-  font-size:16px;
-}
-</style>
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg,#d9f2ff,#e6ffe6);
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    select {
+      padding: 12px;
+      width: 300px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    }
+
+    #loader {
+      display: none;
+      font-size: 18px;
+      color: blue;
+      margin: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: green;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
+
 </head>
 
 <body>
 
-<h2>📊 Overdue Dashboard</h2>
+<h1>📊 Branch PDF Dashboard</h1>
 
 <select id="branchSelect">
-<option>Loading...</option>
+  <option value="">-- Select Branch --</option>
 </select>
+
+<div id="loader">⏳ Loading PDF...</div>
+
+<iframe id="pdfFrame"></iframe>
+
+<br>
+<button onclick="downloadPDF()">⬇ Download PDF</button>
 
 <script>
 
-var apiURL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsRN_sRb3oI9pqnOmZhOSNAcSl5YGAXzCNLRG1wfQsEJALBKg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsRN_sRb3oI9pqnOmZhOSNAcSl5YGAXzCNLRG1wfQsEJALBKg/exec";
 
-// 🔥 XMLHttpRequest (BEST FOR APPS SCRIPT)
-var xhr = new XMLHttpRequest();
-xhr.open("GET", apiURL, true);
+let currentPDF = "";
 
-xhr.onreadystatechange = function(){
+// 🔹 Load dropdown
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
 
-  if(xhr.readyState == 4 && xhr.status == 200){
+    const select = document.getElementById("branchSelect");
 
-    var data = JSON.parse(xhr.responseText);
-
-    console.log("DATA:", data);
-
-    var select = document.getElementById("branchSelect");
-    select.innerHTML = '<option value="">-- Select Branch --</option>';
-
-    for(var i=0; i<data.length; i++){
-
-      var item = data[i];
-
-      var url = item.url || "";
-      var sol = item.sol || "";
-      var branch = item.branch || "Branch";
-
-      if(url !== ""){
-
-        var opt = document.createElement("option");
-        opt.value = url;
-        opt.text = branch + " (" + sol + ")";
-
-        select.appendChild(opt);
+    data.forEach(item => {
+      if(item.url){
+        const option = document.createElement("option");
+        option.value = item.url;
+        option.text = item.sol + " - " + item.branch;
+        select.appendChild(option);
       }
-    }
-  }
-};
+    });
 
-xhr.send();
+  });
 
+// 🔹 On select
+document.getElementById("branchSelect").addEventListener("change", function(){
 
-// 🔹 SELECT → OPEN PDF
-document.getElementById("branchSelect").onchange = function(){
-
-  var url = this.value;
+  const url = this.value;
   if(!url) return;
 
-  var openURL = url.replace("/view", "/preview");
+  document.getElementById("loader").style.display = "block";
 
-  window.open(openURL, "_blank");
+  const frame = document.getElementById("pdfFrame");
 
-};
+  frame.onload = function(){
+    document.getElementById("loader").style.display = "none";
+  };
+
+  frame.src = url;
+  currentPDF = url;
+
+});
+
+// 🔹 Download
+function downloadPDF(){
+  if(currentPDF){
+    window.open(currentPDF.replace("/preview","/view"), "_blank");
+  } else {
+    alert("Please select a branch first");
+  }
+}
 
 </script>
 
