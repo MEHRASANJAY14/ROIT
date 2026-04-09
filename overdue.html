@@ -4,58 +4,60 @@
 <title>Overdue Dashboard</title>
 
 <style>
-body{
-font-family:Segoe UI;
-background:linear-gradient(135deg,#e6ffe6,#d9f2ff);
-margin:0;
-padding:20px;
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg,#e6ffe6,#d9f2ff);
+  margin: 0;
+  padding: 20px;
 }
 
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:#006633;
-color:white;
-padding:12px 20px;
-border-radius:10px;
-margin-bottom:15px;
+.topbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#006633;
+  color:white;
+  padding:12px 20px;
+  border-radius:10px;
+  margin-bottom:15px;
 }
 
-.container{
-max-width:1000px;
-margin:auto;
-background:white;
-padding:25px;
-border-radius:15px;
-box-shadow:0 15px 35px rgba(0,0,0,0.2);
+.container {
+  max-width:1000px;
+  margin:auto;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 15px 35px rgba(0,0,0,0.2);
+  text-align:center;
 }
 
-select{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:16px;
-margin-bottom:10px;
+select {
+  padding:12px;
+  font-size:16px;
+  width:350px;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
 
-iframe{
-width:100%;
-height:550px;
-border-radius:10px;
-border:1px solid #ccc;
-margin-top:10px;
+.loader {
+  display:none;
+  margin-top:20px;
+  font-weight:bold;
 }
 
-.loading{
-text-align:center;
-font-weight:bold;
-color:#006633;
-display:none;
+.btn {
+  padding:8px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  color:white;
 }
+
+.back { background:#007bff; }
+.logout { background:#e74c3c; }
+
 </style>
-
 </head>
 
 <body>
@@ -63,8 +65,8 @@ display:none;
 <div class="topbar">
 <div id="userInfo"></div>
 <div>
-<button onclick="goBack()">⬅ Back</button>
-<button onclick="logout()">Logout</button>
+<button class="btn back" onclick="goBack()">⬅ Back</button>
+<button class="btn logout" onclick="logout()">Logout</button>
 </div>
 </div>
 
@@ -72,16 +74,11 @@ display:none;
 
 <h2>📊 Overdue Dashboard</h2>
 
-<select id="solSelect" onchange="openReport()">
-<option value="">-- Select SOL --</option>
-<option value="12010">12010 - JABALPUR</option>
-<option value="12060">12060 - SHAHPURA</option>
-<option value="12110">12110 - MANJHOLI</option>
+<select id="branchSelect">
+<option>Loading branches...</option>
 </select>
 
-<div id="loading" class="loading">⏳ Loading report...</div>
-
-<iframe id="reportFrame" onload="hideLoading()"></iframe>
+<div id="loader" class="loader">⏳ Opening report...</div>
 
 </div>
 
@@ -92,47 +89,64 @@ document.getElementById("userInfo").innerText =
 "👤 " + (localStorage.getItem("role") || "User") +
 " | 🏢 " + (localStorage.getItem("branch") || "Unknown");
 
+// 🔙 BACK
 function goBack(){
 window.location.href = "dashboard.html";
 }
 
+// 🔓 LOGOUT
 function logout(){
 localStorage.clear();
 window.location.href = "index.html";
 }
 
-// 🔥 FILE MAP (PUT REAL FILE IDs HERE)
-var fileMap = {
-"12010":"PUT_FILE_ID_HERE",
-"12060":"PUT_FILE_ID_HERE",
-"12110":"PUT_FILE_ID_HERE"
-};
+// 🔥 YOUR LIVE API
+const apiURL = "https://script.google.com/macros/s/AKfycby2ZjLwww2Yupn6be5XkdsRN_sRb3oI9pqnOmZhOSNAcSl5YGAXzCNLRG1wfQsEJALBKg/exec";
 
-// 📂 OPEN REPORT
-function openReport(){
+let allData = [];
 
-var sol = document.getElementById("solSelect").value;
+// 🔹 LOAD DATA
+fetch(apiURL)
+.then(res => res.json())
+.then(data => {
 
-if(sol === "") return;
+  allData = data;
 
-document.getElementById("loading").style.display = "block";
+  let select = document.getElementById("branchSelect");
+  select.innerHTML = '<option value="">-- Select Branch --</option>';
 
-if(fileMap[sol]){
+  data.forEach(item => {
 
-var url = "https://drive.google.com/file/d/" + fileMap[sol] + "/preview";
+    let opt = document.createElement("option");
+    opt.value = item.url;
+    opt.text = item.branch + " (" + item.sol + ")";
 
-document.getElementById("reportFrame").src = url;
+    select.appendChild(opt);
 
-}else{
-alert("❌ File ID not mapped!");
-document.getElementById("loading").style.display = "none";
-}
-}
+  });
 
-// ⏳ HIDE LOADING
-function hideLoading(){
-document.getElementById("loading").style.display = "none";
-}
+})
+.catch(err => {
+  alert("❌ API error");
+  console.error(err);
+});
+
+// 🔹 ON SELECT
+document.getElementById("branchSelect").addEventListener("change", function(){
+
+  let url = this.value;
+
+  if(!url) return;
+
+  document.getElementById("loader").style.display = "block";
+
+  // 🔥 OPEN HTML FILE
+  setTimeout(()=>{
+    window.open(url, "_blank");
+    document.getElementById("loader").style.display = "none";
+  }, 500);
+
+});
 
 </script>
 
