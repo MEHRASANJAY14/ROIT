@@ -1,336 +1,270 @@
-<!DOCTYPE html>
-<html>
-<head>
-
-<!-- 🔐 LOGIN CHECK -->
-<script>
-(function(){
-  let login = localStorage.getItem("login");
-  let branch = localStorage.getItem("branch");
-  let time = localStorage.getItem("time");
-  let now = new Date().getTime();
-
-  if(login !== "true" || !branch){
-    window.location.replace("index.html");
-  }
-
-  if(time && (now - time > 30*60*1000)){
-    localStorage.clear();
-    window.location.replace("index.html");
-  }
-})();
-</script>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RO Jabalpur Dashboard</title>
-
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Segoe UI;background:#f4f6f8}
-
-.topbar{
-  background:#006400;
-  color:white;
-  text-align:center;
-  padding:12px;
-  font-weight:bold;
-}
-
-.container{padding:10px}
-
-select{
-  width:100%;
-  padding:8px;
-  margin-bottom:10px;
-  border-radius:6px;
-}
-
-.summary{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-  gap:8px;
-}
-
-.summary-card{
-  background:white;
-  padding:10px;
-  border-radius:8px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  text-align:center;
-}
-
-.section{
-  background:white;
-  margin-top:10px;
-  padding:10px;
-  border-radius:8px;
-}
-
-.section-title{
-  background:#006400;
-  color:white;
-  padding:6px;
-  text-align:center;
-  border-radius:5px;
-  margin-bottom:8px;
-}
-
-.table-wrapper{overflow:auto}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:500px;
-}
-
-th,td{
-  border:1px solid #ddd;
-  padding:6px;
-  font-size:12px;
-  text-align:center;
-}
-
-th{background:#2e7d32;color:white}
-
-.positive{color:green;font-weight:bold}
-.negative{color:red;font-weight:bold}
-.orange{color:#ff9800;font-weight:bold}
-
-.footer{text-align:center;padding:10px;font-size:11px}
-.back{display:block;text-align:center;margin:10px;color:#006400}
-</style>
-
-</head>
-
-<body>
-
-<div class="topbar">
-RO JABALPUR BUSINESS DASHBOARD (₹ Crore)
-</div>
-
-<div class="container">
-
-<div id="overallSummary"></div>
-
-<select id="branch">
-<option value="">Select Branch</option>
-</select>
-
-<div id="branchInfo"></div>
-<div id="summary"></div>
-<div id="dashboard"></div>
-
-</div>
-
-<div class="footer">Powered by IT Cell</div>
-<a href="dashboard.html" class="back">⬅ Back</a>
-
 <script>
 
 const API_URL="https://script.google.com/macros/s/AKfycbzTaMnM5Me3GitJAa3ztT8wSne5dcr__uegB-6qgwnTQRgi6hsUc_iI1i9ri6pYfrHfOw/exec";
 
-/* Convert */
-function toNumber(val){
-  if(!val) return 0;
-  return parseFloat(val.toString().replace(/,/g,"").replace("₹","")) || 0;
-}
-
-/* ================= OVERALL ================= */
+/* Overall RO Data */
 function loadOverallData(){
 
-fetch(API_URL+"?type=overallData")
-.then(res=>res.json())
-.then(data=>{
+  fetch(API_URL+"?type=overallData")
+  .then(res=>res.json())
+  .then(result=>{
 
-let advance = toNumber(data.advance ?? data[0]);
-let deposit = toNumber(data.deposit ?? data[1]);
-let npa = toNumber(data.npa ?? data[2]);
-let casa = toNumber(data.casa ?? data[3]);
+    const data = result;
 
-let total = advance + deposit;
-let cd = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
-let npaP = advance ? ((npa/advance)*100).toFixed(2) : "0.00";
-let casaP = deposit ? ((casa/deposit)*100).toFixed(2) : "0.00";
+    function toNumber(val){
+      if(!val) return 0;
+      return parseFloat(val.toString().replace(/,/g,"")) || 0;
+    }
 
-document.getElementById("overallSummary").innerHTML = `
+    let advance = toNumber(data.advance ?? data[0]);
+    let deposit = toNumber(data.deposit ?? data[1]);
+    let npa = toNumber(data.npa ?? data[2]);
+    let casa = toNumber(data.casa ?? data[3]);
+
+    let totalBusiness = advance + deposit;
+    let cdRatio = deposit ? ((advance/deposit)*100).toFixed(2) : "0.00";
+
+    let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : "0.00";
+    let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : "0.00";
+
+    document.getElementById("overallSummary").innerHTML = `
 <div class="section">
   <div class="section-title">RO TOTAL BUSINESS</div>
 
   <div class="summary">
 
     <div class="summary-card">
-      <h4>Advance</h4>
+      <h4>Total Advance</h4>
       <h2>${advance.toFixed(2)}</h2>
     </div>
 
     <div class="summary-card">
-      <h4>Deposit</h4>
+      <h4>Total Deposit</h4>
       <h2>${deposit.toFixed(2)}</h2>
     </div>
 
     <div class="summary-card">
-      <h4>Total</h4>
-      <h2>${total.toFixed(2)}</h2>
+      <h4>Total Business</h4>
+      <h2>${totalBusiness.toFixed(2)}</h2>
     </div>
 
     <div class="summary-card">
       <h4>CD Ratio</h4>
-      <h2>${cd}%</h2>
+      <h2>${cdRatio}%</h2>
     </div>
 
     <div class="summary-card">
-      <h4>NPA</h4>
+      <h4>Total NPA</h4>
       <h2>${npa.toFixed(2)}</h2>
-      <small style="color:red">${npaP}%</small>
+      <div style="font-size:11px;color:red;">
+        ${npaPercent}%
+      </div>
     </div>
 
     <div class="summary-card">
-      <h4>CASA</h4>
+      <h4>Total CASA</h4>
       <h2>${casa.toFixed(2)}</h2>
-      <small style="color:green">${casaP}%</small>
+      <div style="font-size:11px;color:#006400;">
+        ${casaPercent}%
+      </div>
     </div>
 
   </div>
-</div>
-`;
-
-});
+</div>`;
+  })
+  .catch(err=>{
+    console.log("Overall Load Error:",err);
+  });
 
 }
 
-/* ================= BRANCH LIST ================= */
+/* Growth Color Logic */
+function growthClass(value,isNPA){
+
+  if(value===null||value===undefined) return "";
+
+  let cleaned=value.toString()
+    .replace(/−/g,"-")
+    .replace(/,/g,"")
+    .replace("%","")
+    .trim();
+
+  let v=parseFloat(cleaned);
+  if(isNaN(v)) return "";
+
+  if(isNPA){
+    return v<0 ? "positive" : (v>0 ? "negative" : "");
+  }else{
+    return v>0 ? "positive" : (v<0 ? "negative" : "");
+  }
+}
+
+/* Header Formatter */
+function formatHeader(text){
+  if(!text) return "";
+  text=text.trim();
+
+  if(text.includes("Last Month")){
+    let d=text.replace("Last Month","").trim();
+    return "Last<br>Month<br><span class='header-date'>"+d+"</span>";
+  }
+  if(text.includes("Previous as on")){
+    let d=text.replace("Previous as on","").trim();
+    return "Previous<br>as on<br><span class='header-date'>"+d+"</span>";
+  }
+  if(text.includes("Current as on")){
+    let d=text.replace("Current as on","").trim();
+    return "Current<br>as on<br><span class='header-date'>"+d+"</span>";
+  }
+
+  return "<span class='header-date'>"+text+"</span>";
+}
+
+/* Load Branch Dropdown */
 function loadBranches(){
+  fetch(API_URL+"?type=branches")
+  .then(res=>res.json())
+  .then(data=>{
+    const select=document.getElementById("branch");
+    select.innerHTML='<option value="">Select Branch</option>';
 
-fetch(API_URL+"?type=branches")
-.then(res=>res.json())
-.then(data=>{
-
-let select=document.getElementById("branch");
-
-data.forEach(r=>{
-let opt=document.createElement("option");
-opt.value=r[0];
-opt.text=r[0]+" - "+r[1];
-select.appendChild(opt);
-});
-
-});
-
+    data.forEach(r=>{
+      let o=document.createElement("option");
+      o.value=r[0];
+      o.text=r[0]+" - "+r[1];
+      select.appendChild(o);
+    });
+  })
+  .catch(err=>{
+    console.log("Branch Load Error:",err);
+  });
 }
 
-/* ================= COLOR ================= */
-function growthClass(v,isNPA){
-let val=parseFloat(v);
-if(isNaN(val)) return "";
-return isNPA ? (val<0?"positive":"negative") 
-             : (val>0?"positive":"negative");
-}
-
-/* ================= TABLE ================= */
+/* Render Section */
 function renderSection(title,start,row,headers,isNPA){
 
-return `
-<div class="section">
-  <div class="section-title">${title}</div>
+  const h=headers.slice(start,start+7);
+  const d=row.slice(start,start+7);
 
-  <div class="table-wrapper">
-    <table>
-
-      <tr>
-        ${headers.slice(start,start+7).map(h=>`<th>${h}</th>`).join("")}
-      </tr>
-
-      <tr>
-        ${row.slice(start,start+7).map((v,i)=>
-          `<td class="${i>=4?growthClass(v,isNPA):""}">${v}</td>`
-        ).join("")}
-      </tr>
-
-    </table>
-  </div>
-</div>
-`;
-
+  return `
+  <div class="section">
+    <div class="section-title">${title}</div>
+    <div class="table-wrapper">
+      <table>
+        <tr>
+          <th>${formatHeader(h[0])}</th>
+          <th>${formatHeader(h[1])}</th>
+          <th>${formatHeader(h[2])}</th>
+          <th>${formatHeader(h[3])}</th>
+          <th>FTD</th>
+          <th>MTD</th>
+          <th>YTD</th>
+        </tr>
+        <tr>
+          ${d.map((v,i)=>
+            `<td class="${i>=4 ? growthClass(v,isNPA) : ''}">${v}</td>`
+          ).join("")}
+        </tr>
+      </table>
+    </div>
+  </div>`;
 }
 
-/* ================= BRANCH SELECT ================= */
+/* On Branch Select */
 document.getElementById("branch").addEventListener("change",function(){
 
-if(!this.value) return;
+  if(!this.value) return;
 
-fetch(API_URL+"?type=branchData&solid="+this.value)
-.then(res=>res.json())
-.then(result=>{
+  fetch(API_URL+"?type=branchData&solid="+this.value)
+  .then(res=>res.json())
+  .then(result=>{
 
-let row=result.row;
-let headers=result.headers;
+    const row=result.row;
+    const headers=result.headers;
 
-document.getElementById("branchInfo").innerHTML =
-`<div class="section-title">${row[0]} - ${row[1]}</div>`;
+    document.getElementById("branchInfo").innerHTML=
+      `<div class="branch-card">
+        Branch Code: ${row[0]} | Branch Name: ${row[1]}
+      </div>`;
 
-let advance=toNumber(row[5]);
-let deposit=toNumber(row[19]);
-let npa=toNumber(row[12]);
-let casa=toNumber(row[26]);
+    function toNumber(val){
+      if(!val) return 0;
+      return parseFloat(val.toString().replace(/,/g,"").replace("₹","")) || 0;
+    }
 
-let total=advance+deposit;
-let cd = deposit ? ((advance/deposit)*100).toFixed(2) : "0";
+    let advance = toNumber(row[5]);
+    let npa = toNumber(row[12]);
+    let deposit = toNumber(row[19]);
+    let casa = toNumber(row[26]);
 
-let cdClass = cd<60?"orange":cd>90?"negative":"positive";
+    let totalBusiness = advance + deposit;
+    let npaPercent = advance ? ((npa/advance)*100).toFixed(2) : 0;
+    let casaPercent = deposit ? ((casa/deposit)*100).toFixed(2) : 0;
+    let cdRatio = deposit ? ((advance / deposit) * 100).toFixed(2) : 0;
 
-document.getElementById("summary").innerHTML = `
-<div class="summary">
+    let cdClass = "";
+    if(cdRatio < 60){ cdClass = "orange"; }
+    else if(cdRatio > 90){ cdClass = "negative"; }
+    else{ cdClass = "positive"; }
 
-  <div class="summary-card">
-    <h4>Advance</h4>
-    <h2>${row[5]}</h2>
-  </div>
+    document.getElementById("summary").innerHTML=
+    `<div class="summary">
 
-  <div class="summary-card">
-    <h4>Deposit</h4>
-    <h2>${row[19]}</h2>
-  </div>
+      <div class="summary-card">
+        <h4>Advance</h4>
+        <h2>${row[5]}</h2>
+      </div>
 
-  <div class="summary-card">
-    <h4>Total</h4>
-    <h2>${total.toFixed(2)}</h2>
-  </div>
+      <div class="summary-card">
+        <h4>Deposit</h4>
+        <h2>${row[19]}</h2>
+      </div>
 
-  <div class="summary-card">
-    <h4>CD</h4>
-    <h2 class="${cdClass}">${cd}%</h2>
-  </div>
+      <div class="summary-card">
+        <h4>Total Business</h4>
+        <h2>${totalBusiness.toFixed(2)}</h2>
+      </div>
 
-  <div class="summary-card">
-    <h4>NPA</h4>
-    <h2>${row[12]}</h2>
-  </div>
+      <div class="summary-card">
+        <h4>CD Ratio</h4>
+        <h2 class="${cdClass}">${cdRatio}%</h2>
+      </div>
 
-  <div class="summary-card">
-    <h4>CASA</h4>
-    <h2>${row[26]}</h2>
-  </div>
+      <div class="summary-card">
+        <h4>NPA</h4>
+        <h2>${row[12]}</h2>
+        <div style="font-size:11px;color:red;">
+          ${npaPercent}%
+        </div>
+      </div>
 
-</div>
-`;
+      <div class="summary-card">
+        <h4>CASA</h4>
+        <h2>${row[26]}</h2>
+        <div style="font-size:11px;color:#006400;">
+          ${casaPercent}%
+        </div>
+      </div>
 
-let html="";
-html+=renderSection("ADVANCE",2,row,headers,false);
-html+=renderSection("NPA",9,row,headers,true);
-html+=renderSection("DEPOSIT",16,row,headers,false);
-html+=renderSection("CASA",23,row,headers,false);
+    </div>`;
 
-document.getElementById("dashboard").innerHTML=html;
+    let html="";
+    html+=renderSection("ADVANCE",2,row,headers,false);
+    html+=renderSection("NPA",9,row,headers,true);
+    html+=renderSection("DEPOSIT",16,row,headers,false);
+    html+=renderSection("CASA",23,row,headers,false);
+
+    document.getElementById("dashboard").innerHTML=html;
+
+  })
+  .catch(err=>{
+    console.log("Branch Data Error:",err);
+  });
 
 });
 
-});
-
-/* ================= INIT ================= */
-loadOverallData();
+/* INIT */
 loadBranches();
+loadOverallData();
 
 </script>
-
-</body>
-</html>
