@@ -6,77 +6,81 @@
 <style>
 body {
   font-family: Arial;
-  padding:20px;
+  padding:10px;
   background:#ffffff;
 }
 
 h2 {
   text-align:center;
   color:#003366;
-  margin-bottom:20px;
+  font-size:clamp(18px,2.5vw,28px);
 }
 
 select {
-  padding:6px;
+  padding:8px;
+  font-size:clamp(14px,2vw,18px);
   margin-bottom:15px;
 }
 
-/* 🔥 Excel Style Table */
 table {
   border-collapse:collapse;
+  width:100%;
   margin:auto;
 }
 
 th, td {
   border:2px solid #000;
-  padding:8px;
+  padding:clamp(6px,1vw,12px);
+  font-size:clamp(12px,1.8vw,18px);
   text-align:center;
-  font-size:13px;
 }
 
 th {
   background:#d9d9d9;
-  font-weight:bold;
 }
 
-.container {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+.block {
+  margin-top:20px;
 }
 
+@media(max-width:768px){
+  table { display:block; overflow-x:auto; }
+}
 </style>
+
 </head>
 
 <body>
 
 <h2>SOL BIMA AND PMJDY ACCOUNT OPENING</h2>
 
-<div style="text-align:center;">
-  <label><b>Select SOL:</b></label>
-  <select id="solFilter">
-    <option value="all">Select SOL</option>
-  </select>
-</div>
+<label><b>Select SOL:</b></label>
+<select id="solFilter">
+<option value="all">All</option>
+</select>
 
-<div id="content" class="container"></div>
+<div id="content"></div>
 
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycby99J4qAjuTZUBES2ynKHF9xsTgGghLsu8wU5pyvawXjr-phb_l7eYFd9ApHcxT2YTwUw/exec";
 
 let fullData = [];
+let headerData = {};
 
 fetch(API_URL)
 .then(res => res.json())
 .then(res => {
 
   fullData = res.data;
+  headerData = res.header;
+
   loadSOL(fullData);
+  renderAll(fullData);
 
 });
 
-// 🔹 Dropdown
+// 🔹 Dropdown load
 function loadSOL(data){
   let set = new Set();
   data.forEach(d => set.add(d.sol));
@@ -88,82 +92,58 @@ function loadSOL(data){
   });
 }
 
-// 🔹 Change Event
+// 🔹 Filter change
 document.getElementById("solFilter").addEventListener("change", function(){
 
   let val = this.value;
 
-  if(val === "all") return;
-
-  fetch(API_URL)
-  .then(res => res.json())
-  .then(res => {
-
-    let d = fullData.find(x => x.sol == val);
-    renderExcelView(d, res.header);
-
-  });
+  if(val === "all"){
+    renderAll(fullData);
+  } else {
+    let filtered = fullData.filter(d => d.sol == val);
+    renderSplit(filtered);
+  }
 
 });
 
-// 🔥 EXACT EXCEL VIEW
-function renderExcelView(d, header){
+// 🔹 ALL → TABLE VIEW
+function renderAll(data){
 
-  let html = `
+  let html = `<table>
+  <tr>
+    <th rowspan="2">SOL ID</th>
+    <th rowspan="2">BRANCH</th>
+    <th colspan="6">${headerData.account}</th>
+    <th rowspan="2">PMJDY AC</th>
+    <th colspan="4">${headerData.targetApr}</th>
+    <th colspan="4">Target March-27</th>
+  </tr>
 
-  <!-- TOP TABLE -->
-  <table>
-    <tr>
-      <th rowspan="2">SOL ID</th>
-      <th rowspan="2">BRANCH</th>
-      <th colspan="6">${header.account}</th>
-      <th rowspan="2">PMJDY AC</th>
-    </tr>
+  <tr>
+    <th>SBY</th><th>SBY AMT</th>
+    <th>JJBY</th><th>JJBY AMT</th>
+    <th>APY</th><th>APY AMT</th>
 
-    <tr>
-      <th>SBY BIMA COUNT</th>
-      <th>SBY BIMA AMOUNT</th>
-      <th>JJBY BIMA COUNT</th>
-      <th>JJBY BIMA AMOUNT</th>
-      <th>APY BIMA COUNT</th>
-      <th>APY BIMA AMOUNT</th>
-    </tr>
+    <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+    <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+  </tr>`;
 
-    <tr>
+  data.forEach(d => {
+    html += `<tr>
       <td>${d.sol}</td>
       <td>${d.branch}</td>
+
       <td>${d.sby_count}</td>
       <td>${d.sby_amount}</td>
+
       <td>${d.jjby_count}</td>
       <td>${d.jjby_amount}</td>
+
       <td>${d.apy_count}</td>
       <td>${d.apy_amount}</td>
+
       <td>${d.pmjdy}</td>
-    </tr>
-  </table>
 
-  <br>
-
-  <!-- TARGET TABLE -->
-  <table>
-    <tr>
-      <th colspan="4">${header.targetApr}</th>
-      <th colspan="4">Target March-27</th>
-    </tr>
-
-    <tr>
-      <th>JJBY</th>
-      <th>SBY</th>
-      <th>APY</th>
-      <th>PMJDY</th>
-
-      <th>JJBY</th>
-      <th>SBY</th>
-      <th>APY</th>
-      <th>PMJDY</th>
-    </tr>
-
-    <tr>
       <td>${d.target_apr_jjby}</td>
       <td>${d.target_apr_sby}</td>
       <td>${d.target_apr_apy}</td>
@@ -173,9 +153,77 @@ function renderExcelView(d, header){
       <td>${d.target_mar_sby}</td>
       <td>${d.target_mar_apy}</td>
       <td>${d.target_mar_pmjdy}</td>
-    </tr>
-  </table>
-  `;
+    </tr>`;
+  });
+
+  html += `</table>`;
+
+  document.getElementById("content").innerHTML = html;
+
+}
+
+// 🔥 SPLIT VIEW (BRANCH WISE)
+function renderSplit(data){
+
+  let html = "";
+
+  data.forEach(d => {
+
+    html += `
+
+    <table class="block">
+      <tr>
+        <th rowspan="2">SOL ID</th>
+        <th rowspan="2">BRANCH</th>
+        <th colspan="6">${headerData.account}</th>
+        <th rowspan="2">PMJDY</th>
+      </tr>
+
+      <tr>
+        <th>SBY</th><th>SBY AMT</th>
+        <th>JJBY</th><th>JJBY AMT</th>
+        <th>APY</th><th>APY AMT</th>
+      </tr>
+
+      <tr>
+        <td>${d.sol}</td>
+        <td>${d.branch}</td>
+        <td>${d.sby_count}</td>
+        <td>${d.sby_amount}</td>
+        <td>${d.jjby_count}</td>
+        <td>${d.jjby_amount}</td>
+        <td>${d.apy_count}</td>
+        <td>${d.apy_amount}</td>
+        <td>${d.pmjdy}</td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <th colspan="4">${headerData.targetApr}</th>
+        <th colspan="4">Target March-27</th>
+      </tr>
+
+      <tr>
+        <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+        <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+      </tr>
+
+      <tr>
+        <td>${d.target_apr_jjby}</td>
+        <td>${d.target_apr_sby}</td>
+        <td>${d.target_apr_apy}</td>
+        <td>${d.target_apr_pmjdy}</td>
+
+        <td>${d.target_mar_jjby}</td>
+        <td>${d.target_mar_sby}</td>
+        <td>${d.target_mar_apy}</td>
+        <td>${d.target_mar_pmjdy}</td>
+      </tr>
+    </table>
+
+    `;
+  });
 
   document.getElementById("content").innerHTML = html;
 
