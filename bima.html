@@ -6,16 +6,9 @@
 <style>
 body { font-family: Arial; padding:20px; background:#f4f7fb; }
 
-h2 {
-  text-align:center;
-  color:#003366;
-}
+h2 { text-align:center; color:#003366; }
 
-select {
-  padding:6px;
-  font-size:14px;
-  margin:10px 0;
-}
+select { padding:6px; margin:10px 0; }
 
 table {
   width:100%;
@@ -29,15 +22,7 @@ th, td {
   text-align:center;
 }
 
-th {
-  background:#003366;
-  color:white;
-}
-
-/* Mobile improve */
-@media(max-width:768px){
-  table { font-size:11px; }
-}
+th { background:#003366; color:white; }
 
 </style>
 </head>
@@ -46,54 +31,16 @@ th {
 
 <h2>SOL BIMA AND PMJDY ACCOUNT OPENING</h2>
 
-<!-- 🔥 SOL FILTER -->
 <div>
-  <label><b>Select SOL:</b></label>
-  <select id="solFilter">
-    <option value="all">All</option>
-  </select>
+<label><b>Select SOL:</b></label>
+<select id="solFilter">
+<option value="all">All</option>
+</select>
 </div>
 
 <table id="table">
-
-<thead>
-
-<tr>
-<th rowspan="2">SOL ID</th>
-<th rowspan="2">BRANCH</th>
-
-<th colspan="6" id="accountHeader">Loading...</th>
-
-<th rowspan="2">PMJDY AC</th>
-
-<th colspan="4" id="targetAprHeader">Loading...</th>
-
-<th colspan="4">Target March-27</th>
-</tr>
-
-<tr>
-<th>SBY COUNT</th>
-<th>SBY AMOUNT</th>
-<th>JJBY COUNT</th>
-<th>JJBY AMOUNT</th>
-<th>APY COUNT</th>
-<th>APY AMOUNT</th>
-
-<th>JJBY</th>
-<th>SBY</th>
-<th>APY</th>
-<th>PMJDY</th>
-
-<th>JJBY</th>
-<th>SBY</th>
-<th>APY</th>
-<th>PMJDY</th>
-</tr>
-
-</thead>
-
+<thead id="thead"></thead>
 <tbody></tbody>
-
 </table>
 
 <script>
@@ -102,25 +49,21 @@ const API_URL = "https://script.google.com/macros/s/AKfycby99J4qAjuTZUBES2ynKHF9
 
 let fullData = [];
 
-// 🔥 Fetch Data
 fetch(API_URL)
 .then(res => res.json())
 .then(res => {
 
-  document.getElementById("accountHeader").innerText = res.header.account;
-  document.getElementById("targetAprHeader").innerText = res.header.targetApr;
-
   fullData = res.data;
 
   loadSOL(fullData);
+  renderAllHeader(res.header);
   renderTable(fullData);
 
 });
 
-// 🔥 Load SOL Dropdown
+// 🔹 Load dropdown
 function loadSOL(data){
   let set = new Set();
-
   data.forEach(d => set.add(d.sol));
 
   let dropdown = document.getElementById("solFilter");
@@ -130,21 +73,65 @@ function loadSOL(data){
   });
 }
 
-// 🔥 Filter Event
+// 🔹 FULL HEADER (ALL MODE)
+function renderAllHeader(header){
+
+  document.getElementById("thead").innerHTML = `
+  <tr>
+    <th rowspan="2">SOL</th>
+    <th rowspan="2">Branch</th>
+    <th colspan="6">${header.account}</th>
+    <th rowspan="2">PMJDY</th>
+    <th colspan="4">${header.targetApr}</th>
+    <th colspan="4">Target March-27</th>
+  </tr>
+
+  <tr>
+    <th>SBY</th><th>SBY Amt</th>
+    <th>JJBY</th><th>JJBY Amt</th>
+    <th>APY</th><th>APY Amt</th>
+
+    <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+
+    <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+  </tr>`;
+}
+
+// 🔥 SINGLE HEADER (SPLIT MODE)
+function renderSingleHeader(){
+
+  document.getElementById("thead").innerHTML = `
+  <tr>
+    <th>SOL</th>
+    <th>Branch</th>
+    <th>SBY</th>
+    <th>JJBY</th>
+    <th>APY</th>
+    <th>PMJDY</th>
+  </tr>
+
+  <tr>
+    <th colspan="6">TARGET DETAILS BELOW</th>
+  </tr>`;
+}
+
+// 🔹 Filter change
 document.getElementById("solFilter").addEventListener("change", function(){
 
   let val = this.value;
 
   if(val === "all"){
+    renderAllHeader({account:"",targetApr:""});
     renderTable(fullData);
   } else {
     let filtered = fullData.filter(d => d.sol == val);
+    renderSingleHeader();
     renderTable(filtered);
   }
 
 });
 
-// 🔥 Render Table (UPDATED)
+// 🔹 Table render
 function renderTable(data){
 
   let tbody = document.querySelector("#table tbody");
@@ -154,59 +141,47 @@ function renderTable(data){
 
   data.forEach(d => {
 
-    // ✅ ALL MODE
     if(selectedSOL === "all"){
 
-      let row = `<tr>
+      tbody.innerHTML += `<tr>
         <td>${d.sol}</td>
         <td>${d.branch}</td>
-
         <td>${d.sby_count}</td>
         <td>${d.sby_amount}</td>
-
         <td>${d.jjby_count}</td>
         <td>${d.jjby_amount}</td>
-
         <td>${d.apy_count}</td>
         <td>${d.apy_amount}</td>
-
         <td>${d.pmjdy}</td>
-
         <td>${d.target_apr_jjby}</td>
         <td>${d.target_apr_sby}</td>
         <td>${d.target_apr_apy}</td>
         <td>${d.target_apr_pmjdy}</td>
-
         <td>${d.target_mar_jjby}</td>
         <td>${d.target_mar_sby}</td>
         <td>${d.target_mar_apy}</td>
         <td>${d.target_mar_pmjdy}</td>
       </tr>`;
 
-      tbody.innerHTML += row;
+    } else {
 
-    }
-
-    // 🔥 SINGLE SOL → MOBILE FRIENDLY
-    else{
-
-      let row1 = `<tr style="background:#eef6ff; font-weight:bold;">
+      tbody.innerHTML += `
+      <tr style="background:#eef6ff;">
         <td>${d.sol}</td>
         <td>${d.branch}</td>
-        <td colspan="6">SBY: ${d.sby_count} (${d.sby_amount}) | JJBY: ${d.jjby_count} (${d.jjby_amount})</td>
+        <td>${d.sby_count}</td>
+        <td>${d.jjby_count}</td>
+        <td>${d.apy_count}</td>
         <td>${d.pmjdy}</td>
-        <td colspan="8">APR → JJBY: ${d.target_apr_jjby}, SBY: ${d.target_apr_sby}, APY: ${d.target_apr_apy}, PMJDY: ${d.target_apr_pmjdy}</td>
+      </tr>
+
+      <tr style="background:#f9fbff;">
+        <td colspan="6">
+          APR → JJBY:${d.target_apr_jjby}, SBY:${d.target_apr_sby}, APY:${d.target_apr_apy}, PMJDY:${d.target_apr_pmjdy}
+          <br>
+          MAR → JJBY:${d.target_mar_jjby}, SBY:${d.target_mar_sby}, APY:${d.target_mar_apy}, PMJDY:${d.target_mar_pmjdy}
+        </td>
       </tr>`;
-
-      let row2 = `<tr style="background:#f9fbff;">
-        <td colspan="2"></td>
-        <td colspan="6">APY: ${d.apy_count} (${d.apy_amount})</td>
-        <td></td>
-        <td colspan="8">MAR → JJBY: ${d.target_mar_jjby}, SBY: ${d.target_mar_sby}, APY: ${d.target_mar_apy}, PMJDY: ${d.target_mar_pmjdy}</td>
-      </tr>`;
-
-      tbody.innerHTML += row1 + row2;
-
     }
 
   });
