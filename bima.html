@@ -4,25 +4,46 @@
 <title>SOL Dashboard</title>
 
 <style>
-body { font-family: Arial; padding:20px; background:#f4f7fb; }
+body {
+  font-family: Arial;
+  padding:20px;
+  background:#ffffff;
+}
 
-h2 { text-align:center; color:#003366; }
+h2 {
+  text-align:center;
+  color:#003366;
+  margin-bottom:20px;
+}
 
-select { padding:6px; margin:10px 0; }
+select {
+  padding:6px;
+  margin-bottom:15px;
+}
 
+/* 🔥 Excel Style Table */
 table {
-  width:100%;
   border-collapse:collapse;
-  font-size:12px;
+  margin:auto;
 }
 
 th, td {
-  border:1px solid #ccc;
-  padding:6px;
+  border:2px solid #000;
+  padding:8px;
   text-align:center;
+  font-size:13px;
 }
 
-th { background:#003366; color:white; }
+th {
+  background:#d9d9d9;
+  font-weight:bold;
+}
+
+.container {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
 
 </style>
 </head>
@@ -31,17 +52,14 @@ th { background:#003366; color:white; }
 
 <h2>SOL BIMA AND PMJDY ACCOUNT OPENING</h2>
 
-<div>
-<label><b>Select SOL:</b></label>
-<select id="solFilter">
-<option value="all">All</option>
-</select>
+<div style="text-align:center;">
+  <label><b>Select SOL:</b></label>
+  <select id="solFilter">
+    <option value="all">Select SOL</option>
+  </select>
 </div>
 
-<table id="table">
-<thead id="thead"></thead>
-<tbody></tbody>
-</table>
+<div id="content" class="container"></div>
 
 <script>
 
@@ -54,14 +72,11 @@ fetch(API_URL)
 .then(res => {
 
   fullData = res.data;
-
   loadSOL(fullData);
-  renderAllHeader(res.header);
-  renderTable(fullData);
 
 });
 
-// 🔹 Load dropdown
+// 🔹 Dropdown
 function loadSOL(data){
   let set = new Set();
   data.forEach(d => set.add(d.sol));
@@ -73,118 +88,96 @@ function loadSOL(data){
   });
 }
 
-// 🔹 FULL HEADER (ALL MODE)
-function renderAllHeader(header){
-
-  document.getElementById("thead").innerHTML = `
-  <tr>
-    <th rowspan="2">SOL</th>
-    <th rowspan="2">Branch</th>
-    <th colspan="6">${header.account}</th>
-    <th rowspan="2">PMJDY</th>
-    <th colspan="4">${header.targetApr}</th>
-    <th colspan="4">Target March-27</th>
-  </tr>
-
-  <tr>
-    <th>SBY</th><th>SBY Amt</th>
-    <th>JJBY</th><th>JJBY Amt</th>
-    <th>APY</th><th>APY Amt</th>
-
-    <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
-
-    <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
-  </tr>`;
-}
-
-// 🔥 SINGLE HEADER (SPLIT MODE)
-function renderSingleHeader(){
-
-  document.getElementById("thead").innerHTML = `
-  <tr>
-    <th>SOL</th>
-    <th>Branch</th>
-    <th>SBY</th>
-    <th>JJBY</th>
-    <th>APY</th>
-    <th>PMJDY</th>
-  </tr>
-
-  <tr>
-    <th colspan="6">TARGET DETAILS BELOW</th>
-  </tr>`;
-}
-
-// 🔹 Filter change
+// 🔹 Change Event
 document.getElementById("solFilter").addEventListener("change", function(){
 
   let val = this.value;
 
-  if(val === "all"){
-    renderAllHeader({account:"",targetApr:""});
-    renderTable(fullData);
-  } else {
-    let filtered = fullData.filter(d => d.sol == val);
-    renderSingleHeader();
-    renderTable(filtered);
-  }
+  if(val === "all") return;
+
+  fetch(API_URL)
+  .then(res => res.json())
+  .then(res => {
+
+    let d = fullData.find(x => x.sol == val);
+    renderExcelView(d, res.header);
+
+  });
 
 });
 
-// 🔹 Table render
-function renderTable(data){
+// 🔥 EXACT EXCEL VIEW
+function renderExcelView(d, header){
 
-  let tbody = document.querySelector("#table tbody");
-  tbody.innerHTML = "";
+  let html = `
 
-  let selectedSOL = document.getElementById("solFilter").value;
+  <!-- TOP TABLE -->
+  <table>
+    <tr>
+      <th rowspan="2">SOL ID</th>
+      <th rowspan="2">BRANCH</th>
+      <th colspan="6">${header.account}</th>
+      <th rowspan="2">PMJDY AC</th>
+    </tr>
 
-  data.forEach(d => {
+    <tr>
+      <th>SBY BIMA COUNT</th>
+      <th>SBY BIMA AMOUNT</th>
+      <th>JJBY BIMA COUNT</th>
+      <th>JJBY BIMA AMOUNT</th>
+      <th>APY BIMA COUNT</th>
+      <th>APY BIMA AMOUNT</th>
+    </tr>
 
-    if(selectedSOL === "all"){
+    <tr>
+      <td>${d.sol}</td>
+      <td>${d.branch}</td>
+      <td>${d.sby_count}</td>
+      <td>${d.sby_amount}</td>
+      <td>${d.jjby_count}</td>
+      <td>${d.jjby_amount}</td>
+      <td>${d.apy_count}</td>
+      <td>${d.apy_amount}</td>
+      <td>${d.pmjdy}</td>
+    </tr>
+  </table>
 
-      tbody.innerHTML += `<tr>
-        <td>${d.sol}</td>
-        <td>${d.branch}</td>
-        <td>${d.sby_count}</td>
-        <td>${d.sby_amount}</td>
-        <td>${d.jjby_count}</td>
-        <td>${d.jjby_amount}</td>
-        <td>${d.apy_count}</td>
-        <td>${d.apy_amount}</td>
-        <td>${d.pmjdy}</td>
-        <td>${d.target_apr_jjby}</td>
-        <td>${d.target_apr_sby}</td>
-        <td>${d.target_apr_apy}</td>
-        <td>${d.target_apr_pmjdy}</td>
-        <td>${d.target_mar_jjby}</td>
-        <td>${d.target_mar_sby}</td>
-        <td>${d.target_mar_apy}</td>
-        <td>${d.target_mar_pmjdy}</td>
-      </tr>`;
+  <br>
 
-    } else {
+  <!-- TARGET TABLE -->
+  <table>
+    <tr>
+      <th colspan="4">${header.targetApr}</th>
+      <th colspan="4">Target March-27</th>
+    </tr>
 
-      tbody.innerHTML += `
-      <tr style="background:#eef6ff;">
-        <td>${d.sol}</td>
-        <td>${d.branch}</td>
-        <td>${d.sby_count}</td>
-        <td>${d.jjby_count}</td>
-        <td>${d.apy_count}</td>
-        <td>${d.pmjdy}</td>
-      </tr>
+    <tr>
+      <th>JJBY</th>
+      <th>SBY</th>
+      <th>APY</th>
+      <th>PMJDY</th>
 
-      <tr style="background:#f9fbff;">
-        <td colspan="6">
-          APR → JJBY:${d.target_apr_jjby}, SBY:${d.target_apr_sby}, APY:${d.target_apr_apy}, PMJDY:${d.target_apr_pmjdy}
-          <br>
-          MAR → JJBY:${d.target_mar_jjby}, SBY:${d.target_mar_sby}, APY:${d.target_mar_apy}, PMJDY:${d.target_mar_pmjdy}
-        </td>
-      </tr>`;
-    }
+      <th>JJBY</th>
+      <th>SBY</th>
+      <th>APY</th>
+      <th>PMJDY</th>
+    </tr>
 
-  });
+    <tr>
+      <td>${d.target_apr_jjby}</td>
+      <td>${d.target_apr_sby}</td>
+      <td>${d.target_apr_apy}</td>
+      <td>${d.target_apr_pmjdy}</td>
+
+      <td>${d.target_mar_jjby}</td>
+      <td>${d.target_mar_sby}</td>
+      <td>${d.target_mar_apy}</td>
+      <td>${d.target_mar_pmjdy}</td>
+    </tr>
+  </table>
+  `;
+
+  document.getElementById("content").innerHTML = html;
 
 }
 
