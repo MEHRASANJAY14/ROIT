@@ -34,8 +34,10 @@ th {
   color:white;
 }
 
-.low { background:#ffcccc; }
-.good { background:#ccffcc; }
+/* Mobile improve */
+@media(max-width:768px){
+  table { font-size:11px; }
+}
 
 </style>
 </head>
@@ -105,7 +107,6 @@ fetch(API_URL)
 .then(res => res.json())
 .then(res => {
 
-  // ✅ Dynamic Headers
   document.getElementById("accountHeader").innerText = res.header.account;
   document.getElementById("targetAprHeader").innerText = res.header.targetApr;
 
@@ -143,41 +144,70 @@ document.getElementById("solFilter").addEventListener("change", function(){
 
 });
 
-// 🔥 Render Table
+// 🔥 Render Table (UPDATED)
 function renderTable(data){
 
   let tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
 
+  let selectedSOL = document.getElementById("solFilter").value;
+
   data.forEach(d => {
 
-    let row = `<tr>
-      <td>${d.sol}</td>
-      <td>${d.branch}</td>
+    // ✅ ALL MODE
+    if(selectedSOL === "all"){
 
-      <td>${d.sby_count}</td>
-      <td>${d.sby_amount}</td>
+      let row = `<tr>
+        <td>${d.sol}</td>
+        <td>${d.branch}</td>
 
-      <td>${d.jjby_count}</td>
-      <td>${d.jjby_amount}</td>
+        <td>${d.sby_count}</td>
+        <td>${d.sby_amount}</td>
 
-      <td>${d.apy_count}</td>
-      <td>${d.apy_amount}</td>
+        <td>${d.jjby_count}</td>
+        <td>${d.jjby_amount}</td>
 
-      <td>${d.pmjdy}</td>
+        <td>${d.apy_count}</td>
+        <td>${d.apy_amount}</td>
 
-      <td>${d.target_apr_jjby}</td>
-      <td>${d.target_apr_sby}</td>
-      <td>${d.target_apr_apy}</td>
-      <td>${d.target_apr_pmjdy}</td>
+        <td>${d.pmjdy}</td>
 
-      <td>${d.target_mar_jjby}</td>
-      <td>${d.target_mar_sby}</td>
-      <td>${d.target_mar_apy}</td>
-      <td>${d.target_mar_pmjdy}</td>
-    </tr>`;
+        <td>${d.target_apr_jjby}</td>
+        <td>${d.target_apr_sby}</td>
+        <td>${d.target_apr_apy}</td>
+        <td>${d.target_apr_pmjdy}</td>
 
-    tbody.innerHTML += row;
+        <td>${d.target_mar_jjby}</td>
+        <td>${d.target_mar_sby}</td>
+        <td>${d.target_mar_apy}</td>
+        <td>${d.target_mar_pmjdy}</td>
+      </tr>`;
+
+      tbody.innerHTML += row;
+
+    }
+
+    // 🔥 SINGLE SOL → MOBILE FRIENDLY
+    else{
+
+      let row1 = `<tr style="background:#eef6ff; font-weight:bold;">
+        <td>${d.sol}</td>
+        <td>${d.branch}</td>
+        <td colspan="6">SBY: ${d.sby_count} (${d.sby_amount}) | JJBY: ${d.jjby_count} (${d.jjby_amount})</td>
+        <td>${d.pmjdy}</td>
+        <td colspan="8">APR → JJBY: ${d.target_apr_jjby}, SBY: ${d.target_apr_sby}, APY: ${d.target_apr_apy}, PMJDY: ${d.target_apr_pmjdy}</td>
+      </tr>`;
+
+      let row2 = `<tr style="background:#f9fbff;">
+        <td colspan="2"></td>
+        <td colspan="6">APY: ${d.apy_count} (${d.apy_amount})</td>
+        <td></td>
+        <td colspan="8">MAR → JJBY: ${d.target_mar_jjby}, SBY: ${d.target_mar_sby}, APY: ${d.target_mar_apy}, PMJDY: ${d.target_mar_pmjdy}</td>
+      </tr>`;
+
+      tbody.innerHTML += row1 + row2;
+
+    }
 
   });
 
