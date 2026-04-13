@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SOL BIMA Dashboard</title>
+
+<style>
+body { font-family: Arial; padding:20px; background:#f4f7fb; }
+
+h2 {
+  text-align:center;
+  color:#003366;
+  margin-bottom:20px;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+th, td {
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:center;
+}
+
+th {
+  background:#003366;
+  color:white;
+}
+
+.low { background:#ffcccc; }
+.good { background:#ccffcc; }
+
+</style>
+</head>
+
+<body>
+
+<h2>SOL BIMA AND PMJDY ACCOUNT OPENING</h2>
+
+<table id="table">
+
+<thead>
+
+<tr>
+<th rowspan="2">SOL ID</th>
+<th rowspan="2">BRANCH</th>
+
+<!-- ✅ Dynamic -->
+<th colspan="6" id="accountHeader">Loading...</th>
+
+<th rowspan="2">PMJDY AC</th>
+
+<!-- ✅ Dynamic -->
+<th colspan="4" id="targetAprHeader">Loading...</th>
+
+<!-- ❌ Static -->
+<th colspan="4">Target March-27</th>
+</tr>
+
+<tr>
+<th>SBY COUNT</th>
+<th>SBY AMOUNT</th>
+<th>JJBY COUNT</th>
+<th>JJBY AMOUNT</th>
+<th>APY COUNT</th>
+<th>APY AMOUNT</th>
+
+<th>JJBY</th>
+<th>SBY</th>
+<th>APY</th>
+<th>PMJDY</th>
+
+<th>JJBY</th>
+<th>SBY</th>
+<th>APY</th>
+<th>PMJDY</th>
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycby99J4qAjuTZUBES2ynKHF9xsTgGghLsu8wU5pyvawXjr-phb_l7eYFd9ApHcxT2YTwUw/exec";
+
+fetch(API_URL)
+.then(res => res.json())
+.then(res => {
+
+  // ✅ Dynamic Headers
+  document.getElementById("accountHeader").innerText = res.header.account;
+  document.getElementById("targetAprHeader").innerText = res.header.targetApr;
+
+  let data = res.data;
+  let tbody = document.querySelector("#table tbody");
+
+  data.forEach(d => {
+
+    let row = `<tr>
+      <td>${d.sol}</td>
+      <td>${d.branch}</td>
+
+      <td>${d.sby_count}</td>
+      <td>${d.sby_amount}</td>
+
+      <td>${d.jjby_count}</td>
+      <td>${d.jjby_amount}</td>
+
+      <td>${d.apy_count}</td>
+      <td>${d.apy_amount}</td>
+
+      <td>${d.pmjdy}</td>
+
+      <td>${d.target_apr_jjby}</td>
+      <td>${d.target_apr_sby}</td>
+      <td>${d.target_apr_apy}</td>
+      <td>${d.target_apr_pmjdy}</td>
+
+      <td>${d.target_mar_jjby}</td>
+      <td>${d.target_mar_sby}</td>
+      <td>${d.target_mar_apy}</td>
+      <td>${d.target_mar_pmjdy}</td>
+    </tr>`;
+
+    tbody.innerHTML += row;
+
+  });
+
+});
+
+</script>
+
+</body>
+</html>
