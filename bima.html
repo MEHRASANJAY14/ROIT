@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SOL BIMA Dashboard</title>
+<title>SOL Dashboard</title>
 
 <style>
 body { font-family: Arial; padding:20px; background:#f4f7fb; }
@@ -9,7 +9,12 @@ body { font-family: Arial; padding:20px; background:#f4f7fb; }
 h2 {
   text-align:center;
   color:#003366;
-  margin-bottom:20px;
+}
+
+select {
+  padding:6px;
+  font-size:14px;
+  margin:10px 0;
 }
 
 table {
@@ -39,6 +44,14 @@ th {
 
 <h2>SOL BIMA AND PMJDY ACCOUNT OPENING</h2>
 
+<!-- 🔥 SOL FILTER -->
+<div>
+  <label><b>Select SOL:</b></label>
+  <select id="solFilter">
+    <option value="all">All</option>
+  </select>
+</div>
+
 <table id="table">
 
 <thead>
@@ -47,15 +60,12 @@ th {
 <th rowspan="2">SOL ID</th>
 <th rowspan="2">BRANCH</th>
 
-<!-- ✅ Dynamic -->
 <th colspan="6" id="accountHeader">Loading...</th>
 
 <th rowspan="2">PMJDY AC</th>
 
-<!-- ✅ Dynamic -->
 <th colspan="4" id="targetAprHeader">Loading...</th>
 
-<!-- ❌ Static -->
 <th colspan="4">Target March-27</th>
 </tr>
 
@@ -88,6 +98,9 @@ th {
 
 const API_URL = "https://script.google.com/macros/s/AKfycby99J4qAjuTZUBES2ynKHF9xsTgGghLsu8wU5pyvawXjr-phb_l7eYFd9ApHcxT2YTwUw/exec";
 
+let fullData = [];
+
+// 🔥 Fetch Data
 fetch(API_URL)
 .then(res => res.json())
 .then(res => {
@@ -96,8 +109,45 @@ fetch(API_URL)
   document.getElementById("accountHeader").innerText = res.header.account;
   document.getElementById("targetAprHeader").innerText = res.header.targetApr;
 
-  let data = res.data;
+  fullData = res.data;
+
+  loadSOL(fullData);
+  renderTable(fullData);
+
+});
+
+// 🔥 Load SOL Dropdown
+function loadSOL(data){
+  let set = new Set();
+
+  data.forEach(d => set.add(d.sol));
+
+  let dropdown = document.getElementById("solFilter");
+
+  set.forEach(sol => {
+    dropdown.innerHTML += `<option value="${sol}">${sol}</option>`;
+  });
+}
+
+// 🔥 Filter Event
+document.getElementById("solFilter").addEventListener("change", function(){
+
+  let val = this.value;
+
+  if(val === "all"){
+    renderTable(fullData);
+  } else {
+    let filtered = fullData.filter(d => d.sol == val);
+    renderTable(filtered);
+  }
+
+});
+
+// 🔥 Render Table
+function renderTable(data){
+
   let tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
 
   data.forEach(d => {
 
@@ -131,7 +181,7 @@ fetch(API_URL)
 
   });
 
-});
+}
 
 </script>
 
