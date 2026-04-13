@@ -4,24 +4,30 @@
 <title>SOL Dashboard</title>
 
 <style>
+
 body {
   font-family: Arial;
   padding:10px;
   background:#ffffff;
 }
 
+/* 🔥 BIG HEADING */
 h2 {
   text-align:center;
   color:#003366;
-  font-size:clamp(18px,2.5vw,28px);
+  font-size:clamp(22px,3vw,36px);
+  font-weight:bold;
+  margin-bottom:20px;
 }
 
+/* 🔥 BIG DROPDOWN */
 select {
-  padding:8px;
-  font-size:clamp(14px,2vw,18px);
-  margin-bottom:15px;
+  padding:10px;
+  font-size:clamp(16px,2.5vw,22px);
+  margin-bottom:20px;
 }
 
+/* 🔥 TABLE */
 table {
   border-collapse:collapse;
   width:100%;
@@ -30,8 +36,8 @@ table {
 
 th, td {
   border:2px solid #000;
-  padding:clamp(6px,1vw,12px);
-  font-size:clamp(12px,1.8vw,18px);
+  padding:10px;
+  font-size:clamp(14px,1.8vw,18px);
   text-align:center;
 }
 
@@ -39,13 +45,17 @@ th {
   background:#d9d9d9;
 }
 
-.block {
-  margin-top:20px;
+/* 🔥 SPLIT VIEW BIG FONT */
+.split th, .split td {
+  font-size:clamp(16px,2.5vw,22px);
+  padding:12px;
 }
 
+/* 🔥 MOBILE OPTIMIZATION */
 @media(max-width:768px){
   table { display:block; overflow-x:auto; }
 }
+
 </style>
 
 </head>
@@ -54,7 +64,7 @@ th {
 
 <h2>SOL BIMA AND PMJDY ACCOUNT OPENING</h2>
 
-<label><b>Select SOL:</b></label>
+<label><b style="font-size:18px;">Select SOL:</b></label>
 <select id="solFilter">
 <option value="all">All</option>
 </select>
@@ -80,7 +90,7 @@ fetch(API_URL)
 
 });
 
-// 🔹 Dropdown load
+// 🔹 Load dropdown
 function loadSOL(data){
   let set = new Set();
   data.forEach(d => set.add(d.sol));
@@ -92,7 +102,7 @@ function loadSOL(data){
   });
 }
 
-// 🔹 Filter change
+// 🔹 Change event
 document.getElementById("solFilter").addEventListener("change", function(){
 
   let val = this.value;
@@ -106,7 +116,7 @@ document.getElementById("solFilter").addEventListener("change", function(){
 
 });
 
-// 🔹 ALL → TABLE VIEW
+// 🔹 ALL VIEW
 function renderAll(data){
 
   let html = `<table>
@@ -132,23 +142,17 @@ function renderAll(data){
     html += `<tr>
       <td>${d.sol}</td>
       <td>${d.branch}</td>
-
       <td>${d.sby_count}</td>
       <td>${d.sby_amount}</td>
-
       <td>${d.jjby_count}</td>
       <td>${d.jjby_amount}</td>
-
       <td>${d.apy_count}</td>
       <td>${d.apy_amount}</td>
-
       <td>${d.pmjdy}</td>
-
       <td>${d.target_apr_jjby}</td>
       <td>${d.target_apr_sby}</td>
       <td>${d.target_apr_apy}</td>
       <td>${d.target_apr_pmjdy}</td>
-
       <td>${d.target_mar_jjby}</td>
       <td>${d.target_mar_sby}</td>
       <td>${d.target_mar_apy}</td>
@@ -157,12 +161,10 @@ function renderAll(data){
   });
 
   html += `</table>`;
-
   document.getElementById("content").innerHTML = html;
-
 }
 
-// 🔥 SPLIT VIEW (BRANCH WISE)
+// 🔥 SPLIT VIEW (BIG FONT)
 function renderSplit(data){
 
   let html = "";
@@ -171,7 +173,7 @@ function renderSplit(data){
 
     html += `
 
-    <table class="block">
+    <table class="split">
       <tr>
         <th rowspan="2">SOL ID</th>
         <th rowspan="2">BRANCH</th>
@@ -198,7 +200,7 @@ function renderSplit(data){
       </tr>
     </table>
 
-    <table>
+    <table class="split">
       <tr>
         <th colspan="4">${headerData.targetApr}</th>
         <th colspan="4">Target March-27</th>
@@ -214,7 +216,6 @@ function renderSplit(data){
         <td>${d.target_apr_sby}</td>
         <td>${d.target_apr_apy}</td>
         <td>${d.target_apr_pmjdy}</td>
-
         <td>${d.target_mar_jjby}</td>
         <td>${d.target_mar_sby}</td>
         <td>${d.target_mar_apy}</td>
@@ -226,7 +227,6 @@ function renderSplit(data){
   });
 
   document.getElementById("content").innerHTML = html;
-
 }
 
 </script>
