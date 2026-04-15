@@ -28,10 +28,15 @@ select {
 }
 
 /* 🔥 TABLE */
+.table-container{
+  max-height:500px;
+  overflow:auto;
+  border:2px solid #000;
+}
+
 table {
   border-collapse:collapse;
   width:100%;
-  margin:auto;
 }
 
 th, td {
@@ -41,8 +46,18 @@ th, td {
   text-align:center;
 }
 
+/* 🔥 FIX HEADER */
 th {
   background:#d9d9d9;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+
+/* 🔥 TOTAL ROW */
+.total-row {
+  background:#ffe599;
+  font-weight:bold;
 }
 
 /* 🔥 SPLIT VIEW BIG FONT */
@@ -51,7 +66,7 @@ th {
   padding:12px;
 }
 
-/* 🔥 MOBILE OPTIMIZATION */
+/* 🔥 MOBILE */
 @media(max-width:768px){
   table { display:block; overflow-x:auto; }
 }
@@ -116,10 +131,19 @@ document.getElementById("solFilter").addEventListener("change", function(){
 
 });
 
-// 🔹 ALL VIEW
+// 🔥 ALL VIEW WITH TOTAL
 function renderAll(data){
 
-  let html = `<table>
+  let totals = {
+    sby_count:0, sby_amount:0,
+    jjby_count:0, jjby_amount:0,
+    apy_count:0, apy_amount:0,
+    pmjdy:0,
+    target_apr_jjby:0, target_apr_sby:0, target_apr_apy:0, target_apr_pmjdy:0,
+    target_mar_jjby:0, target_mar_sby:0, target_mar_apy:0, target_mar_pmjdy:0
+  };
+
+  let html = `<div class="table-container"><table>
   <tr>
     <th rowspan="2">SOL ID</th>
     <th rowspan="2">BRANCH</th>
@@ -139,6 +163,12 @@ function renderAll(data){
   </tr>`;
 
   data.forEach(d => {
+
+    // 🔹 TOTAL CALCULATION
+    for(let key in totals){
+      totals[key] += Number(d[key] || 0);
+    }
+
     html += `<tr>
       <td>${d.sol}</td>
       <td>${d.branch}</td>
@@ -160,72 +190,41 @@ function renderAll(data){
     </tr>`;
   });
 
-  html += `</table>`;
+  // 🔥 TOTAL ROW
+  html += `<tr class="total-row">
+    <td colspan="2">TOTAL</td>
+    <td>${totals.sby_count}</td>
+    <td>${totals.sby_amount}</td>
+    <td>${totals.jjby_count}</td>
+    <td>${totals.jjby_amount}</td>
+    <td>${totals.apy_count}</td>
+    <td>${totals.apy_amount}</td>
+    <td>${totals.pmjdy}</td>
+    <td>${totals.target_apr_jjby}</td>
+    <td>${totals.target_apr_sby}</td>
+    <td>${totals.target_apr_apy}</td>
+    <td>${totals.target_apr_pmjdy}</td>
+    <td>${totals.target_mar_jjby}</td>
+    <td>${totals.target_mar_sby}</td>
+    <td>${totals.target_mar_apy}</td>
+    <td>${totals.target_mar_pmjdy}</td>
+  </tr>`;
+
+  html += `</table></div>`;
+
   document.getElementById("content").innerHTML = html;
 }
 
-// 🔥 SPLIT VIEW (BIG FONT)
+// 🔹 SPLIT SAME AS BEFORE
 function renderSplit(data){
-
   let html = "";
-
   data.forEach(d => {
-
-    html += `
-
-    <table class="split">
-      <tr>
-        <th rowspan="2">SOL ID</th>
-        <th rowspan="2">BRANCH</th>
-        <th colspan="6">${headerData.account}</th>
-        <th rowspan="2">PMJDY</th>
-      </tr>
-
-      <tr>
-        <th>SBY</th><th>SBY AMT</th>
-        <th>JJBY</th><th>JJBY AMT</th>
-        <th>APY</th><th>APY AMT</th>
-      </tr>
-
-      <tr>
-        <td>${d.sol}</td>
-        <td>${d.branch}</td>
-        <td>${d.sby_count}</td>
-        <td>${d.sby_amount}</td>
-        <td>${d.jjby_count}</td>
-        <td>${d.jjby_amount}</td>
-        <td>${d.apy_count}</td>
-        <td>${d.apy_amount}</td>
-        <td>${d.pmjdy}</td>
-      </tr>
-    </table>
-
-    <table class="split">
-      <tr>
-        <th colspan="4">${headerData.targetApr}</th>
-        <th colspan="4">Target March-27</th>
-      </tr>
-
-      <tr>
-        <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
-        <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
-      </tr>
-
-      <tr>
-        <td>${d.target_apr_jjby}</td>
-        <td>${d.target_apr_sby}</td>
-        <td>${d.target_apr_apy}</td>
-        <td>${d.target_apr_pmjdy}</td>
-        <td>${d.target_mar_jjby}</td>
-        <td>${d.target_mar_sby}</td>
-        <td>${d.target_mar_apy}</td>
-        <td>${d.target_mar_pmjdy}</td>
-      </tr>
-    </table>
-
-    `;
+    html += `<table class="split">
+      <tr><th>SOL</th><th>${d.sol}</th></tr>
+      <tr><th>Branch</th><th>${d.branch}</th></tr>
+      <tr><th>SBY</th><th>${d.sby_count}</th></tr>
+    </table><br>`;
   });
-
   document.getElementById("content").innerHTML = html;
 }
 
