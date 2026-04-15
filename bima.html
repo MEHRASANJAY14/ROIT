@@ -5,41 +5,44 @@
 
 <style>
 
+/* 🔥 FULL SCREEN BODY */
 body {
   font-family: Arial;
-  padding:10px;
+  margin:0;
+  padding:0;
   background:#ffffff;
 }
 
-/* 🔥 HEADING */
+/* 🔥 HEADER */
 h2 {
   text-align:center;
   color:#003366;
   font-size:clamp(22px,3vw,36px);
-  font-weight:bold;
-  margin-bottom:20px;
+  margin:10px 0;
 }
 
-/* 🔥 DROPDOWN */
+/* 🔥 FILTER */
+.filter-box{
+  padding:10px;
+}
+
 select {
   padding:10px;
   font-size:clamp(16px,2.5vw,22px);
-  margin-bottom:20px;
 }
 
-/* 🔥 TABLE CONTAINER */
+/* 🔥 FULL SCREEN TABLE CONTAINER */
 .table-container{
-  max-height:550px;
+  height:calc(100vh - 120px);
+  width:100vw;
   overflow:auto;
-  border:2px solid #000;
-  margin:auto;
-  width:100%;
 }
 
 /* 🔥 TABLE */
 table {
   border-collapse:collapse;
   width:100%;
+  min-width:1200px; /* prevent column squeeze */
 }
 
 th, td {
@@ -64,6 +67,11 @@ th {
   font-weight:bold;
 }
 
+/* 🔥 HOVER EFFECT */
+tr:hover td {
+  background:#f1f7ff;
+}
+
 /* 🔥 SPLIT VIEW */
 .split th, .split td {
   font-size:clamp(16px,2.5vw,22px);
@@ -83,10 +91,12 @@ th {
 
 <h2>SOL BIMA AND PMJDY ACCOUNT OPENING</h2>
 
-<label><b style="font-size:18px;">Select SOL:</b></label>
+<div class="filter-box">
+<label><b>Select SOL:</b></label>
 <select id="solFilter">
 <option value="all">All</option>
 </select>
+</div>
 
 <div id="content"></div>
 
@@ -135,7 +145,7 @@ document.getElementById("solFilter").addEventListener("change", function(){
 
 });
 
-// 🔥 ALL VIEW WITH TOTAL + STICKY
+// 🔥 ALL VIEW (FULL SCREEN + TOTAL + STICKY)
 function renderAll(data){
 
   let totals = {
