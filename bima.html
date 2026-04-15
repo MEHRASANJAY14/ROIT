@@ -11,7 +11,7 @@ body {
   background:#ffffff;
 }
 
-/* 🔥 BIG HEADING */
+/* 🔥 HEADING */
 h2 {
   text-align:center;
   color:#003366;
@@ -20,20 +20,23 @@ h2 {
   margin-bottom:20px;
 }
 
-/* 🔥 BIG DROPDOWN */
+/* 🔥 DROPDOWN */
 select {
   padding:10px;
   font-size:clamp(16px,2.5vw,22px);
   margin-bottom:20px;
 }
 
-/* 🔥 TABLE */
+/* 🔥 TABLE CONTAINER */
 .table-container{
-  max-height:500px;
+  max-height:550px;
   overflow:auto;
   border:2px solid #000;
+  margin:auto;
+  width:100%;
 }
 
+/* 🔥 TABLE */
 table {
   border-collapse:collapse;
   width:100%;
@@ -46,9 +49,10 @@ th, td {
   text-align:center;
 }
 
-/* 🔥 FIX HEADER */
+/* 🔥 STICKY HEADER */
 th {
-  background:#d9d9d9;
+  background:#003366;
+  color:#fff;
   position:sticky;
   top:0;
   z-index:2;
@@ -56,11 +60,11 @@ th {
 
 /* 🔥 TOTAL ROW */
 .total-row {
-  background:#ffe599;
+  background:#fff2cc;
   font-weight:bold;
 }
 
-/* 🔥 SPLIT VIEW BIG FONT */
+/* 🔥 SPLIT VIEW */
 .split th, .split td {
   font-size:clamp(16px,2.5vw,22px);
   padding:12px;
@@ -131,7 +135,7 @@ document.getElementById("solFilter").addEventListener("change", function(){
 
 });
 
-// 🔥 ALL VIEW WITH TOTAL
+// 🔥 ALL VIEW WITH TOTAL + STICKY
 function renderAll(data){
 
   let totals = {
@@ -164,14 +168,13 @@ function renderAll(data){
 
   data.forEach(d => {
 
-    // 🔹 TOTAL CALCULATION
     for(let key in totals){
       totals[key] += Number(d[key] || 0);
     }
 
     html += `<tr>
       <td>${d.sol}</td>
-      <td>${d.branch}</td>
+      <td>${d.branch ?? d.BRANCH ?? ''}</td>
       <td>${d.sby_count}</td>
       <td>${d.sby_amount}</td>
       <td>${d.jjby_count}</td>
@@ -190,7 +193,6 @@ function renderAll(data){
     </tr>`;
   });
 
-  // 🔥 TOTAL ROW
   html += `<tr class="total-row">
     <td colspan="2">TOTAL</td>
     <td>${totals.sby_count}</td>
@@ -215,16 +217,72 @@ function renderAll(data){
   document.getElementById("content").innerHTML = html;
 }
 
-// 🔹 SPLIT SAME AS BEFORE
+// 🔥 SINGLE SOL → OLD VIEW
 function renderSplit(data){
+
   let html = "";
+
   data.forEach(d => {
-    html += `<table class="split">
-      <tr><th>SOL</th><th>${d.sol}</th></tr>
-      <tr><th>Branch</th><th>${d.branch}</th></tr>
-      <tr><th>SBY</th><th>${d.sby_count}</th></tr>
-    </table><br>`;
+
+    html += `
+
+    <table class="split">
+      <tr>
+        <th rowspan="2">SOL ID</th>
+        <th rowspan="2">BRANCH</th>
+        <th colspan="6">${headerData.account}</th>
+        <th rowspan="2">PMJDY AC</th>
+      </tr>
+
+      <tr>
+        <th>SBY</th><th>SBY AMT</th>
+        <th>JJBY</th><th>JJBY AMT</th>
+        <th>APY</th><th>APY AMT</th>
+      </tr>
+
+      <tr>
+        <td>${d.sol}</td>
+        <td>${d.branch ?? d.BRANCH ?? ''}</td>
+        <td>${d.sby_count}</td>
+        <td>${d.sby_amount}</td>
+        <td>${d.jjby_count}</td>
+        <td>${d.jjby_amount}</td>
+        <td>${d.apy_count}</td>
+        <td>${d.apy_amount}</td>
+        <td>${d.pmjdy}</td>
+      </tr>
+    </table>
+
+    <br>
+
+    <table class="split">
+      <tr>
+        <th colspan="4">${headerData.targetApr}</th>
+        <th colspan="4">Target March-27</th>
+      </tr>
+
+      <tr>
+        <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+        <th>JJBY</th><th>SBY</th><th>APY</th><th>PMJDY</th>
+      </tr>
+
+      <tr>
+        <td>${d.target_apr_jjby}</td>
+        <td>${d.target_apr_sby}</td>
+        <td>${d.target_apr_apy}</td>
+        <td>${d.target_apr_pmjdy}</td>
+        <td>${d.target_mar_jjby}</td>
+        <td>${d.target_mar_sby}</td>
+        <td>${d.target_mar_apy}</td>
+        <td>${d.target_mar_pmjdy}</td>
+      </tr>
+    </table>
+
+    <hr style="margin:20px 0;">
+
+    `;
   });
+
   document.getElementById("content").innerHTML = html;
 }
 
