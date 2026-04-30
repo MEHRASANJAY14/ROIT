@@ -1,202 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
   <style>
-    body {
-      margin:0;
-      font-family:'Inter',sans-serif;
-      background:#f4f6f9;
-    }
-
-    .header {
-      background: linear-gradient(135deg,#006633,#00994d);
-      color:white;
-      padding:20px;
-      border-bottom-left-radius:20px;
-      border-bottom-right-radius:20px;
-    }
-
-    .header h2 { margin:0; }
-
-    .container {
-      padding:15px;
-      max-width:420px;
-      margin:auto;
-    }
-
-    .card {
-      background:white;
-      border-radius:12px;
-      padding:15px;
-      margin-bottom:12px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.08);
-    }
-
-    .title { font-size:13px; color:#666; }
-    .value { font-size:22px; font-weight:600; margin-top:5px; }
-
-    .grid {
-      display:flex;
-      gap:10px;
-    }
-
-    .presentCard {
-      background:#e8f5e9;
-      color:#2e7d32;
-    }
-
-    .leaveCard {
-      background:#fff3e0;
-      color:#ef6c00;
-    }
-
-    .btn {
-      width:100%;
-      padding:13px;
-      border:none;
-      border-radius:8px;
-      font-weight:600;
-      cursor:pointer;
-      margin-top:10px;
-    }
-
-    .present { background:#006633; color:white; }
-    .leave { background:#ff9800; color:white; }
-
-    #msg {
-      text-align:center;
-      margin-top:10px;
-      font-size:14px;
-    }
+    body { font-family: Arial; background:#f4f6f9; margin:0; }
+    .header { background:#006633; color:white; padding:15px; text-align:center; }
+    .container { padding:15px; max-width:420px; margin:auto; }
+    .card { background:white; padding:15px; border-radius:10px; }
+    label { display:block; margin-top:10px; font-size:13px; }
+    select,input { width:100%; padding:10px; margin-top:5px; }
+    .row { display:flex; gap:10px; }
+    .col { flex:1; }
+    button { width:100%; padding:12px; margin-top:15px; background:#006633; color:white; border:none; }
+    .hidden { display:none; }
   </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h2 id="welcome">👋 Welcome</h2>
-  <div>Attendance Dashboard</div>
-</div>
+<div class="header">Attendance</div>
 
 <div class="container">
+<div class="card">
 
-  <!-- TODAY -->
-  <div class="card">
-    <div class="title">Today's Attendance</div>
-    <div class="value" id="todayStatus">--</div>
+<label>Status</label>
+<select id="status">
+  <option value="Present">Present</option>
+  <option value="Leave">Leave</option>
+</select>
+
+<div id="leaveSection" class="hidden">
+
+<label>From Date</label>
+<input type="date" id="from_date">
+
+<div class="row">
+  <div class="col">
+    <label>To Date</label>
+    <input type="date" id="to_date">
   </div>
 
-  <!-- MONTH -->
-  <div class="grid">
-
-    <div class="card presentCard">
-      <div class="title">Present (Month)</div>
-      <div class="value" id="presentCount">0</div>
-    </div>
-
-    <div class="card leaveCard">
-      <div class="title">Leave (Month)</div>
-      <div class="value" id="leaveCount">0</div>
-    </div>
-
+  <div class="col">
+    <label>Leave Type</label>
+    <select id="leave_type">
+      <option value="">Select</option>
+      <option value="PL">PL</option>
+      <option value="CL">CL</option>
+      <option value="MEDICAL">MEDICAL</option>
+    </select>
   </div>
+</div>
 
-  <!-- ACTIONS -->
-  <div class="card">
+</div>
 
-    <button class="btn present" onclick="markAttendance()">
-      Mark Present
-    </button>
+<button onclick="markAttendance()">Submit</button>
 
-    <button class="btn leave" onclick="goToLeave()">
-      Apply Leave
-    </button>
+<p id="msg"></p>
 
-  </div>
-
-  <p id="msg"></p>
-
+</div>
 </div>
 
 <script>
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
-
+const SCRIPT_URL = "YOUR_SCRIPT_URL";
 let staffId = "N07550";
 
-// 🔁 LOAD DASHBOARD
-function loadDashboard(){
+// Toggle leave UI
+document.getElementById("status").addEventListener("change", function() {
+  document.getElementById("leaveSection")
+    .classList.toggle("hidden", this.value !== "Leave");
+});
 
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"dashboard",
-      staff_id:staffId
-    })
-  })
-  .then(res=>res.json())
-  .then(res=>{
+// 🔥 AUTO LOAD
+window.onload = function(){
 
-    document.getElementById("welcome").innerText =
-      "👋 Welcome " + staffId + " - " + (res.name || "");
+  let today = new Date().toISOString().split("T")[0];
 
-    document.getElementById("todayStatus").innerText =
-      res.today || "Not Marked";
+  document.getElementById("from_date").value = today;
+  document.getElementById("to_date").value = today;
 
-    document.getElementById("presentCount").innerText =
-      res.present || 0;
+  document.getElementById("from_date").min = today;
+  document.getElementById("to_date").min = today;
 
-    document.getElementById("leaveCount").innerText =
-      res.leave || 0;
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("mode") === "leave"){
+    document.getElementById("status").value = "Leave";
+    document.getElementById("status")
+      .dispatchEvent(new Event("change"));
+  }
 
-  });
+};
 
-}
-
-// ✅ MARK PRESENT
+// Submit
 function markAttendance(){
 
-  document.getElementById("msg").innerText = "Getting location...";
+  let status = document.getElementById("status").value;
+
+  let data = {
+    staff_id: staffId,
+    status: status,
+    lat: 0,
+    lng: 0,
+    leave_type: document.getElementById("leave_type").value,
+    from_date: document.getElementById("from_date").value,
+    to_date: document.getElementById("to_date").value
+  };
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
+    data.lat = pos.coords.latitude;
+    data.lng = pos.coords.longitude;
+
     fetch(SCRIPT_URL,{
       method:"POST",
-      body:JSON.stringify({
-        staff_id:staffId,
-        status:"Present",
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude
-      })
+      body:JSON.stringify(data)
     })
     .then(res=>res.json())
     .then(res=>{
-
-      if(res.status==="success"){
-        document.getElementById("msg").innerText = "Attendance marked";
-        setTimeout(loadDashboard, 500); // 🔥 refresh
-      } else {
-        document.getElementById("msg").innerText = res.message;
-      }
-
+      document.getElementById("msg").innerText =
+        res.status==="success" ? "Done" : res.message;
     });
 
   });
 
 }
-
-// 🔁 NAVIGATION
-function goToLeave(){
-  window.location.href = "attendance.html";
-}
-
-// INIT
-loadDashboard();
 
 </script>
 
