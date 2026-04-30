@@ -127,10 +127,7 @@
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
-// 🔹 FIXED STAFF ID
 let staffId = "N07550";
-
-document.getElementById("welcome").innerText = "👋 Welcome " + staffId;
 
 // 🔁 LOAD DASHBOARD
 function loadDashboard(){
@@ -144,14 +141,24 @@ function loadDashboard(){
   })
   .then(res=>res.json())
   .then(res=>{
-    document.getElementById("todayStatus").innerText = res.today || "--";
-    document.getElementById("presentCount").innerText = res.present || 0;
-    document.getElementById("leaveCount").innerText = res.leave || 0;
+
+    document.getElementById("welcome").innerText =
+      "👋 Welcome " + staffId + " - " + (res.name || "");
+
+    document.getElementById("todayStatus").innerText =
+      res.today || "Not Marked";
+
+    document.getElementById("presentCount").innerText =
+      res.present || 0;
+
+    document.getElementById("leaveCount").innerText =
+      res.leave || 0;
+
   });
 
 }
 
-// ✅ FIXED MARK PRESENT
+// ✅ MARK PRESENT
 function markAttendance(){
 
   document.getElementById("msg").innerText = "Getting location...";
@@ -169,26 +176,23 @@ function markAttendance(){
     })
     .then(res=>res.json())
     .then(res=>{
-      document.getElementById("msg").innerText =
-        res.status==="success"
-        ? "✅ Attendance marked"
-        : res.message;
 
-      loadDashboard();
-    })
-    .catch(()=>{
-      document.getElementById("msg").innerText = "Server error";
+      if(res.status==="success"){
+        document.getElementById("msg").innerText = "Attendance marked";
+        setTimeout(loadDashboard, 500); // 🔥 refresh
+      } else {
+        document.getElementById("msg").innerText = res.message;
+      }
+
     });
 
-  }, function(){
-    document.getElementById("msg").innerText = "Allow location access";
   });
 
 }
 
-// 🔁 OPEN LEAVE PAGE (FIXED)
+// 🔁 NAVIGATION
 function goToLeave(){
-  window.location.href = "index.html";  // your leave form page
+  window.location.href = "attendance.html";
 }
 
 // INIT
