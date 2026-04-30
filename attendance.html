@@ -5,47 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-
-    .box {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    button {
-      width: 90%;
-      padding: 12px;
-      margin: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
-      background: #006633;
-      color: white;
-      font-weight: bold;
-    }
-
-    select {
-      width: 90%;
-      padding: 12px;
-      margin: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-    }
-
-    #msg {
-      margin-top: 15px;
-      font-weight: bold;
-      min-height: 20px;
-    }
+    body { font-family: Arial; text-align: center; padding: 20px; background: #f5f5f5; }
+    .box { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; }
+    input, select, button { width: 90%; padding: 12px; margin: 10px; font-size: 16px; }
+    button { background: #006633; color: white; border: none; }
   </style>
 </head>
 
@@ -53,106 +16,90 @@
 
 <div class="box">
 
-  <h2>📍 Attendance System</h2>
+<h2>📍 Attendance System</h2>
 
-  <p><b>Staff ID:</b> N07550</p>
+<p><b>Staff ID:</b> N07550</p>
 
-  <select id="status">
-    <option value="Present">Present</option>
-    <option value="Leave">Leave</option>
+<select id="status">
+  <option value="Present">Present</option>
+  <option value="Leave">Leave</option>
+</select>
+
+<!-- Leave Section -->
+<div id="leave_section" style="display:none;">
+
+  <select id="leave_type">
+    <option value="">Select Leave Type</option>
+    <option value="PL">PL</option>
+    <option value="CL">CL</option>
+    <option value="MATERNITY">MATERNITY</option>
+    <option value="JOINING">JOINING</option>
+    <option value="PATERNITY">PATERNITY</option>
+    <option value="UCL">UCL</option>
+    <option value="MEDICAL">MEDICAL</option>
   </select>
 
-  <button onclick="markAttendance()">Submit</button>
+  <input type="date" id="from_date">
+  <input type="date" id="to_date">
 
-  <p id="msg"></p>
+</div>
+
+<button onclick="markAttendance()">Submit</button>
+
+<p id="msg"></p>
 
 </div>
 
 <script>
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
+const SCRIPT_URL = "YOUR_SCRIPT_URL";
+
+document.getElementById("status").addEventListener("change", function() {
+  document.getElementById("leave_section").style.display =
+    this.value === "Leave" ? "block" : "none";
+});
 
 function markAttendance() {
 
-  const staffId = "N07550";
+  let status = document.getElementById("status").value;
 
-  if (!navigator.geolocation) {
-    document.getElementById("msg").innerText = "❌ GPS not supported on this device";
-    return;
+  let leaveType = document.getElementById("leave_type").value;
+  let fromDate = document.getElementById("from_date").value;
+  let toDate = document.getElementById("to_date").value;
+
+  if(status === "Leave"){
+    if(!leaveType || !fromDate || !toDate){
+      alert("Select Leave Type and Dates");
+      return;
+    }
   }
 
-  document.getElementById("msg").innerText = "📍 Getting location... Please wait";
+  navigator.geolocation.getCurrentPosition(function(position){
 
-  navigator.geolocation.getCurrentPosition(
+    const data = {
+      staff_id: "N07550",
+      status: status,
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+      leave_type: leaveType,
+      from_date: fromDate,
+      to_date: toDate
+    };
 
-    // ✅ SUCCESS
-    function(position) {
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(res => {
+      document.getElementById("msg").innerText =
+        res.status === "success"
+        ? "✅ Attendance Marked"
+        : "❌ " + res.message;
+    });
 
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
+  });
 
-      const data = {
-        staff_id: staffId,
-        status: document.getElementById("status").value,
-        lat: lat,
-        lng: lng
-      };
-
-      document.getElementById("msg").innerText = "📡 Sending data...";
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(res => {
-
-        if(res.status === "success"){
-          document.getElementById("msg").innerText = "✅ Attendance Marked Successfully";
-        } else {
-          document.getElementById("msg").innerText = "❌ " + res.message;
-        }
-
-      })
-      .catch(error => {
-        document.getElementById("msg").innerText = "❌ Server Error (Check Script URL)";
-      });
-
-    },
-
-    // ❌ ERROR HANDLER
-    function(error) {
-
-      let msg = "";
-
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          msg = "❌ Location permission denied. Please allow GPS.";
-          break;
-
-        case error.POSITION_UNAVAILABLE:
-          msg = "❌ Location unavailable. Try moving outside.";
-          break;
-
-        case error.TIMEOUT:
-          msg = "❌ Location timeout. Try again.";
-          break;
-
-        default:
-          msg = "❌ Unknown GPS error.";
-      }
-
-      document.getElementById("msg").innerText = msg;
-    },
-
-    // ⚙️ OPTIONS
-    {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
-    }
-
-  );
 }
 
 </script>
