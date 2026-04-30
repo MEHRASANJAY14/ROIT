@@ -13,7 +13,6 @@
       background:#f4f6f9;
     }
 
-    /* HEADER */
     .header {
       background: linear-gradient(135deg,#006633,#00994d);
       color:white;
@@ -22,24 +21,14 @@
       border-bottom-right-radius:20px;
     }
 
-    .header h2 {
-      margin:0;
-      font-weight:600;
-    }
+    .header h2 { margin:0; }
 
-    .sub {
-      font-size:13px;
-      opacity:0.9;
-    }
-
-    /* CONTAINER */
     .container {
       padding:15px;
       max-width:420px;
       margin:auto;
     }
 
-    /* CARDS */
     .card {
       background:white;
       border-radius:12px;
@@ -48,18 +37,9 @@
       box-shadow:0 3px 10px rgba(0,0,0,0.08);
     }
 
-    .title {
-      font-size:13px;
-      color:#666;
-    }
+    .title { font-size:13px; color:#666; }
+    .value { font-size:22px; font-weight:600; margin-top:5px; }
 
-    .value {
-      font-size:22px;
-      font-weight:600;
-      margin-top:5px;
-    }
-
-    /* GRID */
     .grid {
       display:flex;
       gap:10px;
@@ -75,7 +55,6 @@
       color:#ef6c00;
     }
 
-    /* BUTTONS */
     .btn {
       width:100%;
       padding:13px;
@@ -88,23 +67,20 @@
 
     .present { background:#006633; color:white; }
     .leave { background:#ff9800; color:white; }
-    .logout { background:#e53935; color:white; }
 
     #msg {
       text-align:center;
       margin-top:10px;
       font-size:14px;
     }
-
   </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
-  <h2 id="welcome">Welcome</h2>
-  <div class="sub">Attendance Dashboard</div>
+  <h2 id="welcome">👋 Welcome</h2>
+  <div>Attendance Dashboard</div>
 </div>
 
 <div class="container">
@@ -133,16 +109,12 @@
   <!-- ACTIONS -->
   <div class="card">
 
-    <button class="btn present" onclick="markAttendance('Present')">
+    <button class="btn present" onclick="markAttendance()">
       Mark Present
     </button>
 
     <button class="btn leave" onclick="goToLeave()">
       Apply Leave
-    </button>
-
-    <button class="btn logout" onclick="logout()">
-      Logout
     </button>
 
   </div>
@@ -153,13 +125,14 @@
 
 <script>
 
-const SCRIPT_URL = "YOUR_SCRIPT_URL";
-let staffId = localStorage.getItem("staff_id") || "N07550";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
-// 🎯 Welcome text
+// 🔹 FIXED STAFF ID
+let staffId = "N07550";
+
 document.getElementById("welcome").innerText = "👋 Welcome " + staffId;
 
-// 🔁 Load Dashboard
+// 🔁 LOAD DASHBOARD
 function loadDashboard(){
 
   fetch(SCRIPT_URL,{
@@ -171,17 +144,17 @@ function loadDashboard(){
   })
   .then(res=>res.json())
   .then(res=>{
-
     document.getElementById("todayStatus").innerText = res.today || "--";
     document.getElementById("presentCount").innerText = res.present || 0;
     document.getElementById("leaveCount").innerText = res.leave || 0;
-
   });
 
 }
 
-// 🚀 Mark Attendance
-function markAttendance(status){
+// ✅ FIXED MARK PRESENT
+function markAttendance(){
+
+  document.getElementById("msg").innerText = "Getting location...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -189,7 +162,7 @@ function markAttendance(status){
       method:"POST",
       body:JSON.stringify({
         staff_id:staffId,
-        status:status,
+        status:"Present",
         lat:pos.coords.latitude,
         lng:pos.coords.longitude
       })
@@ -198,27 +171,27 @@ function markAttendance(status){
     .then(res=>{
       document.getElementById("msg").innerText =
         res.status==="success"
-        ? "Attendance marked"
+        ? "✅ Attendance marked"
         : res.message;
 
       loadDashboard();
+    })
+    .catch(()=>{
+      document.getElementById("msg").innerText = "Server error";
     });
 
+  }, function(){
+    document.getElementById("msg").innerText = "Allow location access";
   });
 
 }
 
-// 🔁 Navigation
+// 🔁 OPEN LEAVE PAGE (FIXED)
 function goToLeave(){
-  window.location.href="index.html";
+  window.location.href = "index.html";  // your leave form page
 }
 
-function logout(){
-  localStorage.clear();
-  window.location.href="login.html";
-}
-
-// Load on start
+// INIT
 loadDashboard();
 
 </script>
