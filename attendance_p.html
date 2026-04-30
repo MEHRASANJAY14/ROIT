@@ -10,15 +10,26 @@
     body {
       margin:0;
       font-family:'Inter',sans-serif;
-      background:#f4f6f9;
+      background:linear-gradient(135deg,#eef2f3,#dfe9f3);
     }
 
     .header {
-      background: linear-gradient(135deg,#006633,#00a65a);
+      background:linear-gradient(135deg,#006633,#00a65a);
       color:white;
       padding:20px;
-      border-bottom-left-radius:20px;
-      border-bottom-right-radius:20px;
+      border-bottom-left-radius:25px;
+      border-bottom-right-radius:25px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .header h2 {
+      margin:0;
+      font-weight:600;
+    }
+
+    .sub {
+      font-size:13px;
+      opacity:0.9;
     }
 
     .container {
@@ -29,45 +40,93 @@
 
     .card {
       background:white;
-      border-radius:12px;
+      border-radius:15px;
       padding:15px;
       margin-bottom:12px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.08);
+      box-shadow:0 5px 15px rgba(0,0,0,0.08);
+      transition:0.2s;
     }
 
-    .title { font-size:13px; color:#666; }
-    .value { font-size:22px; font-weight:600; margin-top:5px; }
+    .card:hover {
+      transform:translateY(-3px);
+    }
 
-    .grid { display:flex; gap:10px; }
+    .title {
+      font-size:13px;
+      color:#666;
+    }
 
-    .presentCard { background:#e8f5e9; color:#2e7d32; }
-    .leaveCard { background:#fff3e0; color:#ef6c00; }
-
-    .btn {
-      width:100%;
-      padding:13px;
-      border:none;
-      border-radius:8px;
-      margin-top:10px;
+    .value {
+      font-size:22px;
       font-weight:600;
-      cursor:pointer;
-    }
-
-    .present { background:#006633; color:white; }
-    .leave { background:#ff9800; color:white; }
-
-    .hidden { display:none; }
-
-    select,input {
-      width:100%;
-      padding:10px;
       margin-top:5px;
     }
 
-    .row { display:flex; gap:10px; }
+    .grid {
+      display:flex;
+      gap:10px;
+    }
+
+    .presentCard {
+      background:linear-gradient(135deg,#d4fc79,#96e6a1);
+      color:#1b5e20;
+    }
+
+    .leaveCard {
+      background:linear-gradient(135deg,#ffd3a5,#fd6585);
+      color:#5d4037;
+    }
+
+    .btn {
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      margin-top:10px;
+      font-weight:600;
+      cursor:pointer;
+      font-size:15px;
+      transition:0.2s;
+    }
+
+    .btn:hover {
+      transform:scale(1.02);
+    }
+
+    .present {
+      background:linear-gradient(135deg,#00c853,#64dd17);
+      color:white;
+    }
+
+    .leave {
+      background:linear-gradient(135deg,#ff9800,#ff5722);
+      color:white;
+    }
+
+    .hidden { display:none; }
+
+    input,select {
+      width:100%;
+      padding:11px;
+      margin-top:5px;
+      border-radius:8px;
+      border:1px solid #ccc;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+    }
+
     .col { flex:1; }
 
-    #msg { text-align:center; margin-top:10px; }
+    #msg {
+      text-align:center;
+      margin-top:10px;
+      font-size:14px;
+      font-weight:500;
+    }
+
   </style>
 </head>
 
@@ -75,7 +134,7 @@
 
 <div class="header">
   <h2 id="welcome">👋 Hello</h2>
-  <div>Attendance Dashboard</div>
+  <div class="sub">Attendance Dashboard</div>
 </div>
 
 <div class="container">
@@ -99,17 +158,10 @@
     </div>
   </div>
 
-  <!-- ACTION -->
+  <!-- ACTIONS -->
   <div class="card">
-
-    <button class="btn present" onclick="markAttendance()">
-      ✅ Mark Attendance
-    </button>
-
-    <button class="btn leave" onclick="openLeave()">
-      📝 Apply Leave
-    </button>
-
+    <button class="btn present" onclick="markAttendance()">✅ Mark Attendance</button>
+    <button class="btn leave" onclick="openLeave()">📝 Apply Leave</button>
   </div>
 
   <!-- LEAVE FORM -->
@@ -135,9 +187,7 @@
       </div>
     </div>
 
-    <button class="btn leave" onclick="submitLeave()">
-      Submit Leave
-    </button>
+    <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
 
   </div>
 
@@ -150,7 +200,6 @@
 const SCRIPT_URL = "YOUR_SCRIPT_URL";
 let staffId = "N07550";
 
-// 🔁 LOAD DASHBOARD
 function loadDashboard(){
 
   fetch(SCRIPT_URL,{
@@ -166,21 +215,17 @@ function loadDashboard(){
     document.getElementById("welcome").innerText =
       "👋 Hello " + res.name + " (" + staffId + ")";
 
-    document.getElementById("todayStatus").innerText =
-      res.today || "Not Marked";
-
-    document.getElementById("presentCount").innerText =
-      res.present || 0;
-
-    document.getElementById("leaveCount").innerText =
-      res.leave || 0;
+    document.getElementById("todayStatus").innerText = res.today || "Not Marked";
+    document.getElementById("presentCount").innerText = res.present || 0;
+    document.getElementById("leaveCount").innerText = res.leave || 0;
 
   });
 
 }
 
-// ✅ MARK PRESENT
 function markAttendance(){
+
+  document.getElementById("msg").innerText = "Processing...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -195,7 +240,7 @@ function markAttendance(){
     })
     .then(res=>res.json())
     .then(res=>{
-      alert(res.message || "Done");
+      document.getElementById("msg").innerText = res.message || "Done";
       loadDashboard();
     });
 
@@ -203,19 +248,16 @@ function markAttendance(){
 
 }
 
-// 📝 OPEN LEAVE FORM
 function openLeave(){
 
   let today = new Date().toISOString().split("T")[0];
 
   document.getElementById("leaveSection").classList.remove("hidden");
-
   document.getElementById("from_date").value = today;
   document.getElementById("to_date").value = today;
 
 }
 
-// 📤 SUBMIT LEAVE
 function submitLeave(){
 
   navigator.geolocation.getCurrentPosition(function(pos){
@@ -234,7 +276,7 @@ function submitLeave(){
     })
     .then(res=>res.json())
     .then(res=>{
-      alert(res.message || "Leave Applied");
+      document.getElementById("msg").innerText = res.message || "Leave Applied";
       document.getElementById("leaveSection").classList.add("hidden");
       loadDashboard();
     });
@@ -243,7 +285,6 @@ function submitLeave(){
 
 }
 
-// INIT
 loadDashboard();
 
 </script>
