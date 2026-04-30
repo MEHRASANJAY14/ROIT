@@ -7,70 +7,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      margin:0;
-      font-family:'Inter',sans-serif;
-      background:linear-gradient(135deg,#eef2f3,#dfe9f3);
-    }
-
-    .header {
-      background:linear-gradient(135deg,#006633,#00a65a);
-      color:white;
-      padding:20px;
-      border-bottom-left-radius:25px;
-      border-bottom-right-radius:25px;
-    }
-
-    .container {
-      padding:15px;
-      max-width:420px;
-      margin:auto;
-    }
-
-    .card {
-      background:white;
-      border-radius:15px;
-      padding:18px;
-      margin-bottom:12px;
-      box-shadow:0 5px 15px rgba(0,0,0,0.08);
-    }
-
+    body { margin:0; font-family:'Inter',sans-serif; background:linear-gradient(135deg,#eef2f3,#dfe9f3); }
+    .header { background:linear-gradient(135deg,#006633,#00a65a); color:#fff; padding:20px; border-bottom-left-radius:24px; border-bottom-right-radius:24px; }
+    .container { padding:15px; max-width:420px; margin:auto; }
+    .card { background:#fff; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 6px 16px rgba(0,0,0,0.08); }
     .title { font-size:13px; color:#666; }
-    .value { font-size:22px; font-weight:600; margin-top:5px; }
-
+    .value { font-size:22px; font-weight:600; margin-top:6px; }
     .grid { display:flex; gap:10px; }
-
     .presentCard { background:#e8f5e9; color:#2e7d32; }
     .leaveCard { background:#fff3e0; color:#ef6c00; }
-
-    .btn {
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:10px;
-      margin-top:10px;
-      font-weight:600;
-      cursor:pointer;
-    }
-
-    .present { background:#006633; color:white; }
-    .leave { background:#ff9800; color:white; }
-
-    .hidden { display:none; }
-
-    input,select {
-      width:100%;
-      padding:12px;
-      margin-top:5px;
-      border-radius:8px;
-      border:1px solid #ccc;
-    }
-
+    label { font-size:13px; font-weight:500; margin-top:12px; display:block; }
+    input,select { width:100%; padding:12px; margin-top:6px; border-radius:8px; border:1px solid #ccc; font-size:14px; box-sizing:border-box; }
     .row { display:flex; gap:10px; }
     .col { flex:1; }
-
-    #msg { text-align:center; margin-top:10px; }
-
+    .btn { width:100%; padding:14px; border:none; border-radius:10px; margin-top:12px; font-weight:600; cursor:pointer; font-size:15px; }
+    .present { background:#006633; color:#fff; }
+    .leave { background:#ff9800; color:#fff; }
+    .hidden { display:none; }
+    #msg { text-align:center; margin-top:10px; font-size:14px; }
   </style>
 </head>
 
@@ -95,16 +49,15 @@
       <div class="title">Present (Month)</div>
       <div class="value" id="presentCount">0</div>
     </div>
-
     <div class="card leaveCard">
       <div class="title">Leave (Month)</div>
       <div class="value" id="leaveCount">0</div>
     </div>
   </div>
 
-  <!-- ACTION -->
+  <!-- ACTIONS -->
   <div class="card">
-    <button class="btn present" onclick="markAttendance()">Mark Attendance</button>
+    <button id="btnPresent" class="btn present" onclick="markAttendance()">Mark Attendance</button>
     <button class="btn leave" onclick="openLeave()">Apply Leave</button>
   </div>
 
@@ -119,68 +72,63 @@
         <label>To Date</label>
         <input type="date" id="to_date">
       </div>
-
       <div class="col">
         <label>Leave Type</label>
         <select id="leave_type">
           <option value="">Select</option>
-          <option value="PL">PL</option>
-          <option value="CL">CL</option>
-          <option value="MEDICAL">MEDICAL</option>
-          <option value="MATERNITY">MATERNITY</option>
-          <option value="PATERNITY">PATERNITY</option>
-          <option value="UCL">UCL</option>
+          <option value="PL">PL (Privilege)</option>
+          <option value="CL">CL (Casual)</option>
+          <option value="MEDICAL">Medical</option>
+          <option value="MATERNITY">Maternity</option>
+          <option value="PATERNITY">Paternity</option>
+          <option value="UCL">UCL (Unpaid)</option>
         </select>
       </div>
     </div>
 
     <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
-
   </div>
 
   <p id="msg"></p>
-
 </div>
 
 <script>
-
 const SCRIPT_URL = "YOUR_SCRIPT_URL";
 let staffId = "N07550";
 
-// LOAD DASHBOARD
+// 🔁 LOAD DASHBOARD
 function loadDashboard(){
-
   fetch(SCRIPT_URL,{
     method:"POST",
-    body:JSON.stringify({
-      action:"dashboard",
-      staff_id:staffId
-    })
+    body:JSON.stringify({ action:"dashboard", staff_id:staffId })
   })
-  .then(res=>res.json())
+  .then(r=>r.json())
   .then(res=>{
-
     document.getElementById("welcome").innerText =
-      "👋 Hello " + res.name + " (" + staffId + ")";
+      "👋 Hello " + (res.name || "") + " (" + staffId + ")";
 
-    let todayEl = document.getElementById("todayStatus");
-    todayEl.innerText = res.today || "Not Marked";
+    let el = document.getElementById("todayStatus");
+    el.innerText = res.today || "Not Marked";
 
-    if(res.today.includes("Present")) todayEl.style.color="green";
-    else if(res.today.includes("Leave")) todayEl.style.color="orange";
+    if(res.today && res.today.includes("Present")) el.style.color="green";
+    else if(res.today && res.today.includes("Leave")) el.style.color="orange";
+    else el.style.color="#000";
 
-    document.getElementById("presentCount").innerText = res.present;
-    document.getElementById("leaveCount").innerText = res.leave;
-
-  });
-
+    document.getElementById("presentCount").innerText = res.present || 0;
+    document.getElementById("leaveCount").innerText = res.leave || 0;
+  })
+  .catch(()=>{ document.getElementById("msg").innerText="Dashboard load error"; });
 }
 
-// MARK PRESENT
+// ✅ MARK PRESENT (with loading + disable)
 function markAttendance(){
+  const msg = document.getElementById("msg");
+  const btn = document.getElementById("btnPresent");
+
+  msg.innerText = "📍 Getting location...";
+  btn.disabled = true; btn.innerText = "Processing...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
-
     fetch(SCRIPT_URL,{
       method:"POST",
       body:JSON.stringify({
@@ -190,36 +138,40 @@ function markAttendance(){
         lng:pos.coords.longitude
       })
     })
-    .then(res=>res.json())
+    .then(r=>r.json())
     .then(res=>{
-      document.getElementById("msg").innerText = res.message;
-      setTimeout(loadDashboard,500);
+      msg.innerText = res.message || "Done";
+      btn.disabled = false; btn.innerText = "Mark Attendance";
+      setTimeout(loadDashboard, 500);
+    })
+    .catch(()=>{
+      msg.innerText = "Server error";
+      btn.disabled = false; btn.innerText = "Mark Attendance";
     });
-
+  }, function(){
+    msg.innerText = "❌ Location permission denied";
+    btn.disabled = false; btn.innerText = "Mark Attendance";
   });
-
 }
 
-// OPEN LEAVE
+// 📝 OPEN LEAVE (default next day)
 function openLeave(){
+  const today = new Date();
+  const next = new Date(); next.setDate(today.getDate()+1);
 
-  let today = new Date();
-  let nextDay = new Date();
-  nextDay.setDate(today.getDate()+1);
-
-  let nextStr = nextDay.toISOString().split("T")[0];
+  const nextStr = next.toISOString().split("T")[0];
 
   document.getElementById("leaveSection").classList.remove("hidden");
   document.getElementById("from_date").value = nextStr;
   document.getElementById("to_date").value = nextStr;
-
 }
 
-// SUBMIT LEAVE
+// 📤 SUBMIT LEAVE (with location)
 function submitLeave(){
+  const msg = document.getElementById("msg");
+  msg.innerText = "📍 Getting location...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
-
     fetch(SCRIPT_URL,{
       method:"POST",
       body:JSON.stringify({
@@ -232,19 +184,20 @@ function submitLeave(){
         lng:pos.coords.longitude
       })
     })
-    .then(res=>res.json())
+    .then(r=>r.json())
     .then(res=>{
-      document.getElementById("msg").innerText = res.message;
+      msg.innerText = res.message || "Leave Applied";
       document.getElementById("leaveSection").classList.add("hidden");
-      setTimeout(loadDashboard,500);
-    });
-
+      setTimeout(loadDashboard, 500);
+    })
+    .catch(()=>{ msg.innerText = "Server error"; });
+  }, function(){
+    msg.innerText = "❌ Location permission required";
   });
-
 }
 
+// INIT
 loadDashboard();
-
 </script>
 
 </body>
