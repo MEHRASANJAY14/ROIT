@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body { font-family: Arial; background:#f4f6f9; margin:0; }
+    .header { background:#006633; color:white; padding:15px; }
+    .container { padding:15px; max-width:420px; margin:auto; }
+    .card { background:white; padding:15px; margin-bottom:10px; border-radius:10px; }
+    .grid { display:flex; gap:10px; }
+    button { width:100%; padding:12px; margin-top:10px; }
+  </style>
+</head>
+
+<body>
+
+<div class="header">
+  <h3 id="welcome"></h3>
+</div>
+
+<div class="container">
+
+<div class="card">
+  Today: <b id="todayStatus"></b>
+</div>
+
+<div class="grid">
+  <div class="card">Present: <b id="presentCount"></b></div>
+  <div class="card">Leave: <b id="leaveCount"></b></div>
+</div>
+
+<div class="card">
+  <button onclick="markAttendance()">Mark Present</button>
+  <button onclick="goToLeave()">Apply Leave</button>
+</div>
+
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+const SCRIPT_URL = "YOUR_SCRIPT_URL";
+let staffId = "N07550";
+
+function loadDashboard(){
+
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"dashboard",
+      staff_id:staffId
+    })
+  })
+  .then(res=>res.json())
+  .then(res=>{
+    document.getElementById("welcome").innerText =
+      "Welcome " + staffId + " - " + res.name;
+
+    document.getElementById("todayStatus").innerText = res.today;
+    document.getElementById("presentCount").innerText = res.present;
+    document.getElementById("leaveCount").innerText = res.leave;
+  });
+
+}
+
+function markAttendance(){
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+
+    fetch(SCRIPT_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        staff_id:staffId,
+        status:"Present",
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude
+      })
+    })
+    .then(res=>res.json())
+    .then(()=>{
+      setTimeout(loadDashboard,500);
+    });
+
+  });
+
+}
+
+function goToLeave(){
+  window.location.href="attendance.html?mode=leave";
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
