@@ -10,11 +10,12 @@
     body {
       margin:0;
       font-family:'Poppins',sans-serif;
-      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      background: radial-gradient(circle at top,#1f4037,#0f2027);
       display:flex;
       justify-content:center;
       align-items:center;
       height:100vh;
+      color:#fff;
     }
 
     .container {
@@ -24,18 +25,16 @@
     }
 
     .card {
-      background:white;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
       border-radius:20px;
       padding:25px;
-      box-shadow:0 15px 40px rgba(0,0,0,0.25);
+      box-shadow:0 20px 60px rgba(0,0,0,0.4);
+      border:1px solid rgba(255,255,255,0.1);
     }
 
-    .title {
+    h2 {
       text-align:center;
-      margin-bottom:10px;
-    }
-
-    .title h2 {
       margin:0;
       font-weight:600;
     }
@@ -43,31 +42,45 @@
     .subtitle {
       text-align:center;
       font-size:13px;
-      color:#777;
+      color:#ccc;
       margin-bottom:20px;
     }
 
-    label {
-      display:block;
-      font-size:13px;
-      margin-top:12px;
-      font-weight:500;
+    .field {
+      position:relative;
+      margin-top:18px;
     }
 
-    select, input {
+    .field input, .field select {
       width:100%;
-      padding:12px;
-      margin-top:5px;
+      padding:14px;
       border-radius:12px;
-      border:1px solid #ddd;
+      border:none;
+      background:rgba(255,255,255,0.12);
+      color:#fff;
       font-size:15px;
-      transition:0.2s;
+      outline:none;
     }
 
-    select:focus, input:focus {
-      border-color:#2c5364;
-      box-shadow:0 0 6px rgba(44,83,100,0.3);
-      outline:none;
+    .field label {
+      position:absolute;
+      left:12px;
+      top:12px;
+      font-size:13px;
+      color:#bbb;
+      transition:0.2s;
+      pointer-events:none;
+    }
+
+    .field input:focus + label,
+    .field input:not(:placeholder-shown) + label,
+    .field select:focus + label {
+      top:-8px;
+      font-size:11px;
+      color:#00e5ff;
+      background:#0f2027;
+      padding:2px 6px;
+      border-radius:5px;
     }
 
     .row {
@@ -77,41 +90,36 @@
 
     .col { flex:1; }
 
+    .hidden { display:none; }
+
     button {
       width:100%;
-      padding:14px;
-      margin-top:20px;
+      padding:15px;
+      margin-top:25px;
       border:none;
       border-radius:14px;
-      background:linear-gradient(135deg,#00c6ff,#0072ff);
+      background:linear-gradient(135deg,#00e5ff,#2979ff);
       color:white;
       font-size:16px;
       font-weight:600;
       cursor:pointer;
-      transition:0.2s;
+      transition:0.3s;
     }
 
     button:hover {
       transform:translateY(-2px);
-      box-shadow:0 6px 15px rgba(0,0,0,0.2);
+      box-shadow:0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    .loading {
+      opacity:0.7;
+      pointer-events:none;
     }
 
     #msg {
       text-align:center;
-      margin-top:10px;
+      margin-top:12px;
       font-size:14px;
-      font-weight:500;
-    }
-
-    .hidden { display:none; }
-
-    .badge {
-      background:#eef;
-      padding:5px 12px;
-      border-radius:20px;
-      font-size:12px;
-      display:inline-block;
-      margin-bottom:10px;
     }
 
   </style>
@@ -122,53 +130,52 @@
 <div class="container">
   <div class="card">
 
-    <div class="title">
-      <h2>📍 Attendance</h2>
-    </div>
-
+    <h2>📍 Attendance</h2>
     <div class="subtitle">Staff ID: N07550</div>
 
     <!-- STATUS -->
-    <label>Status</label>
-    <select id="status">
-      <option value="Present">Present</option>
-      <option value="Leave">Leave</option>
-    </select>
+    <div class="field">
+      <select id="status">
+        <option value="Present">Present</option>
+        <option value="Leave">Leave</option>
+      </select>
+      <label>Status</label>
+    </div>
 
-    <!-- LEAVE SECTION -->
+    <!-- LEAVE -->
     <div id="leaveSection" class="hidden">
 
-      <!-- FROM DATE FIRST -->
-      <label>From Date</label>
-      <input type="date" id="from_date">
+      <div class="field">
+        <input type="date" id="from_date" placeholder=" ">
+        <label>From Date</label>
+      </div>
 
-      <!-- SECOND ROW -->
       <div class="row">
 
         <div class="col">
-          <label>To Date</label>
-          <input type="date" id="to_date">
+          <div class="field">
+            <input type="date" id="to_date" placeholder=" ">
+            <label>To Date</label>
+          </div>
         </div>
 
         <div class="col">
-          <label>Leave Type</label>
-          <select id="leave_type">
-            <option value="">Select</option>
-            <option value="PL">PL</option>
-            <option value="CL">CL</option>
-            <option value="MATERNITY">MATERNITY</option>
-            <option value="JOINING">JOINING</option>
-            <option value="PATERNITY">PATERNITY</option>
-            <option value="UCL">UCL</option>
-            <option value="MEDICAL">MEDICAL</option>
-          </select>
+          <div class="field">
+            <select id="leave_type">
+              <option value=""></option>
+              <option value="PL">PL</option>
+              <option value="CL">CL</option>
+              <option value="MEDICAL">MEDICAL</option>
+            </select>
+            <label>Leave Type</label>
+          </div>
         </div>
 
       </div>
 
     </div>
 
-    <button onclick="markAttendance()">Submit</button>
+    <button id="btn" onclick="markAttendance()">Submit</button>
 
     <p id="msg"></p>
 
@@ -179,19 +186,21 @@
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
-// Toggle Leave UI
 document.getElementById("status").addEventListener("change", function() {
   document.getElementById("leaveSection")
     .classList.toggle("hidden", this.value !== "Leave");
 });
 
-// Auto To Date = From Date
+// auto TO date
 document.getElementById("from_date").addEventListener("change", function(){
   document.getElementById("to_date").value = this.value;
 });
 
-// Submit
 function markAttendance(){
+
+  let btn = document.getElementById("btn");
+  btn.classList.add("loading");
+  btn.innerText = "Processing...";
 
   const status = document.getElementById("status").value;
   const leaveType = document.getElementById("leave_type").value;
@@ -200,42 +209,47 @@ function markAttendance(){
 
   if(status === "Leave"){
     if(!leaveType || !fromDate || !toDate){
-      alert("Fill all leave details");
+      alert("Fill leave details");
+      resetBtn();
       return;
     }
   }
 
-  document.getElementById("msg").innerText = "📍 Getting location...";
-
   navigator.geolocation.getCurrentPosition(function(pos){
-
-    const data = {
-      staff_id: "N07550",
-      status: status,
-      lat: pos.coords.latitude,
-      lng: pos.coords.longitude,
-      leave_type: leaveType,
-      from_date: fromDate,
-      to_date: toDate
-    };
 
     fetch(SCRIPT_URL,{
       method:"POST",
-      body:JSON.stringify(data)
+      body:JSON.stringify({
+        staff_id:"N07550",
+        status:status,
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude,
+        leave_type:leaveType,
+        from_date:fromDate,
+        to_date:toDate
+      })
     })
     .then(res=>res.json())
     .then(res=>{
       document.getElementById("msg").innerText =
-        res.status === "success"
-        ? "✅ Attendance Marked"
-        : "❌ " + res.message;
+        res.status==="success"
+        ? "✅ Done"
+        : "❌ "+res.message;
+      resetBtn();
     })
     .catch(()=>{
-      document.getElementById("msg").innerText = "❌ Server error";
+      document.getElementById("msg").innerText="❌ Server error";
+      resetBtn();
     });
 
   });
 
+}
+
+function resetBtn(){
+  let btn = document.getElementById("btn");
+  btn.classList.remove("loading");
+  btn.innerText = "Submit";
 }
 
 </script>
