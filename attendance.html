@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -10,95 +10,108 @@
     body {
       margin:0;
       font-family:'Poppins',sans-serif;
-      background: linear-gradient(135deg,#141e30,#243b55);
-      color:white;
+      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
     }
 
-    .header {
-      padding:20px;
+    .container {
+      width:100%;
+      max-width:380px;
+      padding:15px;
     }
 
-    .header h2 {
+    .card {
+      background:white;
+      border-radius:20px;
+      padding:25px;
+      box-shadow:0 15px 40px rgba(0,0,0,0.25);
+    }
+
+    .title {
+      text-align:center;
+      margin-bottom:10px;
+    }
+
+    .title h2 {
       margin:0;
       font-weight:600;
     }
 
-    .sub {
+    .subtitle {
+      text-align:center;
       font-size:13px;
-      color:#ccc;
+      color:#777;
+      margin-bottom:20px;
     }
 
-    .container {
-      padding:15px;
+    label {
+      display:block;
+      font-size:13px;
+      margin-top:12px;
+      font-weight:500;
     }
 
-    /* Cards */
-    .cards {
+    select, input {
+      width:100%;
+      padding:12px;
+      margin-top:5px;
+      border-radius:12px;
+      border:1px solid #ddd;
+      font-size:15px;
+      transition:0.2s;
+    }
+
+    select:focus, input:focus {
+      border-color:#2c5364;
+      box-shadow:0 0 6px rgba(44,83,100,0.3);
+      outline:none;
+    }
+
+    .row {
       display:flex;
       gap:10px;
-      margin-top:15px;
     }
 
-    .card {
-      flex:1;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      border-radius:15px;
-      padding:15px;
-      text-align:center;
-    }
+    .col { flex:1; }
 
-    .card h3 {
-      margin:5px 0;
-      font-size:20px;
-    }
-
-    .card p {
-      font-size:12px;
-      color:#ddd;
-    }
-
-    /* Actions */
-    .actions {
-      margin-top:25px;
-    }
-
-    .btn {
+    button {
       width:100%;
-      padding:15px;
-      margin-top:12px;
+      padding:14px;
+      margin-top:20px;
       border:none;
-      border-radius:12px;
+      border-radius:14px;
+      background:linear-gradient(135deg,#00c6ff,#0072ff);
+      color:white;
       font-size:16px;
       font-weight:600;
       cursor:pointer;
       transition:0.2s;
     }
 
-    .present {
-      background:linear-gradient(135deg,#00c853,#64dd17);
-      color:white;
-    }
-
-    .leave {
-      background:linear-gradient(135deg,#ff9800,#ff5722);
-      color:white;
-    }
-
-    .logout {
-      background:#e53935;
-      color:white;
-      margin-top:20px;
-    }
-
-    .btn:hover {
+    button:hover {
       transform:translateY(-2px);
-      box-shadow:0 5px 15px rgba(0,0,0,0.3);
+      box-shadow:0 6px 15px rgba(0,0,0,0.2);
     }
 
     #msg {
+      text-align:center;
       margin-top:10px;
       font-size:14px;
+      font-weight:500;
+    }
+
+    .hidden { display:none; }
+
+    .badge {
+      background:#eef;
+      padding:5px 12px;
+      border-radius:20px;
+      font-size:12px;
+      display:inline-block;
+      margin-bottom:10px;
     }
 
   </style>
@@ -106,94 +119,123 @@
 
 <body>
 
-<div class="header">
-  <h2>👋 Welcome</h2>
-  <div class="sub" id="user"></div>
-</div>
-
 <div class="container">
+  <div class="card">
 
-  <!-- STATS -->
-  <div class="cards">
-    <div class="card">
-      <h3 id="presentCount">--</h3>
-      <p>Present Days</p>
+    <div class="title">
+      <h2>📍 Attendance</h2>
     </div>
 
-    <div class="card">
-      <h3 id="leaveCount">--</h3>
-      <p>Leave Days</p>
+    <div class="subtitle">Staff ID: N07550</div>
+
+    <!-- STATUS -->
+    <label>Status</label>
+    <select id="status">
+      <option value="Present">Present</option>
+      <option value="Leave">Leave</option>
+    </select>
+
+    <!-- LEAVE SECTION -->
+    <div id="leaveSection" class="hidden">
+
+      <!-- FROM DATE FIRST -->
+      <label>From Date</label>
+      <input type="date" id="from_date">
+
+      <!-- SECOND ROW -->
+      <div class="row">
+
+        <div class="col">
+          <label>To Date</label>
+          <input type="date" id="to_date">
+        </div>
+
+        <div class="col">
+          <label>Leave Type</label>
+          <select id="leave_type">
+            <option value="">Select</option>
+            <option value="PL">PL</option>
+            <option value="CL">CL</option>
+            <option value="MATERNITY">MATERNITY</option>
+            <option value="JOINING">JOINING</option>
+            <option value="PATERNITY">PATERNITY</option>
+            <option value="UCL">UCL</option>
+            <option value="MEDICAL">MEDICAL</option>
+          </select>
+        </div>
+
+      </div>
+
     </div>
 
-    <div class="card">
-      <h3 id="monthCount">--</h3>
-      <p>This Month</p>
-    </div>
+    <button onclick="markAttendance()">Submit</button>
+
+    <p id="msg"></p>
+
   </div>
-
-  <!-- ACTIONS -->
-  <div class="actions">
-
-    <button class="btn present" onclick="markAttendance('Present')">
-      ✅ Mark Present
-    </button>
-
-    <button class="btn leave" onclick="goToLeave()">
-      📝 Apply Leave
-    </button>
-
-    <button class="btn logout" onclick="logout()">
-      🚪 Logout
-    </button>
-
-  </div>
-
-  <p id="msg"></p>
-
 </div>
 
 <script>
 
-const SCRIPT_URL = "YOUR_SCRIPT_URL";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
-let staffId = localStorage.getItem("staff_id") || "N07550";
+// Toggle Leave UI
+document.getElementById("status").addEventListener("change", function() {
+  document.getElementById("leaveSection")
+    .classList.toggle("hidden", this.value !== "Leave");
+});
 
-document.getElementById("user").innerText = "Staff ID: " + staffId;
+// Auto To Date = From Date
+document.getElementById("from_date").addEventListener("change", function(){
+  document.getElementById("to_date").value = this.value;
+});
 
-// 🚀 Mark Attendance
-function markAttendance(status){
+// Submit
+function markAttendance(){
+
+  const status = document.getElementById("status").value;
+  const leaveType = document.getElementById("leave_type").value;
+  const fromDate = document.getElementById("from_date").value;
+  const toDate = document.getElementById("to_date").value;
+
+  if(status === "Leave"){
+    if(!leaveType || !fromDate || !toDate){
+      alert("Fill all leave details");
+      return;
+    }
+  }
+
+  document.getElementById("msg").innerText = "📍 Getting location...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
+    const data = {
+      staff_id: "N07550",
+      status: status,
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      leave_type: leaveType,
+      from_date: fromDate,
+      to_date: toDate
+    };
+
     fetch(SCRIPT_URL,{
       method:"POST",
-      body:JSON.stringify({
-        staff_id:staffId,
-        status:status,
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude
-      })
+      body:JSON.stringify(data)
     })
     .then(res=>res.json())
     .then(res=>{
       document.getElementById("msg").innerText =
-        res.status==="success"
+        res.status === "success"
         ? "✅ Attendance Marked"
         : "❌ " + res.message;
+    })
+    .catch(()=>{
+      document.getElementById("msg").innerText = "❌ Server error";
     });
 
   });
 
-}
-
-// 🔁 Navigation
-function goToLeave(){
-  window.location.href="index.html";
-}
-
-function logout(){
-  localStorage.clear();
-  window.location.href="login.html";
 }
 
 </script>
