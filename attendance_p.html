@@ -1,42 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>Attendance Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
     body { font-family: Arial; background:#f4f6f9; margin:0; }
-    .header { background:#006633; color:white; padding:15px; }
-    .container { padding:15px; max-width:420px; margin:auto; }
-    .card { background:white; padding:15px; margin-bottom:10px; border-radius:10px; }
+
+    .header {
+      background: linear-gradient(135deg,#006633,#00994d);
+      color:white;
+      padding:15px;
+    }
+
+    .container {
+      padding:15px;
+      max-width:420px;
+      margin:auto;
+    }
+
+    .card {
+      background:white;
+      padding:15px;
+      margin-bottom:10px;
+      border-radius:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    }
+
     .grid { display:flex; gap:10px; }
-    button { width:100%; padding:12px; margin-top:10px; }
+
+    button {
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:6px;
+      background:#006633;
+      color:white;
+      font-weight:bold;
+    }
+
+    .leave { background:#ff9800; }
+
+    #msg { text-align:center; margin-top:10px; }
   </style>
 </head>
 
 <body>
 
 <div class="header">
-  <h3 id="welcome"></h3>
+  <h3 id="welcome">Welcome</h3>
 </div>
 
 <div class="container">
 
-<div class="card">
-  Today: <b id="todayStatus"></b>
-</div>
+  <div class="card">
+    Today: <b id="todayStatus">--</b>
+  </div>
 
-<div class="grid">
-  <div class="card">Present: <b id="presentCount"></b></div>
-  <div class="card">Leave: <b id="leaveCount"></b></div>
-</div>
+  <div class="grid">
+    <div class="card">Present: <b id="presentCount">0</b></div>
+    <div class="card">Leave: <b id="leaveCount">0</b></div>
+  </div>
 
-<div class="card">
-  <button onclick="markAttendance()">Mark Present</button>
-  <button onclick="goToLeave()">Apply Leave</button>
-</div>
+  <div class="card">
+    <button onclick="markAttendance()">Mark Present</button>
+    <button class="leave" onclick="goToLeave()">Apply Leave</button>
+  </div>
 
-<p id="msg"></p>
+  <p id="msg"></p>
 
 </div>
 
@@ -56,17 +88,21 @@ function loadDashboard(){
   })
   .then(res=>res.json())
   .then(res=>{
+
     document.getElementById("welcome").innerText =
-      "Welcome " + staffId + " - " + res.name;
+      "👋 Welcome " + staffId + " - " + res.name;
 
     document.getElementById("todayStatus").innerText = res.today;
     document.getElementById("presentCount").innerText = res.present;
     document.getElementById("leaveCount").innerText = res.leave;
+
   });
 
 }
 
 function markAttendance(){
+
+  document.getElementById("msg").innerText = "Marking...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -81,6 +117,7 @@ function markAttendance(){
     })
     .then(res=>res.json())
     .then(()=>{
+      document.getElementById("msg").innerText = "Done";
       setTimeout(loadDashboard,500);
     });
 
@@ -89,7 +126,7 @@ function markAttendance(){
 }
 
 function goToLeave(){
-  window.location.href="attendance.html?mode=leave";
+  window.location.href = "attendance.html?mode=leave";
 }
 
 loadDashboard();
