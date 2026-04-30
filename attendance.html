@@ -5,48 +5,94 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    body { font-family: Arial; text-align: center; padding: 20px; background: #f5f5f5; }
-    .box { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; }
-    input, select, button { width: 90%; padding: 12px; margin: 10px; font-size: 16px; }
-    button { background: #006633; color: white; border: none; }
+    body {
+      font-family: Arial;
+      background: #f4f6f9;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 { margin-bottom: 10px; }
+
+    select, input, button {
+      width: 90%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #006633;
+      color: white;
+      font-weight: bold;
+      border: none;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #msg {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .fade {
+      transition: all 0.3s ease;
+    }
   </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="card">
 
-<h2>📍 Attendance System</h2>
+  <h2>📍 Attendance</h2>
+  <p><b>ID:</b> N07550</p>
 
-<p><b>Staff ID:</b> N07550</p>
-
-<select id="status">
-  <option value="Present">Present</option>
-  <option value="Leave">Leave</option>
-</select>
-
-<!-- Leave Section -->
-<div id="leave_section" style="display:none;">
-
-  <select id="leave_type">
-    <option value="">Select Leave Type</option>
-    <option value="PL">PL</option>
-    <option value="CL">CL</option>
-    <option value="MATERNITY">MATERNITY</option>
-    <option value="JOINING">JOINING</option>
-    <option value="PATERNITY">PATERNITY</option>
-    <option value="UCL">UCL</option>
-    <option value="MEDICAL">MEDICAL</option>
+  <!-- STATUS -->
+  <select id="status">
+    <option value="Present">Present</option>
+    <option value="Leave">Leave</option>
   </select>
 
-  <input type="date" id="from_date">
-  <input type="date" id="to_date">
+  <!-- LEAVE SECTION -->
+  <div id="leaveSection" class="hidden fade">
 
-</div>
+    <select id="leave_type">
+      <option value="">Select Leave Type</option>
+      <option value="PL">PL</option>
+      <option value="CL">CL</option>
+      <option value="MATERNITY">MATERNITY</option>
+      <option value="JOINING">JOINING</option>
+      <option value="PATERNITY">PATERNITY</option>
+      <option value="UCL">UCL</option>
+      <option value="MEDICAL">MEDICAL</option>
+    </select>
 
-<button onclick="markAttendance()">Submit</button>
+    <input type="date" id="from_date" placeholder="From Date">
+    <input type="date" id="to_date" placeholder="To Date">
 
-<p id="msg"></p>
+  </div>
+
+  <button onclick="markAttendance()">Submit</button>
+
+  <p id="msg"></p>
 
 </div>
 
@@ -54,25 +100,43 @@
 
 const SCRIPT_URL = "YOUR_SCRIPT_URL";
 
+// 🎯 Toggle Leave UI smoothly
 document.getElementById("status").addEventListener("change", function() {
-  document.getElementById("leave_section").style.display =
-    this.value === "Leave" ? "block" : "none";
+  const leaveSection = document.getElementById("leaveSection");
+
+  if(this.value === "Leave"){
+    leaveSection.classList.remove("hidden");
+  } else {
+    leaveSection.classList.add("hidden");
+  }
 });
 
+// 🚀 MAIN FUNCTION
 function markAttendance() {
 
-  let status = document.getElementById("status").value;
+  const status = document.getElementById("status").value;
+  const leaveType = document.getElementById("leave_type").value;
+  const fromDate = document.getElementById("from_date").value;
+  const toDate = document.getElementById("to_date").value;
 
-  let leaveType = document.getElementById("leave_type").value;
-  let fromDate = document.getElementById("from_date").value;
-  let toDate = document.getElementById("to_date").value;
-
+  // 🔐 Validation
   if(status === "Leave"){
-    if(!leaveType || !fromDate || !toDate){
-      alert("Select Leave Type and Dates");
+    if(!leaveType){
+      alert("Select Leave Type");
+      return;
+    }
+    if(!fromDate || !toDate){
+      alert("Select From & To Date");
       return;
     }
   }
+
+  if (!navigator.geolocation) {
+    alert("GPS not supported");
+    return;
+  }
+
+  document.getElementById("msg").innerText = "📍 Getting location...";
 
   navigator.geolocation.getCurrentPosition(function(position){
 
@@ -94,12 +158,16 @@ function markAttendance() {
     .then(res => {
       document.getElementById("msg").innerText =
         res.status === "success"
-        ? "✅ Attendance Marked"
+        ? "✅ Done"
         : "❌ " + res.message;
+    })
+    .catch(() => {
+      document.getElementById("msg").innerText = "❌ Server error";
     });
 
+  }, () => {
+    alert("Allow location access");
   });
-
 }
 
 </script>
