@@ -23,10 +23,18 @@
 
     h2 { margin-bottom: 10px; }
 
+    label {
+      display: block;
+      text-align: left;
+      margin-left: 5%;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
     select, input, button {
       width: 90%;
       padding: 12px;
-      margin: 8px 0;
+      margin: 5px 0;
       font-size: 16px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -37,14 +45,7 @@
       color: white;
       font-weight: bold;
       border: none;
-    }
-
-    button:active {
-      transform: scale(0.97);
-    }
-
-    .hidden {
-      display: none;
+      margin-top: 15px;
     }
 
     #msg {
@@ -52,8 +53,8 @@
       font-weight: bold;
     }
 
-    .fade {
-      transition: all 0.3s ease;
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -63,17 +64,19 @@
 <div class="card">
 
   <h2>📍 Attendance</h2>
-  <p><b>ID:</b> N07550</p>
+  <p><b>Staff ID:</b> N07550</p>
 
   <!-- STATUS -->
+  <label>Status</label>
   <select id="status">
     <option value="Present">Present</option>
     <option value="Leave">Leave</option>
   </select>
 
   <!-- LEAVE SECTION -->
-  <div id="leaveSection" class="hidden fade">
+  <div id="leaveSection" class="hidden">
 
+    <label>Leave Type</label>
     <select id="leave_type">
       <option value="">Select Leave Type</option>
       <option value="PL">PL</option>
@@ -85,8 +88,11 @@
       <option value="MEDICAL">MEDICAL</option>
     </select>
 
-    <input type="date" id="from_date" placeholder="From Date">
-    <input type="date" id="to_date" placeholder="To Date">
+    <label>From Date</label>
+    <input type="date" id="from_date">
+
+    <label>To Date</label>
+    <input type="date" id="to_date">
 
   </div>
 
@@ -98,20 +104,15 @@
 
 <script>
 
-const SCRIPT_URL = "YOUR_SCRIPT_URL";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
-// 🎯 Toggle Leave UI smoothly
+// 🔁 Toggle Leave UI
 document.getElementById("status").addEventListener("change", function() {
   const leaveSection = document.getElementById("leaveSection");
-
-  if(this.value === "Leave"){
-    leaveSection.classList.remove("hidden");
-  } else {
-    leaveSection.classList.add("hidden");
-  }
+  leaveSection.classList.toggle("hidden", this.value !== "Leave");
 });
 
-// 🚀 MAIN FUNCTION
+// 🚀 Main function
 function markAttendance() {
 
   const status = document.getElementById("status").value;
@@ -119,14 +120,14 @@ function markAttendance() {
   const fromDate = document.getElementById("from_date").value;
   const toDate = document.getElementById("to_date").value;
 
-  // 🔐 Validation
+  // ✅ Validation
   if(status === "Leave"){
     if(!leaveType){
-      alert("Select Leave Type");
+      alert("Please select Leave Type");
       return;
     }
     if(!fromDate || !toDate){
-      alert("Select From & To Date");
+      alert("Please select From and To Date");
       return;
     }
   }
@@ -150,6 +151,8 @@ function markAttendance() {
       to_date: toDate
     };
 
+    document.getElementById("msg").innerText = "📡 Sending data...";
+
     fetch(SCRIPT_URL, {
       method: "POST",
       body: JSON.stringify(data)
@@ -158,15 +161,15 @@ function markAttendance() {
     .then(res => {
       document.getElementById("msg").innerText =
         res.status === "success"
-        ? "✅ Done"
+        ? "✅ Attendance Marked Successfully"
         : "❌ " + res.message;
     })
     .catch(() => {
-      document.getElementById("msg").innerText = "❌ Server error";
+      document.getElementById("msg").innerText = "❌ Server Error";
     });
 
-  }, () => {
-    alert("Allow location access");
+  }, function(){
+    alert("Please allow location access");
   });
 }
 
