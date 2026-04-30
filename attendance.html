@@ -1,65 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance</title>
 
-  <style>
-    body { font-family: Arial; margin:0; background:#f5f5f5; }
-    .header { background:#006633; color:white; padding:15px; text-align:center; }
-    .container { max-width:420px; margin:auto; padding:15px; }
-    .card { background:white; padding:15px; margin-bottom:10px; border-radius:8px; }
-    button { width:100%; padding:12px; margin-top:10px; border:none; border-radius:6px; }
-    .present { background:#006633; color:white; }
-    .leave { background:#ff9800; color:white; }
-    input,select { width:100%; padding:10px; margin-top:5px; }
-    .hidden { display:none; }
-  </style>
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f9}
+.header{background:#006633;color:#fff;padding:15px;text-align:center}
+.box{padding:15px;max-width:420px;margin:auto}
+.card{background:#fff;padding:15px;margin-bottom:10px;border-radius:8px}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:6px}
+.present{background:#006633;color:#fff}
+.leave{background:#ff9800;color:#fff}
+.hidden{display:none}
+</style>
 </head>
 
 <body>
 
 <div class="header">
-  <h3 id="welcome">Loading...</h3>
+<h3 id="welcome">Loading...</h3>
 </div>
 
-<div class="container">
+<div class="box">
+
+<div class="card">Today: <b id="today">--</b></div>
 
 <div class="card">
-  Today: <b id="today">--</b>
-</div>
-
-<div class="card">
-  Present (Month): <b id="present">0</b><br>
-  Leave (Month): <b id="leave">0</b>
+Present: <b id="p">0</b><br>
+Leave: <b id="l">0</b>
 </div>
 
 <div class="card">
-  <button class="present" onclick="mark()">Mark Attendance</button>
-  <button class="leave" onclick="openLeave()">Apply Leave</button>
+<button class="present" onclick="mark()">Mark Attendance</button>
+<button class="leave" onclick="showLeave()">Apply Leave</button>
 </div>
 
 <div id="leaveBox" class="card hidden">
-
-  <label>From Date</label>
-  <input type="date" id="from">
-
-  <label>To Date</label>
-  <input type="date" id="to">
-
-  <label>Leave Type</label>
-  <select id="type">
-    <option value="">Select</option>
-    <option>PL</option>
-    <option>CL</option>
-    <option>MEDICAL</option>
-    <option>MATERNITY</option>
-    <option>PATERNITY</option>
-    <option>UCL</option>
-  </select>
-
-  <button class="leave" onclick="applyLeave()">Submit Leave</button>
-
+<input type="date" id="from">
+<input type="date" id="to">
+<select id="type">
+<option value="">Select</option>
+<option>PL</option>
+<option>CL</option>
+<option>MEDICAL</option>
+<option>MATERNITY</option>
+<option>PATERNITY</option>
+<option>UCL</option>
+</select>
+<button class="leave" onclick="applyLeave()">Submit Leave</button>
 </div>
 
 <p id="msg"></p>
@@ -69,43 +58,31 @@
 <script>
 
 const URL = "YOUR_SCRIPT_URL";
-let staffId = "N07550"; // change as needed
+let id = "N07550";
 
-// LOAD DASHBOARD
 function load(){
-
   fetch(URL,{
     method:"POST",
-    body:JSON.stringify({
-      action:"dashboard",
-      staff_id:staffId
-    })
+    body:JSON.stringify({action:"dashboard", staff_id:id})
   })
   .then(r=>r.json())
   .then(d=>{
-
     document.getElementById("welcome").innerText =
-      "Hello " + (d.name || "User") + " (" + staffId + ")";
+      "Hello " + (d.name || "User") + " ("+id+")";
 
-    document.getElementById("today").innerText = d.today || "--";
-    document.getElementById("present").innerText = d.present || 0;
-    document.getElementById("leave").innerText = d.leave || 0;
-
+    document.getElementById("today").innerText = d.today;
+    document.getElementById("p").innerText = d.present;
+    document.getElementById("l").innerText = d.leave;
   });
-
 }
 
-// MARK ATTENDANCE
 function mark(){
-
-  document.getElementById("msg").innerText = "Processing...";
-
-  navigator.geolocation.getCurrentPosition(function(pos){
-
+  document.getElementById("msg").innerText="Processing...";
+  navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
       body:JSON.stringify({
-        staff_id:staffId,
+        staff_id:id,
         status:"Present",
         lat:pos.coords.latitude,
         lng:pos.coords.longitude
@@ -113,39 +90,26 @@ function mark(){
     })
     .then(r=>r.json())
     .then(d=>{
-      document.getElementById("msg").innerText = d.message;
+      document.getElementById("msg").innerText=d.message;
       load();
     });
-
-  }, function(){
-    document.getElementById("msg").innerText = "Location permission denied";
   });
-
 }
 
-// OPEN LEAVE
-function openLeave(){
-
-  let t = new Date();
-  t.setDate(t.getDate()+1);
-
-  let next = t.toISOString().split("T")[0];
-
+function showLeave(){
+  let t=new Date(); t.setDate(t.getDate()+1);
+  let d=t.toISOString().split("T")[0];
   document.getElementById("leaveBox").classList.remove("hidden");
-  document.getElementById("from").value = next;
-  document.getElementById("to").value = next;
-
+  document.getElementById("from").value=d;
+  document.getElementById("to").value=d;
 }
 
-// APPLY LEAVE
 function applyLeave(){
-
-  navigator.geolocation.getCurrentPosition(function(pos){
-
+  navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
       body:JSON.stringify({
-        staff_id:staffId,
+        staff_id:id,
         status:"Leave",
         leave_type:document.getElementById("type").value,
         from_date:document.getElementById("from").value,
@@ -156,18 +120,15 @@ function applyLeave(){
     })
     .then(r=>r.json())
     .then(d=>{
-      document.getElementById("msg").innerText = d.message;
+      document.getElementById("msg").innerText=d.message;
       document.getElementById("leaveBox").classList.add("hidden");
       load();
     });
-
   });
-
 }
 
 load();
 
 </script>
-
 </body>
 </html>
