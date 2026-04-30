@@ -1,54 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Attendance</title>
+  <title>Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body{font-family:Arial;margin:0;background:#f4f6f9}
-.header{background:#006633;color:#fff;padding:15px;text-align:center}
-.box{padding:15px;max-width:420px;margin:auto}
-.card{background:#fff;padding:15px;margin-bottom:10px;border-radius:8px}
-button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:6px}
-.present{background:#006633;color:#fff}
-.leave{background:#ff9800;color:#fff}
-.hidden{display:none}
-</style>
+  <style>
+    body { font-family: Arial; margin:0; background:#f4f6f9; }
+    .header { background:#006633; color:white; padding:15px; text-align:center; }
+    .box { padding:15px; max-width:420px; margin:auto; }
+    .card { background:white; padding:15px; margin-bottom:10px; border-radius:8px; }
+    button { width:100%; padding:12px; margin-top:10px; border:none; border-radius:6px; }
+    .present { background:#006633; color:white; }
+    .leave { background:#ff9800; color:white; }
+    .hidden { display:none; }
+    input,select { width:100%; padding:10px; margin-top:5px; }
+    #msg { text-align:center; margin-top:10px; }
+  </style>
 </head>
 
 <body>
 
 <div class="header">
-<h3 id="welcome">Loading...</h3>
+  <h3 id="welcome">Loading...</h3>
 </div>
 
 <div class="box">
 
-<div class="card">Today: <b id="today">--</b></div>
-
 <div class="card">
-Present: <b id="p">0</b><br>
-Leave: <b id="l">0</b>
+  Today: <b id="today">--</b>
 </div>
 
 <div class="card">
-<button class="present" onclick="mark()">Mark Attendance</button>
-<button class="leave" onclick="showLeave()">Apply Leave</button>
+  Present (Month): <b id="present">0</b><br>
+  Leave (Month): <b id="leave">0</b>
+</div>
+
+<div class="card">
+  <button id="btnPresent" class="present" onclick="mark()">Mark Attendance</button>
+  <button class="leave" onclick="showLeave()">Apply Leave</button>
 </div>
 
 <div id="leaveBox" class="card hidden">
-<input type="date" id="from">
-<input type="date" id="to">
-<select id="type">
-<option value="">Select</option>
-<option>PL</option>
-<option>CL</option>
-<option>MEDICAL</option>
-<option>MATERNITY</option>
-<option>PATERNITY</option>
-<option>UCL</option>
-</select>
-<button class="leave" onclick="applyLeave()">Submit Leave</button>
+  <input type="date" id="from">
+  <input type="date" id="to">
+
+  <select id="type">
+    <option value="">Select</option>
+    <option>PL</option>
+    <option>CL</option>
+    <option>MEDICAL</option>
+    <option>MATERNITY</option>
+    <option>PATERNITY</option>
+    <option>UCL</option>
+  </select>
+
+  <button class="leave" onclick="applyLeave()">Submit Leave</button>
 </div>
 
 <p id="msg"></p>
@@ -57,59 +63,111 @@ Leave: <b id="l">0</b>
 
 <script>
 
-const URL = "YOUR_SCRIPT_URL";
-let id = "N07550";
+const URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
+let staffId = "N07550"; // change as needed
 
+// 🔁 LOAD DASHBOARD
 function load(){
   fetch(URL,{
     method:"POST",
-    body:JSON.stringify({action:"dashboard", staff_id:id})
+    headers:{
+      "Content-Type":"text/plain;charset=utf-8"
+    },
+    body:JSON.stringify({
+      action:"dashboard",
+      staff_id:staffId
+    })
   })
-  .then(r=>r.json())
+  .then(res=>res.json())
   .then(d=>{
-    document.getElementById("welcome").innerText =
-      "Hello " + (d.name || "User") + " ("+id+")";
 
-    document.getElementById("today").innerText = d.today;
-    document.getElementById("p").innerText = d.present;
-    document.getElementById("l").innerText = d.leave;
+    console.log("API:", d);
+
+    document.getElementById("welcome").innerText =
+      "Hello " + (d.name || "User") + " ("+staffId+")";
+
+    document.getElementById("today").innerText = d.today || "--";
+    document.getElementById("present").innerText = d.present || 0;
+    document.getElementById("leave").innerText = d.leave || 0;
+
+  })
+  .catch(err=>{
+    document.getElementById("msg").innerText = "Error loading dashboard";
+    console.error(err);
   });
 }
 
+// ✅ MARK ATTENDANCE
 function mark(){
-  document.getElementById("msg").innerText="Processing...";
-  navigator.geolocation.getCurrentPosition(pos=>{
+
+  let btn = document.getElementById("btnPresent");
+  let msg = document.getElementById("msg");
+
+  btn.disabled = true;
+  btn.innerText = "Processing...";
+  msg.innerText = "Getting location...";
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+
     fetch(URL,{
       method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=utf-8"
+      },
       body:JSON.stringify({
-        staff_id:id,
+        staff_id:staffId,
         status:"Present",
         lat:pos.coords.latitude,
         lng:pos.coords.longitude
       })
     })
-    .then(r=>r.json())
+    .then(res=>res.json())
     .then(d=>{
-      document.getElementById("msg").innerText=d.message;
+      msg.innerText = d.message;
+      btn.disabled = false;
+      btn.innerText = "Mark Attendance";
       load();
+    })
+    .catch(()=>{
+      msg.innerText = "Server error";
+      btn.disabled = false;
+      btn.innerText = "Mark Attendance";
     });
+
+  }, function(){
+    msg.innerText = "Location permission denied";
+    btn.disabled = false;
+    btn.innerText = "Mark Attendance";
   });
+
 }
 
+// 📝 SHOW LEAVE
 function showLeave(){
-  let t=new Date(); t.setDate(t.getDate()+1);
-  let d=t.toISOString().split("T")[0];
+
+  let t = new Date();
+  t.setDate(t.getDate()+1);
+
+  let next = t.toISOString().split("T")[0];
+
   document.getElementById("leaveBox").classList.remove("hidden");
-  document.getElementById("from").value=d;
-  document.getElementById("to").value=d;
+
+  document.getElementById("from").value = next;
+  document.getElementById("to").value = next;
 }
 
+// 📤 APPLY LEAVE
 function applyLeave(){
-  navigator.geolocation.getCurrentPosition(pos=>{
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+
     fetch(URL,{
       method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=utf-8"
+      },
       body:JSON.stringify({
-        staff_id:id,
+        staff_id:staffId,
         status:"Leave",
         leave_type:document.getElementById("type").value,
         from_date:document.getElementById("from").value,
@@ -118,17 +176,24 @@ function applyLeave(){
         lng:pos.coords.longitude
       })
     })
-    .then(r=>r.json())
+    .then(res=>res.json())
     .then(d=>{
-      document.getElementById("msg").innerText=d.message;
+      document.getElementById("msg").innerText = d.message;
       document.getElementById("leaveBox").classList.add("hidden");
       load();
+    })
+    .catch(()=>{
+      document.getElementById("msg").innerText = "Server error";
     });
+
   });
+
 }
 
+// INIT
 load();
 
 </script>
+
 </body>
 </html>
