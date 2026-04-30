@@ -9,7 +9,7 @@
     .header { background:#006633; color:white; padding:15px; text-align:center; }
     .container { padding:15px; max-width:420px; margin:auto; }
     .card { background:white; padding:15px; border-radius:10px; }
-    label { display:block; margin-top:10px; font-size:13px; }
+    label { display:block; margin-top:10px; }
     select,input { width:100%; padding:10px; margin-top:5px; }
     .row { display:flex; gap:10px; }
     .col { flex:1; }
@@ -57,8 +57,6 @@
 
 <button onclick="markAttendance()">Submit</button>
 
-<p id="msg"></p>
-
 </div>
 </div>
 
@@ -67,13 +65,11 @@
 const SCRIPT_URL = "YOUR_SCRIPT_URL";
 let staffId = "N07550";
 
-// Toggle leave UI
-document.getElementById("status").addEventListener("change", function() {
+document.getElementById("status").addEventListener("change", function(){
   document.getElementById("leaveSection")
     .classList.toggle("hidden", this.value !== "Leave");
 });
 
-// 🔥 AUTO LOAD
 window.onload = function(){
 
   let today = new Date().toISOString().split("T")[0];
@@ -81,46 +77,37 @@ window.onload = function(){
   document.getElementById("from_date").value = today;
   document.getElementById("to_date").value = today;
 
-  document.getElementById("from_date").min = today;
-  document.getElementById("to_date").min = today;
-
   const params = new URLSearchParams(window.location.search);
-  if(params.get("mode") === "leave"){
-    document.getElementById("status").value = "Leave";
+  if(params.get("mode")==="leave"){
+    document.getElementById("status").value="Leave";
     document.getElementById("status")
       .dispatchEvent(new Event("change"));
   }
 
 };
 
-// Submit
 function markAttendance(){
 
   let status = document.getElementById("status").value;
 
-  let data = {
-    staff_id: staffId,
-    status: status,
-    lat: 0,
-    lng: 0,
-    leave_type: document.getElementById("leave_type").value,
-    from_date: document.getElementById("from_date").value,
-    to_date: document.getElementById("to_date").value
-  };
-
   navigator.geolocation.getCurrentPosition(function(pos){
-
-    data.lat = pos.coords.latitude;
-    data.lng = pos.coords.longitude;
 
     fetch(SCRIPT_URL,{
       method:"POST",
-      body:JSON.stringify(data)
+      body:JSON.stringify({
+        staff_id:staffId,
+        status:status,
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude,
+        leave_type:document.getElementById("leave_type").value,
+        from_date:document.getElementById("from_date").value,
+        to_date:document.getElementById("to_date").value
+      })
     })
     .then(res=>res.json())
-    .then(res=>{
-      document.getElementById("msg").innerText =
-        res.status==="success" ? "Done" : res.message;
+    .then(()=>{
+      alert("Submitted");
+      window.location.href="attendance_p.html";
     });
 
   });
