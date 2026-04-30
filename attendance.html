@@ -4,83 +4,64 @@
   <title>Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
     body {
       margin:0;
-      font-family:'Poppins',sans-serif;
-      background: radial-gradient(circle at top,#1f4037,#0f2027);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      color:#fff;
+      font-family:'Inter',sans-serif;
+      background:#f4f6f9;
+    }
+
+    .header {
+      background:#006633;
+      color:white;
+      padding:16px;
+      text-align:center;
+      font-weight:600;
+      font-size:18px;
     }
 
     .container {
-      width:100%;
-      max-width:380px;
       padding:15px;
+      max-width:420px;
+      margin:auto;
     }
 
     .card {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(18px);
-      border-radius:20px;
-      padding:25px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.4);
-      border:1px solid rgba(255,255,255,0.1);
+      background:white;
+      border-radius:10px;
+      padding:18px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.08);
     }
 
-    h2 {
-      text-align:center;
-      margin:0;
-      font-weight:600;
-    }
-
-    .subtitle {
-      text-align:center;
+    .sub {
       font-size:13px;
-      color:#ccc;
-      margin-bottom:20px;
+      color:#666;
+      margin-bottom:15px;
+      text-align:center;
     }
 
-    .field {
-      position:relative;
-      margin-top:18px;
+    label {
+      display:block;
+      font-size:13px;
+      font-weight:500;
+      margin-top:12px;
     }
 
-    .field input, .field select {
+    select, input {
       width:100%;
-      padding:14px;
-      border-radius:12px;
-      border:none;
-      background:rgba(255,255,255,0.12);
-      color:#fff;
-      font-size:15px;
+      padding:11px;
+      margin-top:5px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      font-size:14px;
+      background:#fff;
+    }
+
+    select:focus, input:focus {
+      border-color:#006633;
       outline:none;
-    }
-
-    .field label {
-      position:absolute;
-      left:12px;
-      top:12px;
-      font-size:13px;
-      color:#bbb;
-      transition:0.2s;
-      pointer-events:none;
-    }
-
-    .field input:focus + label,
-    .field input:not(:placeholder-shown) + label,
-    .field select:focus + label {
-      top:-8px;
-      font-size:11px;
-      color:#00e5ff;
-      background:#0f2027;
-      padding:2px 6px;
-      border-radius:5px;
     }
 
     .row {
@@ -94,32 +75,26 @@
 
     button {
       width:100%;
-      padding:15px;
-      margin-top:25px;
+      padding:13px;
+      margin-top:18px;
       border:none;
-      border-radius:14px;
-      background:linear-gradient(135deg,#00e5ff,#2979ff);
+      border-radius:6px;
+      background:#006633;
       color:white;
-      font-size:16px;
+      font-size:15px;
       font-weight:600;
       cursor:pointer;
-      transition:0.3s;
     }
 
     button:hover {
-      transform:translateY(-2px);
-      box-shadow:0 10px 25px rgba(0,0,0,0.4);
-    }
-
-    .loading {
-      opacity:0.7;
-      pointer-events:none;
+      background:#00512a;
     }
 
     #msg {
       text-align:center;
-      margin-top:12px;
+      margin-top:10px;
       font-size:14px;
+      font-weight:500;
     }
 
   </style>
@@ -127,80 +102,77 @@
 
 <body>
 
+<div class="header">Attendance System</div>
+
 <div class="container">
+
   <div class="card">
 
-    <h2>📍 Attendance</h2>
-    <div class="subtitle">Staff ID: N07550</div>
+    <div class="sub">Staff ID: N07550</div>
 
     <!-- STATUS -->
-    <div class="field">
-      <select id="status">
-        <option value="Present">Present</option>
-        <option value="Leave">Leave</option>
-      </select>
-      <label>Status</label>
-    </div>
+    <label>Status</label>
+    <select id="status">
+      <option value="Present">Present</option>
+      <option value="Leave">Leave</option>
+    </select>
 
-    <!-- LEAVE -->
+    <!-- LEAVE SECTION -->
     <div id="leaveSection" class="hidden">
 
-      <div class="field">
-        <input type="date" id="from_date" placeholder=" ">
-        <label>From Date</label>
-      </div>
+      <label>From Date</label>
+      <input type="date" id="from_date">
 
       <div class="row">
 
         <div class="col">
-          <div class="field">
-            <input type="date" id="to_date" placeholder=" ">
-            <label>To Date</label>
-          </div>
+          <label>To Date</label>
+          <input type="date" id="to_date">
         </div>
 
         <div class="col">
-          <div class="field">
-            <select id="leave_type">
-              <option value=""></option>
-              <option value="PL">PL</option>
-              <option value="CL">CL</option>
-              <option value="MEDICAL">MEDICAL</option>
-            </select>
-            <label>Leave Type</label>
-          </div>
+          <label>Leave Type</label>
+          <select id="leave_type">
+            <option value="">Select</option>
+            <option value="PL">PL</option>
+            <option value="CL">CL</option>
+            <option value="MATERNITY">MATERNITY</option>
+            <option value="JOINING">JOINING</option>
+            <option value="PATERNITY">PATERNITY</option>
+            <option value="UCL">UCL</option>
+            <option value="MEDICAL">MEDICAL</option>
+          </select>
         </div>
 
       </div>
 
     </div>
 
-    <button id="btn" onclick="markAttendance()">Submit</button>
+    <button onclick="markAttendance()">Submit</button>
 
     <p id="msg"></p>
 
   </div>
+
 </div>
 
 <script>
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
+// Toggle Leave Section
 document.getElementById("status").addEventListener("change", function() {
   document.getElementById("leaveSection")
     .classList.toggle("hidden", this.value !== "Leave");
 });
 
-// auto TO date
+// Auto To Date
 document.getElementById("from_date").addEventListener("change", function(){
   document.getElementById("to_date").value = this.value;
 });
 
+// Submit
 function markAttendance(){
-
-  let btn = document.getElementById("btn");
-  btn.classList.add("loading");
-  btn.innerText = "Processing...";
 
   const status = document.getElementById("status").value;
   const leaveType = document.getElementById("leave_type").value;
@@ -209,11 +181,12 @@ function markAttendance(){
 
   if(status === "Leave"){
     if(!leaveType || !fromDate || !toDate){
-      alert("Fill leave details");
-      resetBtn();
+      alert("Please fill leave details");
       return;
     }
   }
+
+  document.getElementById("msg").innerText = "Getting location...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -233,23 +206,15 @@ function markAttendance(){
     .then(res=>{
       document.getElementById("msg").innerText =
         res.status==="success"
-        ? "✅ Done"
-        : "❌ "+res.message;
-      resetBtn();
+        ? "Attendance marked successfully"
+        : res.message;
     })
     .catch(()=>{
-      document.getElementById("msg").innerText="❌ Server error";
-      resetBtn();
+      document.getElementById("msg").innerText="Server error";
     });
 
   });
 
-}
-
-function resetBtn(){
-  let btn = document.getElementById("btn");
-  btn.classList.remove("loading");
-  btn.innerText = "Submit";
 }
 
 </script>
