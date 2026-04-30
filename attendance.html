@@ -10,58 +10,94 @@
     body {
       margin:0;
       font-family:'Inter',sans-serif;
-      background:linear-gradient(135deg,#eef2f3,#dfe9f3);
+      background:linear-gradient(135deg,#edf2f7,#e2e8f0);
     }
 
     .header {
-      background:linear-gradient(135deg,#006633,#00a65a);
+      background:linear-gradient(135deg,#004d26,#00a65a);
       color:white;
-      padding:20px;
-      border-bottom-left-radius:20px;
-      border-bottom-right-radius:20px;
+      padding:22px;
+      border-bottom-left-radius:25px;
+      border-bottom-right-radius:25px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.1);
     }
 
+    .header h3 { margin:0; font-size:18px; }
+
     .container {
-      padding:15px;
       max-width:420px;
       margin:auto;
+      padding:15px;
     }
 
     .card {
       background:white;
-      border-radius:12px;
-      padding:16px;
-      margin-bottom:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      border-radius:16px;
+      padding:18px;
+      margin-bottom:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.06);
     }
 
-    .title { font-size:13px; color:#666; }
-    .value { font-size:20px; font-weight:600; margin-top:5px; }
+    .title {
+      font-size:12px;
+      color:#888;
+    }
 
-    .grid { display:flex; gap:10px; }
+    .value {
+      font-size:22px;
+      font-weight:600;
+      margin-top:6px;
+    }
 
-    .presentCard { background:#e8f5e9; color:#2e7d32; }
-    .leaveCard { background:#fff3e0; color:#ef6c00; }
+    .grid {
+      display:flex;
+      gap:12px;
+    }
 
-    button {
+    .presentCard {
+      background:linear-gradient(135deg,#e6f4ea,#d1fadf);
+      color:#1b5e20;
+    }
+
+    .leaveCard {
+      background:linear-gradient(135deg,#fff4e5,#ffe0b2);
+      color:#e65100;
+    }
+
+    .btn {
       width:100%;
       padding:14px;
-      margin-top:10px;
       border:none;
-      border-radius:10px;
+      border-radius:12px;
       font-weight:600;
+      margin-top:10px;
       cursor:pointer;
+      transition:0.2s;
     }
 
-    .present { background:#006633; color:white; }
-    .leave { background:#ff9800; color:white; }
+    .btn:active { transform:scale(0.97); }
+
+    .present {
+      background:linear-gradient(135deg,#006633,#00a65a);
+      color:white;
+    }
+
+    .leave {
+      background:linear-gradient(135deg,#ff9800,#ff5722);
+      color:white;
+    }
 
     .hidden { display:none; }
 
-    #msg { text-align:center; margin-top:12px; }
+    #msg {
+      text-align:center;
+      margin-top:12px;
+      font-size:14px;
+      font-weight:500;
+    }
 
-    /* 🔥 PREMIUM LEAVE UI */
-    .premium-leave { padding:0; overflow:hidden; }
+    /* LEAVE UI */
+    .leave-box { padding:0; overflow:hidden; }
 
     .leave-header {
       background:linear-gradient(135deg,#ff9800,#ff5722);
@@ -70,38 +106,42 @@
       font-weight:600;
     }
 
-    .leave-body { padding:15px; }
+    .leave-body {
+      padding:15px;
+    }
 
-    .field { margin-bottom:12px; }
+    .field {
+      margin-bottom:12px;
+    }
 
     .field label {
       font-size:12px;
-      color:#666;
+      color:#777;
       display:block;
       margin-bottom:4px;
     }
 
-    .field input,
-    .field select {
+    input,select {
       width:100%;
       padding:12px;
-      border-radius:8px;
+      border-radius:10px;
       border:1px solid #ddd;
       background:#fafafa;
+      font-size:14px;
     }
 
-    .row { display:flex; gap:10px; }
+    .row {
+      display:flex;
+      gap:10px;
+    }
 
     .col { flex:1; }
 
-    .leave-btn {
-      background:linear-gradient(135deg,#ff9800,#ff5722);
-      color:white;
-      font-weight:600;
-      border:none;
-      border-radius:10px;
-      padding:14px;
+    .loader {
+      display:none;
+      text-align:center;
       margin-top:10px;
+      color:#666;
     }
 
   </style>
@@ -124,26 +164,26 @@
   <!-- MONTH -->
   <div class="grid">
     <div class="card presentCard">
-      <div class="title">Present (Month)</div>
+      <div class="title">Present</div>
       <div class="value" id="present">0</div>
     </div>
 
     <div class="card leaveCard">
-      <div class="title">Leave (Month)</div>
+      <div class="title">Leave</div>
       <div class="value" id="leave">0</div>
     </div>
   </div>
 
   <!-- ACTION -->
   <div class="card">
-    <button id="btnPresent" class="present" onclick="mark()">Mark Attendance</button>
-    <button class="leave" onclick="showLeave()">Apply Leave</button>
+    <button id="btnPresent" class="btn present" onclick="mark()">✔ Mark Attendance</button>
+    <button class="btn leave" onclick="showLeave()">➕ Apply Leave</button>
   </div>
 
-  <!-- PREMIUM LEAVE -->
-  <div id="leaveBox" class="card hidden premium-leave">
+  <!-- LEAVE -->
+  <div id="leaveBox" class="card leave-box hidden">
 
-    <div class="leave-header">📝 Apply Leave</div>
+    <div class="leave-header">Apply Leave</div>
 
     <div class="leave-body">
 
@@ -174,12 +214,13 @@
 
       </div>
 
-      <button class="leave-btn" onclick="applyLeave()">Submit Leave</button>
+      <button class="btn leave" onclick="applyLeave()">Submit Leave</button>
 
     </div>
 
   </div>
 
+  <div class="loader" id="loader">Processing...</div>
   <p id="msg"></p>
 
 </div>
@@ -193,7 +234,7 @@ let staffId = "N07550";
 function load(){
   fetch(URL,{
     method:"POST",
-    headers:{"Content-Type":"text/plain"},
+    headers:{ "Content-Type":"text/plain" },
     body:JSON.stringify({action:"dashboard", staff_id:staffId})
   })
   .then(r=>r.json())
@@ -209,13 +250,11 @@ function load(){
 
 // MARK
 function mark(){
-
-  document.getElementById("msg").innerText="Processing...";
-
+  toggle(true);
   navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
-      headers:{"Content-Type":"text/plain"},
+      headers:{ "Content-Type":"text/plain" },
       body:JSON.stringify({
         staff_id:staffId,
         status:"Present",
@@ -225,7 +264,8 @@ function mark(){
     })
     .then(r=>r.json())
     .then(d=>{
-      document.getElementById("msg").innerText=d.message;
+      showMsg(d.message);
+      toggle(false);
       load();
     });
   });
@@ -233,25 +273,20 @@ function mark(){
 
 // LEAVE OPEN
 function showLeave(){
-
-  let t=new Date();
-  t.setDate(t.getDate()+1);
-
+  let t=new Date(); t.setDate(t.getDate()+1);
   let d=t.toISOString().split("T")[0];
-
   document.getElementById("leaveBox").classList.remove("hidden");
-
   document.getElementById("from").value=d;
   document.getElementById("to").value=d;
 }
 
 // APPLY LEAVE
 function applyLeave(){
-
+  toggle(true);
   navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
-      headers:{"Content-Type":"text/plain"},
+      headers:{ "Content-Type":"text/plain" },
       body:JSON.stringify({
         staff_id:staffId,
         status:"Leave",
@@ -264,15 +299,23 @@ function applyLeave(){
     })
     .then(r=>r.json())
     .then(d=>{
-      document.getElementById("msg").innerText=d.message;
+      showMsg(d.message);
+      toggle(false);
       document.getElementById("leaveBox").classList.add("hidden");
       load();
     });
   });
 }
 
-// AUTO SYNC DATE
-document.addEventListener("change", function(e){
+// HELPERS
+function toggle(x){
+  document.getElementById("loader").style.display = x?"block":"none";
+}
+function showMsg(t){
+  document.getElementById("msg").innerText = t;
+}
+
+document.addEventListener("change", e=>{
   if(e.target.id==="from"){
     document.getElementById("to").value=e.target.value;
   }
