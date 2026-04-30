@@ -1,63 +1,198 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Attendance</title>
+  <title>Attendance System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial; background:#f4f6f9; margin:0; }
-    .header { background:#006633; color:white; padding:15px; text-align:center; }
-    .container { padding:15px; max-width:420px; margin:auto; }
-    .card { background:white; padding:15px; border-radius:10px; }
-    label { display:block; margin-top:10px; }
-    select,input { width:100%; padding:10px; margin-top:5px; }
-    .row { display:flex; gap:10px; }
-    .col { flex:1; }
-    button { width:100%; padding:12px; margin-top:15px; background:#006633; color:white; border:none; }
+    body {
+      margin:0;
+      font-family:'Inter',sans-serif;
+      background:linear-gradient(135deg,#eef2f3,#dfe9f3);
+    }
+
+    .header {
+      background:linear-gradient(135deg,#006633,#00a65a);
+      color:white;
+      padding:20px;
+      border-bottom-left-radius:25px;
+      border-bottom-right-radius:25px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .header h2 {
+      margin:0;
+      font-weight:600;
+    }
+
+    .sub {
+      font-size:13px;
+      opacity:0.9;
+    }
+
+    .container {
+      padding:15px;
+      max-width:420px;
+      margin:auto;
+    }
+
+    .card {
+      background:white;
+      border-radius:15px;
+      padding:15px;
+      margin-bottom:12px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.08);
+      transition:0.2s;
+    }
+
+    .card:hover {
+      transform:translateY(-3px);
+    }
+
+    .title {
+      font-size:13px;
+      color:#666;
+    }
+
+    .value {
+      font-size:22px;
+      font-weight:600;
+      margin-top:5px;
+    }
+
+    .grid {
+      display:flex;
+      gap:10px;
+    }
+
+    .presentCard {
+      background:linear-gradient(135deg,#d4fc79,#96e6a1);
+      color:#1b5e20;
+    }
+
+    .leaveCard {
+      background:linear-gradient(135deg,#ffd3a5,#fd6585);
+      color:#5d4037;
+    }
+
+    .btn {
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      margin-top:10px;
+      font-weight:600;
+      cursor:pointer;
+      font-size:15px;
+      transition:0.2s;
+    }
+
+    .btn:hover {
+      transform:scale(1.02);
+    }
+
+    .present {
+      background:linear-gradient(135deg,#00c853,#64dd17);
+      color:white;
+    }
+
+    .leave {
+      background:linear-gradient(135deg,#ff9800,#ff5722);
+      color:white;
+    }
+
     .hidden { display:none; }
+
+    input,select {
+      width:100%;
+      padding:11px;
+      margin-top:5px;
+      border-radius:8px;
+      border:1px solid #ccc;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+    }
+
+    .col { flex:1; }
+
+    #msg {
+      text-align:center;
+      margin-top:10px;
+      font-size:14px;
+      font-weight:500;
+    }
+
   </style>
 </head>
 
 <body>
 
-<div class="header">Attendance</div>
+<div class="header">
+  <h2 id="welcome">👋 Hello</h2>
+  <div class="sub">Attendance Dashboard</div>
+</div>
 
 <div class="container">
-<div class="card">
 
-<label>Status</label>
-<select id="status">
-  <option value="Present">Present</option>
-  <option value="Leave">Leave</option>
-</select>
-
-<div id="leaveSection" class="hidden">
-
-<label>From Date</label>
-<input type="date" id="from_date">
-
-<div class="row">
-  <div class="col">
-    <label>To Date</label>
-    <input type="date" id="to_date">
+  <!-- TODAY -->
+  <div class="card">
+    <div class="title">Today's Attendance</div>
+    <div class="value" id="todayStatus">--</div>
   </div>
 
-  <div class="col">
-    <label>Leave Type</label>
-    <select id="leave_type">
-      <option value="">Select</option>
-      <option value="PL">PL</option>
-      <option value="CL">CL</option>
-      <option value="MEDICAL">MEDICAL</option>
-    </select>
+  <!-- MONTH -->
+  <div class="grid">
+    <div class="card presentCard">
+      <div class="title">Present (Month)</div>
+      <div class="value" id="presentCount">0</div>
+    </div>
+
+    <div class="card leaveCard">
+      <div class="title">Leave (Month)</div>
+      <div class="value" id="leaveCount">0</div>
+    </div>
   </div>
-</div>
 
-</div>
+  <!-- ACTIONS -->
+  <div class="card">
+    <button class="btn present" onclick="markAttendance()">✅ Mark Attendance</button>
+    <button class="btn leave" onclick="openLeave()">📝 Apply Leave</button>
+  </div>
 
-<button onclick="markAttendance()">Submit</button>
+  <!-- LEAVE FORM -->
+  <div class="card hidden" id="leaveSection">
 
-</div>
+    <label>From Date</label>
+    <input type="date" id="from_date">
+
+    <div class="row">
+      <div class="col">
+        <label>To Date</label>
+        <input type="date" id="to_date">
+      </div>
+
+      <div class="col">
+        <label>Leave Type</label>
+        <select id="leave_type">
+          <option value="">Select</option>
+          <option value="PL">PL</option>
+          <option value="CL">CL</option>
+          <option value="MEDICAL">MEDICAL</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
+
+  </div>
+
+  <p id="msg"></p>
+
 </div>
 
 <script>
@@ -65,30 +200,32 @@
 const SCRIPT_URL = "YOUR_SCRIPT_URL";
 let staffId = "N07550";
 
-document.getElementById("status").addEventListener("change", function(){
-  document.getElementById("leaveSection")
-    .classList.toggle("hidden", this.value !== "Leave");
-});
+function loadDashboard(){
 
-window.onload = function(){
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"dashboard",
+      staff_id:staffId
+    })
+  })
+  .then(res=>res.json())
+  .then(res=>{
 
-  let today = new Date().toISOString().split("T")[0];
+    document.getElementById("welcome").innerText =
+      "👋 Hello " + res.name + " (" + staffId + ")";
 
-  document.getElementById("from_date").value = today;
-  document.getElementById("to_date").value = today;
+    document.getElementById("todayStatus").innerText = res.today || "Not Marked";
+    document.getElementById("presentCount").innerText = res.present || 0;
+    document.getElementById("leaveCount").innerText = res.leave || 0;
 
-  const params = new URLSearchParams(window.location.search);
-  if(params.get("mode")==="leave"){
-    document.getElementById("status").value="Leave";
-    document.getElementById("status")
-      .dispatchEvent(new Event("change"));
-  }
+  });
 
-};
+}
 
 function markAttendance(){
 
-  let status = document.getElementById("status").value;
+  document.getElementById("msg").innerText = "Processing...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -96,23 +233,59 @@ function markAttendance(){
       method:"POST",
       body:JSON.stringify({
         staff_id:staffId,
-        status:status,
+        status:"Present",
         lat:pos.coords.latitude,
-        lng:pos.coords.longitude,
-        leave_type:document.getElementById("leave_type").value,
-        from_date:document.getElementById("from_date").value,
-        to_date:document.getElementById("to_date").value
+        lng:pos.coords.longitude
       })
     })
     .then(res=>res.json())
-    .then(()=>{
-      alert("Submitted");
-      window.location.href="attendance_p.html";
+    .then(res=>{
+      document.getElementById("msg").innerText = res.message || "Done";
+      loadDashboard();
     });
 
   });
 
 }
+
+function openLeave(){
+
+  let today = new Date().toISOString().split("T")[0];
+
+  document.getElementById("leaveSection").classList.remove("hidden");
+  document.getElementById("from_date").value = today;
+  document.getElementById("to_date").value = today;
+
+}
+
+function submitLeave(){
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+
+    fetch(SCRIPT_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        staff_id:staffId,
+        status:"Leave",
+        leave_type:document.getElementById("leave_type").value,
+        from_date:document.getElementById("from_date").value,
+        to_date:document.getElementById("to_date").value,
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude
+      })
+    })
+    .then(res=>res.json())
+    .then(res=>{
+      document.getElementById("msg").innerText = res.message || "Leave Applied";
+      document.getElementById("leaveSection").classList.add("hidden");
+      loadDashboard();
+    });
+
+  });
+
+}
+
+loadDashboard();
 
 </script>
 
