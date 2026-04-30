@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Attendance Dashboard</title>
+  <title>Attendance System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial; background:#f4f6f9; margin:0; }
+    body {
+      margin:0;
+      font-family:'Inter',sans-serif;
+      background:#f4f6f9;
+    }
 
     .header {
-      background: linear-gradient(135deg,#006633,#00994d);
+      background: linear-gradient(135deg,#006633,#00a65a);
       color:white;
-      padding:15px;
+      padding:20px;
+      border-bottom-left-radius:20px;
+      border-bottom-right-radius:20px;
     }
 
     .container {
@@ -21,26 +29,43 @@
 
     .card {
       background:white;
+      border-radius:12px;
       padding:15px;
-      margin-bottom:10px;
-      border-radius:10px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.08);
     }
+
+    .title { font-size:13px; color:#666; }
+    .value { font-size:22px; font-weight:600; margin-top:5px; }
 
     .grid { display:flex; gap:10px; }
 
-    button {
+    .presentCard { background:#e8f5e9; color:#2e7d32; }
+    .leaveCard { background:#fff3e0; color:#ef6c00; }
+
+    .btn {
       width:100%;
-      padding:12px;
-      margin-top:10px;
+      padding:13px;
       border:none;
-      border-radius:6px;
-      background:#006633;
-      color:white;
-      font-weight:bold;
+      border-radius:8px;
+      margin-top:10px;
+      font-weight:600;
+      cursor:pointer;
     }
 
-    .leave { background:#ff9800; }
+    .present { background:#006633; color:white; }
+    .leave { background:#ff9800; color:white; }
+
+    .hidden { display:none; }
+
+    select,input {
+      width:100%;
+      padding:10px;
+      margin-top:5px;
+    }
+
+    .row { display:flex; gap:10px; }
+    .col { flex:1; }
 
     #msg { text-align:center; margin-top:10px; }
   </style>
@@ -49,23 +74,71 @@
 <body>
 
 <div class="header">
-  <h3 id="welcome">Welcome</h3>
+  <h2 id="welcome">👋 Hello</h2>
+  <div>Attendance Dashboard</div>
 </div>
 
 <div class="container">
 
+  <!-- TODAY -->
   <div class="card">
-    Today: <b id="todayStatus">--</b>
+    <div class="title">Today's Attendance</div>
+    <div class="value" id="todayStatus">--</div>
   </div>
 
+  <!-- MONTH -->
   <div class="grid">
-    <div class="card">Present: <b id="presentCount">0</b></div>
-    <div class="card">Leave: <b id="leaveCount">0</b></div>
+    <div class="card presentCard">
+      <div class="title">Present (Month)</div>
+      <div class="value" id="presentCount">0</div>
+    </div>
+
+    <div class="card leaveCard">
+      <div class="title">Leave (Month)</div>
+      <div class="value" id="leaveCount">0</div>
+    </div>
   </div>
 
+  <!-- ACTION -->
   <div class="card">
-    <button onclick="markAttendance()">Mark Present</button>
-    <button class="leave" onclick="goToLeave()">Apply Leave</button>
+
+    <button class="btn present" onclick="markAttendance()">
+      ✅ Mark Attendance
+    </button>
+
+    <button class="btn leave" onclick="openLeave()">
+      📝 Apply Leave
+    </button>
+
+  </div>
+
+  <!-- LEAVE FORM -->
+  <div class="card hidden" id="leaveSection">
+
+    <label>From Date</label>
+    <input type="date" id="from_date">
+
+    <div class="row">
+      <div class="col">
+        <label>To Date</label>
+        <input type="date" id="to_date">
+      </div>
+
+      <div class="col">
+        <label>Leave Type</label>
+        <select id="leave_type">
+          <option value="">Select</option>
+          <option value="PL">PL</option>
+          <option value="CL">CL</option>
+          <option value="MEDICAL">MEDICAL</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn leave" onclick="submitLeave()">
+      Submit Leave
+    </button>
+
   </div>
 
   <p id="msg"></p>
@@ -77,6 +150,7 @@
 const SCRIPT_URL = "YOUR_SCRIPT_URL";
 let staffId = "N07550";
 
+// 🔁 LOAD DASHBOARD
 function loadDashboard(){
 
   fetch(SCRIPT_URL,{
@@ -90,19 +164,23 @@ function loadDashboard(){
   .then(res=>{
 
     document.getElementById("welcome").innerText =
-      "👋 Welcome " + staffId + " - " + res.name;
+      "👋 Hello " + res.name + " (" + staffId + ")";
 
-    document.getElementById("todayStatus").innerText = res.today;
-    document.getElementById("presentCount").innerText = res.present;
-    document.getElementById("leaveCount").innerText = res.leave;
+    document.getElementById("todayStatus").innerText =
+      res.today || "Not Marked";
+
+    document.getElementById("presentCount").innerText =
+      res.present || 0;
+
+    document.getElementById("leaveCount").innerText =
+      res.leave || 0;
 
   });
 
 }
 
+// ✅ MARK PRESENT
 function markAttendance(){
-
-  document.getElementById("msg").innerText = "Marking...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -116,19 +194,56 @@ function markAttendance(){
       })
     })
     .then(res=>res.json())
-    .then(()=>{
-      document.getElementById("msg").innerText = "Done";
-      setTimeout(loadDashboard,500);
+    .then(res=>{
+      alert(res.message || "Done");
+      loadDashboard();
     });
 
   });
 
 }
 
-function goToLeave(){
-  window.location.href = "attendance.html?mode=leave";
+// 📝 OPEN LEAVE FORM
+function openLeave(){
+
+  let today = new Date().toISOString().split("T")[0];
+
+  document.getElementById("leaveSection").classList.remove("hidden");
+
+  document.getElementById("from_date").value = today;
+  document.getElementById("to_date").value = today;
+
 }
 
+// 📤 SUBMIT LEAVE
+function submitLeave(){
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+
+    fetch(SCRIPT_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        staff_id:staffId,
+        status:"Leave",
+        leave_type:document.getElementById("leave_type").value,
+        from_date:document.getElementById("from_date").value,
+        to_date:document.getElementById("to_date").value,
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude
+      })
+    })
+    .then(res=>res.json())
+    .then(res=>{
+      alert(res.message || "Leave Applied");
+      document.getElementById("leaveSection").classList.add("hidden");
+      loadDashboard();
+    });
+
+  });
+
+}
+
+// INIT
 loadDashboard();
 
 </script>
