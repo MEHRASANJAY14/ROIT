@@ -19,17 +19,6 @@
       padding:20px;
       border-bottom-left-radius:25px;
       border-bottom-right-radius:25px;
-      box-shadow:0 5px 15px rgba(0,0,0,0.15);
-    }
-
-    .header h2 {
-      margin:0;
-      font-weight:600;
-    }
-
-    .sub {
-      font-size:13px;
-      opacity:0.9;
     }
 
     .container {
@@ -41,91 +30,46 @@
     .card {
       background:white;
       border-radius:15px;
-      padding:15px;
+      padding:18px;
       margin-bottom:12px;
       box-shadow:0 5px 15px rgba(0,0,0,0.08);
-      transition:0.2s;
     }
 
-    .card:hover {
-      transform:translateY(-3px);
-    }
+    .title { font-size:13px; color:#666; }
+    .value { font-size:22px; font-weight:600; margin-top:5px; }
 
-    .title {
-      font-size:13px;
-      color:#666;
-    }
+    .grid { display:flex; gap:10px; }
 
-    .value {
-      font-size:22px;
-      font-weight:600;
-      margin-top:5px;
-    }
-
-    .grid {
-      display:flex;
-      gap:10px;
-    }
-
-    .presentCard {
-      background:linear-gradient(135deg,#d4fc79,#96e6a1);
-      color:#1b5e20;
-    }
-
-    .leaveCard {
-      background:linear-gradient(135deg,#ffd3a5,#fd6585);
-      color:#5d4037;
-    }
+    .presentCard { background:#e8f5e9; color:#2e7d32; }
+    .leaveCard { background:#fff3e0; color:#ef6c00; }
 
     .btn {
       width:100%;
       padding:14px;
       border:none;
-      border-radius:12px;
+      border-radius:10px;
       margin-top:10px;
       font-weight:600;
       cursor:pointer;
-      font-size:15px;
-      transition:0.2s;
     }
 
-    .btn:hover {
-      transform:scale(1.02);
-    }
-
-    .present {
-      background:linear-gradient(135deg,#00c853,#64dd17);
-      color:white;
-    }
-
-    .leave {
-      background:linear-gradient(135deg,#ff9800,#ff5722);
-      color:white;
-    }
+    .present { background:#006633; color:white; }
+    .leave { background:#ff9800; color:white; }
 
     .hidden { display:none; }
 
     input,select {
       width:100%;
-      padding:11px;
+      padding:12px;
       margin-top:5px;
       border-radius:8px;
       border:1px solid #ccc;
     }
 
-    .row {
-      display:flex;
-      gap:10px;
-    }
-
+    .row { display:flex; gap:10px; }
     .col { flex:1; }
 
-    #msg {
-      text-align:center;
-      margin-top:10px;
-      font-size:14px;
-      font-weight:500;
-    }
+    #msg { text-align:center; margin-top:10px; }
 
   </style>
 </head>
@@ -134,7 +78,7 @@
 
 <div class="header">
   <h2 id="welcome">👋 Hello</h2>
-  <div class="sub">Attendance Dashboard</div>
+  <div>Attendance Dashboard</div>
 </div>
 
 <div class="container">
@@ -158,13 +102,13 @@
     </div>
   </div>
 
-  <!-- ACTIONS -->
+  <!-- ACTION -->
   <div class="card">
-    <button class="btn present" onclick="markAttendance()">✅ Mark Attendance</button>
-    <button class="btn leave" onclick="openLeave()">📝 Apply Leave</button>
+    <button class="btn present" onclick="markAttendance()">Mark Attendance</button>
+    <button class="btn leave" onclick="openLeave()">Apply Leave</button>
   </div>
 
-  <!-- LEAVE FORM -->
+  <!-- LEAVE PANEL -->
   <div class="card hidden" id="leaveSection">
 
     <label>From Date</label>
@@ -183,6 +127,9 @@
           <option value="PL">PL</option>
           <option value="CL">CL</option>
           <option value="MEDICAL">MEDICAL</option>
+          <option value="MATERNITY">MATERNITY</option>
+          <option value="PATERNITY">PATERNITY</option>
+          <option value="UCL">UCL</option>
         </select>
       </div>
     </div>
@@ -200,6 +147,7 @@
 const SCRIPT_URL = "YOUR_SCRIPT_URL";
 let staffId = "N07550";
 
+// LOAD DASHBOARD
 function loadDashboard(){
 
   fetch(SCRIPT_URL,{
@@ -215,17 +163,21 @@ function loadDashboard(){
     document.getElementById("welcome").innerText =
       "👋 Hello " + res.name + " (" + staffId + ")";
 
-    document.getElementById("todayStatus").innerText = res.today || "Not Marked";
-    document.getElementById("presentCount").innerText = res.present || 0;
-    document.getElementById("leaveCount").innerText = res.leave || 0;
+    let todayEl = document.getElementById("todayStatus");
+    todayEl.innerText = res.today || "Not Marked";
+
+    if(res.today.includes("Present")) todayEl.style.color="green";
+    else if(res.today.includes("Leave")) todayEl.style.color="orange";
+
+    document.getElementById("presentCount").innerText = res.present;
+    document.getElementById("leaveCount").innerText = res.leave;
 
   });
 
 }
 
+// MARK PRESENT
 function markAttendance(){
-
-  document.getElementById("msg").innerText = "Processing...";
 
   navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -240,24 +192,30 @@ function markAttendance(){
     })
     .then(res=>res.json())
     .then(res=>{
-      document.getElementById("msg").innerText = res.message || "Done";
-      loadDashboard();
+      document.getElementById("msg").innerText = res.message;
+      setTimeout(loadDashboard,500);
     });
 
   });
 
 }
 
+// OPEN LEAVE
 function openLeave(){
 
-  let today = new Date().toISOString().split("T")[0];
+  let today = new Date();
+  let nextDay = new Date();
+  nextDay.setDate(today.getDate()+1);
+
+  let nextStr = nextDay.toISOString().split("T")[0];
 
   document.getElementById("leaveSection").classList.remove("hidden");
-  document.getElementById("from_date").value = today;
-  document.getElementById("to_date").value = today;
+  document.getElementById("from_date").value = nextStr;
+  document.getElementById("to_date").value = nextStr;
 
 }
 
+// SUBMIT LEAVE
 function submitLeave(){
 
   navigator.geolocation.getCurrentPosition(function(pos){
@@ -276,9 +234,9 @@ function submitLeave(){
     })
     .then(res=>res.json())
     .then(res=>{
-      document.getElementById("msg").innerText = res.message || "Leave Applied";
+      document.getElementById("msg").innerText = res.message;
       document.getElementById("leaveSection").classList.add("hidden");
-      loadDashboard();
+      setTimeout(loadDashboard,500);
     });
 
   });
