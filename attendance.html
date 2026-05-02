@@ -160,20 +160,15 @@ Selected Staff: <b id="selectedName">Self</b>
 <button class="btn leave" onclick="submitLeave()">Submit</button>
 </div>
 
-<!-- CALENDAR -->
 <div id="calendarBox" class="card hidden">
-
 <div style="display:flex;justify-content:space-between;">
 <button onclick="changeMonth(-1)">◀</button>
 <div id="monthTitle"></div>
 <button onclick="changeMonth(1)">▶</button>
 </div>
-
 <div class="calendar" id="calendarGrid"></div>
-
 </div>
 
-<!-- STAFF -->
 <div id="staffBox" class="card hidden">
 <h3>👑 Staff List</h3>
 <input type="text" id="search" placeholder="Search..." onkeyup="filterStaff()">
@@ -193,6 +188,17 @@ let isAdmin=(staffId==="N07550");
 let selectedStaff=staffId;
 
 selectedName.innerText=isAdmin?"Self (Admin)":staffId;
+
+// ===== LOCATION =====
+function getLocation(callback){
+navigator.geolocation.getCurrentPosition(
+pos=>callback(pos.coords.latitude,pos.coords.longitude),
+()=>{
+showMsg("⚠ Location permission required");
+toggle(false);
+}
+);
+}
 
 // ===== STAFF =====
 function openStaff(){
@@ -215,6 +221,7 @@ staffList.innerHTML=html;
 function selectStaff(id,name){
 selectedStaff=id;
 selectedName.innerText=name+" ("+id+")";
+showMsg("✔ Selected: "+name);
 }
 
 // ===== LOAD =====
@@ -222,7 +229,7 @@ function load(){
 fetch(URL+"?action=dashboard&staff_id="+(isAdmin?"ALL":staffId))
 .then(r=>r.json())
 .then(d=>{
-if(!d || d.status!=="success"){showMsg("Error");return;}
+if(!d || d.status!=="success"){showMsg("❌ Error");return;}
 
 welcome.innerText=(d.name||"User")+" ("+staffId+")";
 todayText.innerText=d.today||"--";
@@ -239,6 +246,92 @@ adminBtn.classList.remove("hidden");
 present.innerText=d.present;
 leave.innerText=d.leave;
 }
+
+if(d.today && (d.today.includes("Present")||d.today.includes("Leave"))){
+disableButtons();
+showMsg("✔ Already Marked Today");
+}
+
+});
+}
+
+// ===== BUTTON =====
+function disableButtons(){
+markBtn.disabled=true;
+leaveBtn.disabled=true;
+markBtn.style.opacity=0.5;
+leaveBtn.style.opacity=0.5;
+}
+
+// ===== MARK =====
+function mark(){
+toggle(true);
+
+getLocation((lat,lng)=>{
+fetch(URL,{
+method:"POST",
+headers:{"Content-Type":"text/plain"},
+body:JSON.stringify({staff_id:selectedStaff,status:"Present",lat:lat,lng:lng})
+})
+.then(r=>r.json())
+.then(d=>{
+toggle(false);
+
+if(d.status==="success"){
+showMsg("✔ Attendance Marked");
+disableButtons();
+}
+else if(d.already){
+showMsg("✔ Already Marked ("+d.type+")");
+disableButtons();
+}
+
+load();
+});
+});
+}
+
+// ===== LEAVE =====
+function submitLeave(){
+let f=from.value,t=to.value,ty=type.value;
+
+if(!f||!t||!ty){
+showMsg("⚠ Fill all fields");
+return;
+}
+
+toggle(true);
+
+getLocation((lat,lng)=>{
+fetch(URL,{
+method:"POST",
+headers:{"Content-Type":"text/plain"},
+body:JSON.stringify({
+staff_id:selectedStaff,
+status:"Leave",
+from_date:f,
+to_date:t,
+leave_type:ty,
+lat:lat,
+lng:lng
+})
+})
+.then(r=>r.json())
+.then(d=>{
+toggle(false);
+
+if(d.status==="success"){
+showMsg("✔ Leave Applied");
+disableButtons();
+leaveBox.classList.add("hidden");
+}
+else if(d.already){
+showMsg("✔ Already Marked ("+d.type+")");
+disableButtons();
+}
+
+load();
+});
 });
 }
 
@@ -259,7 +352,6 @@ calendarBox.classList.toggle("hidden");
 fetch(URL+"?action=calendar&staff_id="+staffId)
 .then(r=>r.json())
 .then(d=>{
-
 let map={};
 (d.data||[]).forEach(x=>map[x.date]=x.status);
 
@@ -294,37 +386,8 @@ calendarGrid.innerHTML=html;
 });
 }
 
-// ===== ACTION =====
-function mark(){
-fetch(URL,{
-method:"POST",
-headers:{"Content-Type":"text/plain"},
-body:JSON.stringify({staff_id:selectedStaff,status:"Present"})
-}).then(r=>r.json()).then(()=>load());
-}
-
-function submitLeave(){
-fetch(URL,{
-method:"POST",
-headers:{"Content-Type":"text/plain"},
-body:JSON.stringify({
-staff_id:selectedStaff,
-status:"Leave",
-from_date:from.value,
-to_date:to.value,
-leave_type:type.value
-})
-}).then(r=>r.json()).then(()=>load());
-}
-
 // ===== HELPERS =====
-function toggleLeave(){leaveBox.classList.toggle("hidden");}
-function filterStaff(){
-let val=search.value.toLowerCase();
-[...staffList.children].forEach(x=>{
-x.style.display=x.innerText.toLowerCase().includes(val)?"block":"none";
-});
-}
+function toggle(x){loader.style.display=x?"flex":"none";}
 function showMsg(t){msg.innerText=t;}
 function logout(){localStorage.clear();location="index.html";}
 function goBack(){history.back();}
