@@ -23,20 +23,6 @@
       backdrop-filter:blur(10px);
     }
 
-    .header h3{
-      margin:0;
-      font-size:14px;
-    }
-
-    .header button{
-      background:#fff;
-      border:none;
-      padding:6px 10px;
-      border-radius:8px;
-      font-size:11px;
-      cursor:pointer;
-    }
-
     .container{
       max-width:420px;
       margin:auto;
@@ -58,24 +44,16 @@
 
     .btn{
       width:100%;
-      padding:12px;
+      padding:14px;
       border:none;
-      border-radius:10px;
+      border-radius:12px;
+      font-weight:600;
       margin-top:10px;
       cursor:pointer;
-      font-weight:bold;
     }
 
-    .present{background:#00c853;color:#fff;}
-    .leave{background:#ff3d00;color:#fff;}
-
-    input{
-      width:100%;
-      padding:10px;
-      border-radius:10px;
-      border:none;
-      margin-bottom:10px;
-    }
+    .present{background:#00c853;color:white;}
+    .leave{background:#ff3d00;color:white;}
 
     .hidden{display:none;}
 
@@ -87,6 +65,13 @@
       margin-bottom:8px;
     }
 
+    input{
+      width:100%;
+      padding:10px;
+      border-radius:10px;
+      border:none;
+      margin-bottom:10px;
+    }
   </style>
 </head>
 
@@ -98,14 +83,8 @@
   let branch = localStorage.getItem("branch");
   let staffId = localStorage.getItem("staffId");
   let time = localStorage.getItem("time");
-  let now = new Date().getTime();
 
   if(login !== "true" || !branch || !staffId){
-    window.location.replace("index.html");
-  }
-
-  if(time && (now - time > 30*60*1000)){
-    localStorage.clear();
     window.location.replace("index.html");
   }
 })();
@@ -114,7 +93,7 @@
 <div class="header">
   <h3 id="welcome">Loading...</h3>
   <div>
-    <button onclick="goBack()">⬅ Back</button>
+    <button onclick="goBack()">⬅</button>
     <button onclick="logout()">Logout</button>
   </div>
 </div>
@@ -122,21 +101,24 @@
 <div class="container">
 
   <div class="card">
-    <b>Today:</b> <span id="today">--</span><br>
-    <b>Present:</b> <span id="present">0</span><br>
-    <b>Leave:</b> <span id="leave">0</span>
+    <div>Today: <b id="today">--</b></div>
+    <div>Present: <b id="present">0</b></div>
+    <div>Leave: <b id="leave">0</b></div>
   </div>
 
   <div class="card">
     <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
+    <button class="btn leave" onclick="showLeave()">➕ Apply Leave</button>
+
+    <!-- ADMIN LINK -->
+    <button id="adminBtn" class="btn" style="background:#2196f3;color:white;display:none;">
+      👑 Staff Attendance
+    </button>
   </div>
 
   <!-- ADMIN PANEL -->
-  <div id="adminBox" class="card hidden">
-    <h3>👑 Staff Attendance</h3>
-
+  <div id="adminPanel" class="card hidden">
     <input type="text" id="search" placeholder="Search staff...">
-
     <div id="staffList"></div>
   </div>
 
@@ -167,17 +149,24 @@ function load(){
   .then(d=>{
 
     document.getElementById("welcome").innerHTML =
-      d.name + " ("+staffId+")" + (isAdmin?" [ADMIN]":"");
+      "👤 " + d.name + " ("+staffId+")" + (isAdmin?" [ADMIN]":"");
 
     document.getElementById("today").innerText = d.today;
     document.getElementById("present").innerText = d.present;
     document.getElementById("leave").innerText = d.leave;
-  });
 
-  if(isAdmin){
-    loadStaff();
-  }
+    if(isAdmin){
+      document.getElementById("adminBtn").style.display="block";
+    }
+
+  });
 }
+
+// ================= ADMIN BUTTON =================
+document.getElementById("adminBtn").onclick = function(){
+  document.getElementById("adminPanel").classList.toggle("hidden");
+  loadStaff();
+};
 
 // ================= LOAD STAFF =================
 function loadStaff(){
@@ -208,16 +197,13 @@ function loadStaff(){
     });
 
     document.getElementById("staffList").innerHTML = html;
-    document.getElementById("adminBox").classList.remove("hidden");
 
   });
 }
 
 // ================= MARK SELF =================
 function mark(){
-
   navigator.geolocation.getCurrentPosition(pos=>{
-
     fetch(URL,{
       method:"POST",
       body:JSON.stringify({
@@ -232,7 +218,6 @@ function mark(){
       showMsg(d.message);
       load();
     });
-
   });
 }
 
@@ -240,7 +225,6 @@ function mark(){
 function markStaff(id, status){
 
   navigator.geolocation.getCurrentPosition(pos=>{
-
     fetch(URL,{
       method:"POST",
       body:JSON.stringify({
@@ -253,27 +237,20 @@ function markStaff(id, status){
     .then(r=>r.json())
     .then(d=>{
       showMsg(d.message);
-
-      markedToday[id] = true;
-
+      markedToday[id]=true;
       loadStaff();
-      load();
     });
-
   });
 }
 
 // ================= SEARCH =================
 document.addEventListener("input", function(e){
-
-  if(e.target.id === "search"){
-
+  if(e.target.id==="search"){
     let val = e.target.value.toLowerCase();
 
-    document.querySelectorAll(".staffCard").forEach(card=>{
-      let name = card.getAttribute("data-name");
-
-      card.style.display = name.includes(val) ? "block" : "none";
+    document.querySelectorAll(".staffCard").forEach(c=>{
+      let name = c.getAttribute("data-name");
+      c.style.display = name.includes(val) ? "block":"none";
     });
   }
 });
