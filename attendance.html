@@ -59,6 +59,7 @@ input,select{
 .form-group{flex:1;}
 @media(max-width:480px){.form-row{flex-direction:column;}}
 
+/* Calendar */
 .calendar{
   display:grid;
   grid-template-columns: repeat(7,1fr);
@@ -96,10 +97,12 @@ input,select{
 
 <div class="container">
 
+<!-- TODAY -->
 <div class="card">
   Today: <b id="todayText">--</b>
 </div>
 
+<!-- KPI -->
 <div class="card">
 
 <div id="userKPI">
@@ -118,13 +121,15 @@ Staff Today<br>P:<span id="staffP">0</span><br>L:<span id="staffL">0</span>
 
 </div>
 
+<!-- ACTION -->
 <div class="card">
-<button id="markBtn" class="btn present" onclick="mark()">Mark Attendance</button>
-<button id="leaveBtn" class="btn leave" onclick="toggleLeave()">Apply Leave</button>
+<button id="markBtn" class="btn present" onclick="mark()">✔ Mark Attendance</button>
+<button id="leaveBtn" class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
 <button class="btn" style="background:#9c27b0;" onclick="openCalendar()">📅 Calendar</button>
-<button id="adminBtn" class="btn hidden" style="background:#2979ff;">Staff</button>
+<button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff</button>
 </div>
 
+<!-- LEAVE -->
 <div id="leaveBox" class="card hidden">
 <div class="form-row">
 <div class="form-group">
@@ -148,8 +153,9 @@ Staff Today<br>P:<span id="staffP">0</span><br>L:<span id="staffL">0</span>
 <button class="btn leave" onclick="submitLeave()">Submit</button>
 </div>
 
+<!-- CALENDAR -->
 <div id="calendarBox" class="card hidden">
-<h3>Attendance Calendar</h3>
+<h3>📅 Attendance Calendar</h3>
 <div class="calendar" id="calendarGrid"></div>
 </div>
 
@@ -159,7 +165,7 @@ Staff Today<br>P:<span id="staffP">0</span><br>L:<span id="staffL">0</span>
 
 <script>
 
-const URL="PASTE_NEW_DEPLOY_URL";
+const URL="PASTE_NEW_DEPLOY_URL"; // 🔥 Replace
 
 let staffId=localStorage.getItem("staffId");
 let isAdmin=(staffId==="N07550");
@@ -173,18 +179,15 @@ localStorage.removeItem("markDate");
 enableButtons();
 }
 
-// LOAD
+// LOAD (GET)
 function load(){
 
-fetch(URL,{
-method:"POST",
-body:JSON.stringify({action:"dashboard",staff_id:isAdmin?"ALL":staffId})
-})
+fetch(`${URL}?action=dashboard&staff_id=${isAdmin?"ALL":staffId}`)
 .then(r=>r.json())
 .then(d=>{
 
 if(!d || d.status!=="success"){
-showMsg("Server error");
+showMsg("❌ Server Error");
 return;
 }
 
@@ -205,9 +208,6 @@ adminBtn.classList.remove("hidden");
 
 }else{
 
-userKPI.style.display="block";
-adminKPI.style.display="none";
-
 present.innerText=d.present || 0;
 leave.innerText=d.leave || 0;
 
@@ -218,7 +218,7 @@ disableButtons();
 }
 
 })
-.catch(()=>showMsg("Network error"));
+.catch(()=>showMsg("❌ Network Error"));
 
 }
 
@@ -236,7 +236,7 @@ markBtn.style.opacity=1;
 leaveBtn.style.opacity=1;
 }
 
-// MARK
+// MARK (POST)
 function mark(){
 toggle(true);
 
@@ -277,7 +277,7 @@ function submitLeave(){
 let f=from.value,t=to.value,ty=type.value;
 
 if(!f||!t||!ty){
-showMsg("Fill all fields");
+showMsg("⚠ Fill all fields");
 return;
 }
 
@@ -316,14 +316,12 @@ load();
 });
 }
 
-// CALENDAR
+// CALENDAR (GET)
 function openCalendar(){
+
 calendarBox.classList.toggle("hidden");
 
-fetch(URL,{
-method:"POST",
-body:JSON.stringify({action:"calendar",staff_id:staffId})
-})
+fetch(`${URL}?action=calendar&staff_id=${staffId}`)
 .then(r=>r.json())
 .then(d=>{
 
@@ -355,6 +353,7 @@ html+=`<div class="${cls}">${i}<br>${st}</div>`;
 calendarGrid.innerHTML=html;
 
 });
+
 }
 
 // HELPERS
