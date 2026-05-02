@@ -76,6 +76,18 @@ input,select{
   z-index:999;
 }
 
+/* FORM */
+.form-row{
+  display:flex;
+  gap:10px;
+}
+.form-group{
+  flex:1;
+}
+@media(max-width:480px){
+  .form-row{flex-direction:column;}
+}
+
 .hidden{display:none;}
 </style>
 </head>
@@ -92,7 +104,7 @@ input,select{
 
 <div class="container">
 
-<!-- ✅ TODAY SECTION ADDED -->
+<!-- TODAY -->
 <div class="card">
   <b>Today:</b> <span id="todayText">--</span>
 </div>
@@ -100,69 +112,67 @@ input,select{
 <!-- KPI -->
 <div class="card">
 
-  <div id="userKPI">
-    Present (Month): <b id="present">0</b><br>
-    Leave (Month): <b id="leave">0</b>
-  </div>
+<div id="userKPI">
+  Present (Month): <b id="present">0</b><br>
+  Leave (Month): <b id="leave">0</b>
+</div>
 
-  <div id="adminKPI" style="display:none;justify-content:space-between;">
-    <div>
-      <b>Self (Month)</b><br>
-      P: <span id="selfP">0</span><br>
-      L: <span id="selfL">0</span>
-    </div>
-
-    <div>
-      <b>Staff (Today)</b><br>
-      P: <span id="staffP">0</span><br>
-      L: <span id="staffL">0</span>
-    </div>
+<div id="adminKPI" style="display:none;justify-content:space-between;">
+  <div>
+    <b>Self (Month)</b><br>
+    P: <span id="selfP">0</span><br>
+    L: <span id="selfL">0</span>
   </div>
+  <div>
+    <b>Staff (Today)</b><br>
+    P: <span id="staffP">0</span><br>
+    L: <span id="staffL">0</span>
+  </div>
+</div>
 
 </div>
 
 <!-- ACTION -->
 <div class="card">
-  <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
-  <button class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
+  <button id="markBtn" class="btn present" onclick="mark()">✔ Mark Attendance</button>
+  <button id="leaveBtn" class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
+  <button class="btn" style="background:#9c27b0;" onclick="openCalendar()">📅 Calendar</button>
   <button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff</button>
 </div>
 
 <!-- LEAVE -->
 <div id="leaveBox" class="card hidden">
-
-  <h3 style="margin-bottom:10px;">📄 Apply Leave</h3>
-
   <div class="form-row">
     <div class="form-group">
-      <label>From Date</label>
+      <label>From</label>
       <input type="date" id="from">
     </div>
-
     <div class="form-group">
-      <label>To Date</label>
+      <label>To</label>
       <input type="date" id="to">
     </div>
   </div>
 
-  <div class="form-group">
-    <label>Leave Type</label>
-    <select id="type">
-      <option value="">Select Leave</option>
-      <option>CL</option>
-      <option>PL</option>
-      <option>MEDICAL</option>
-      <option>UCL</option>
-    </select>
-  </div>
+  <select id="type">
+    <option value="">Select Leave</option>
+    <option>CL</option>
+    <option>PL</option>
+    <option>MEDICAL</option>
+    <option>UCL</option>
+  </select>
 
-  <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
+  <button class="btn leave" onclick="submitLeave()">Submit</button>
+</div>
 
+<!-- CALENDAR -->
+<div id="calendarBox" class="card hidden">
+  <h3>📅 Attendance History</h3>
+  <div id="calendarGrid"></div>
 </div>
 
 <!-- ADMIN -->
 <div id="adminPanel" class="card hidden">
-  <input id="search" placeholder="🔍 Search staff">
+  <input id="search" placeholder="Search">
   <div id="staffList"></div>
 </div>
 
@@ -172,59 +182,71 @@ input,select{
 
 <script>
 
-const URL="https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
+const URL="YOUR_SCRIPT_URL"; // replace
 
 let staffId=localStorage.getItem("staffId");
 let isAdmin=(staffId==="N07550");
 let selectedStaff=staffId;
 
+// RESET NEXT DAY
+let last=localStorage.getItem("lastMarkedDate");
+let today=new Date().toDateString();
+if(last && last!==today){
+localStorage.removeItem("lastMarkedDate");
+enableButtons();
+}
+
 // LOAD
 function load(){
 fetch(URL,{
 method:"POST",
-body:JSON.stringify({
-action:"dashboard",
-staff_id:isAdmin?"ALL":staffId
-})
+body:JSON.stringify({action:"dashboard",staff_id:isAdmin?"ALL":staffId})
 })
 .then(r=>r.json())
 .then(d=>{
 
-document.getElementById("welcome").innerText =
-(d.name||"User")+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
-
-// ✅ TODAY BIND FIX
-document.getElementById("todayText").innerText = d.today || "--";
+welcome.innerText=d.name+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
+todayText.innerText=d.today || "--";
 
 if(isAdmin){
-
-document.getElementById("userKPI").style.display="none";
-document.getElementById("adminKPI").style.display="flex";
-
+userKPI.style.display="none";
+adminKPI.style.display="flex";
 selfP.innerText=d.self.present;
 selfL.innerText=d.self.leave;
-
 staffP.innerText=d.staff.present;
 staffL.innerText=d.staff.leave;
-
+adminBtn.classList.remove("hidden");
 }else{
-
 present.innerText=d.present;
 leave.innerText=d.leave;
-
 }
 
-if(isAdmin){
-adminBtn.classList.remove("hidden");
+if(d.today && (d.today.includes("Present") || d.today.includes("Leave"))){
+disableButtons();
 }
 
 });
 }
 
-// बाकी code same (mark, leave, admin, search…)
+// BUTTON CONTROL
+function disableButtons(){
+markBtn.disabled=true;
+leaveBtn.disabled=true;
+markBtn.style.opacity=0.6;
+leaveBtn.style.opacity=0.6;
+}
 
+function enableButtons(){
+markBtn.disabled=false;
+leaveBtn.disabled=false;
+markBtn.style.opacity=1;
+leaveBtn.style.opacity=1;
+}
+
+// MARK
 function mark(){
 toggle(true);
+
 navigator.geolocation.getCurrentPosition(pos=>{
 fetch(URL,{
 method:"POST",
@@ -241,8 +263,12 @@ toggle(false);
 
 if(d.status==="success"){
 showMsg("✔ Attendance Marked");
-}else if(d.already){
+disableButtons();
+localStorage.setItem("lastMarkedDate",new Date().toDateString());
+}
+else if(d.already){
 showMsg("✔ Already Marked ("+d.type+")");
+disableButtons();
 }
 
 load();
@@ -250,13 +276,19 @@ load();
 });
 }
 
+// LEAVE
 function toggleLeave(){
 leaveBox.classList.toggle("hidden");
 }
 
 function submitLeave(){
+
 let from=from.value,to=to.value,type=document.getElementById("type").value;
-if(!from||!to||!type){showMsg("⚠ Fill all fields");return;}
+
+if(!from||!to||!type){
+showMsg("⚠ Fill all fields");
+return;
+}
 
 toggle(true);
 
@@ -279,9 +311,13 @@ toggle(false);
 
 if(d.status==="success"){
 showMsg("✔ Leave Applied");
+disableButtons();
+localStorage.setItem("lastMarkedDate",new Date().toDateString());
 leaveBox.classList.add("hidden");
-}else if(d.already){
+}
+else if(d.already){
 showMsg("✔ Already Marked ("+d.type+")");
+disableButtons();
 }
 
 load();
@@ -289,6 +325,26 @@ load();
 });
 }
 
+// CALENDAR
+function openCalendar(){
+calendarBox.classList.toggle("hidden");
+
+fetch(URL,{
+method:"POST",
+body:JSON.stringify({action:"calendar",staff_id:staffId})
+})
+.then(r=>r.json())
+.then(d=>{
+let html="";
+d.data.forEach(x=>{
+let c=x.status==="Present"?"#4caf50":"#f44336";
+html+=`<div style="margin:5px;padding:10px;background:${c};border-radius:8px">${x.date} - ${x.status}</div>`;
+});
+calendarGrid.innerHTML=html;
+});
+}
+
+// ADMIN
 adminBtn.onclick=()=>{
 adminPanel.classList.toggle("hidden");
 loadStaff();
@@ -297,19 +353,20 @@ loadStaff();
 function loadStaff(){
 fetch(URL,{
 method:"POST",
-headers:{ "Content-Type":"text/plain" },
+headers:{"Content-Type":"text/plain"},
 body:JSON.stringify({action:"staff_list"})
 })
 .then(r=>r.json())
 .then(d=>{
 let html="";
 d.staff.forEach(s=>{
-html+=`<div class="staffCard"><b>${s.name}</b> (${s.staff_id})</div>`;
+html+=`<div class="staffCard">${s.name}</div>`;
 });
 staffList.innerHTML=html;
 });
 }
 
+// HELPERS
 function toggle(x){loader.style.display=x?"flex":"none";}
 function showMsg(t){msg.innerText=t;}
 function logout(){localStorage.clear();location="index.html";}
