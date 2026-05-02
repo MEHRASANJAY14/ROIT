@@ -13,43 +13,108 @@ body{
   background:linear-gradient(135deg,#141e30,#243b55);
   color:#fff;
 }
+
+/* HEADER */
 .header{
   display:flex;
   justify-content:space-between;
+  align-items:center;
   padding:12px;
   background:rgba(255,255,255,0.1);
 }
-.container{max-width:420px;margin:auto;padding:15px;}
-.card{
-  background:rgba(255,255,255,0.08);
-  padding:15px;
-  border-radius:15px;
-  margin-bottom:12px;
-}
-.btn{
-  width:100%;
-  padding:12px;
+
+.header button{
   border:none;
-  border-radius:10px;
-  margin-top:8px;
+  padding:6px 10px;
+  border-radius:8px;
   cursor:pointer;
 }
-.present{background:#00c853;}
-.leave{background:#ff3d00;}
-.staffCard{
-  background:#fff;color:#000;padding:10px;
-  border-radius:10px;margin-bottom:8px;
+
+/* CONTAINER */
+.container{
+  max-width:420px;
+  margin:auto;
+  padding:15px;
 }
-.hidden{display:none;}
-.loader{text-align:center;display:none;}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.08);
+  padding:18px;
+  border-radius:18px;
+  margin-bottom:15px;
+  backdrop-filter:blur(12px);
+}
+
+/* BUTTON */
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  margin-top:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.present{
+  background:linear-gradient(135deg,#00c853,#00e676);
+}
+
+.leave{
+  background:linear-gradient(135deg,#ff3d00,#ff7043);
+}
+
+/* FORM */
+.form-group{
+  margin-bottom:12px;
+}
+
+label{
+  font-size:12px;
+  opacity:0.8;
+}
+
 input,select{
-  width:100%;padding:10px;border-radius:8px;
-  border:none;margin-bottom:10px;
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-top:5px;
 }
+
+/* STAFF */
+.staffCard{
+  background:#fff;
+  color:#000;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+}
+
+/* LOADER */
+#loader{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:999;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:18px;
+}
+
+.hidden{display:none;}
 </style>
 </head>
 
 <body>
+
+<div id="loader">⏳ Processing...</div>
 
 <div class="header">
   <button onclick="goBack()">⬅</button>
@@ -66,28 +131,45 @@ input,select{
 </div>
 
 <div class="card">
-  <button class="btn present" onclick="mark()">✔ Mark</button>
-  <button class="btn leave" onclick="toggleLeave()">Leave</button>
-  <button id="adminBtn" class="btn hidden">👑 Staff</button>
+  <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
+  <button class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
+  <button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff Attendance</button>
 </div>
 
+<!-- LEAVE FORM -->
 <div id="leaveBox" class="card hidden">
-  <input type="date" id="from">
-  <input type="date" id="to">
-  <select id="type">
-    <option value="">Select</option>
-    <option>CL</option>
-    <option>PL</option>
-  </select>
-  <button class="btn leave" onclick="submitLeave()">Submit</button>
+  <h3>📄 Apply Leave</h3>
+
+  <div class="form-group">
+    <label>From Date</label>
+    <input type="date" id="from">
+  </div>
+
+  <div class="form-group">
+    <label>To Date</label>
+    <input type="date" id="to">
+  </div>
+
+  <div class="form-group">
+    <label>Leave Type</label>
+    <select id="type">
+      <option value="">Select Leave Type</option>
+      <option>CL</option>
+      <option>PL</option>
+      <option>MEDICAL</option>
+      <option>UCL</option>
+    </select>
+  </div>
+
+  <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
 </div>
 
+<!-- ADMIN PANEL -->
 <div id="adminPanel" class="card hidden">
-  <input id="search" placeholder="Search">
+  <input type="text" id="search" placeholder="🔍 Search staff">
   <div id="staffList"></div>
 </div>
 
-<div id="loader" class="loader">⏳ Processing...</div>
 <p id="msg"></p>
 
 </div>
@@ -97,10 +179,10 @@ input,select{
 const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
 
 let staffId = localStorage.getItem("staffId");
-let isAdmin = (staffId==="N07550");
+let isAdmin = (staffId === "N07550");
 let selectedStaff = staffId;
 
-// ================= LOAD =================
+// LOAD
 function load(){
   fetch(URL,{
     method:"POST",
@@ -114,20 +196,17 @@ function load(){
     document.getElementById("welcome").innerText =
       (d.name||"User")+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
 
-    document.getElementById("today").innerText = d.today||"--";
-    document.getElementById("present").innerText = d.present||0;
-    document.getElementById("leave").innerText = d.leave||0;
+    document.getElementById("today").innerText = d.today;
+    document.getElementById("present").innerText = d.present;
+    document.getElementById("leave").innerText = d.leave;
 
     if(isAdmin){
       document.getElementById("adminBtn").classList.remove("hidden");
     }
-  })
-  .catch(()=>{
-    document.getElementById("welcome").innerText="Error loading";
   });
 }
 
-// ================= MARK =================
+// MARK
 function mark(){
   toggle(true);
 
@@ -146,15 +225,11 @@ function mark(){
       toggle(false);
       showMsg(d.message);
       load();
-    })
-    .catch(()=>{
-      toggle(false);
-      showMsg("Error");
     });
   });
 }
 
-// ================= LEAVE =================
+// LEAVE
 function toggleLeave(){
   document.getElementById("leaveBox").classList.toggle("hidden");
 }
@@ -185,15 +260,11 @@ function submitLeave(){
       showMsg(d.message);
       document.getElementById("leaveBox").classList.add("hidden");
       load();
-    })
-    .catch(()=>{
-      toggle(false);
-      showMsg("Error");
     });
   });
 }
 
-// ================= ADMIN =================
+// ADMIN
 document.getElementById("adminBtn").onclick=function(){
   let p=document.getElementById("adminPanel");
   p.classList.toggle("hidden");
@@ -240,17 +311,21 @@ document.addEventListener("input",e=>{
   }
 });
 
-// ================= HELPERS =================
+// HELPERS
 function toggle(x){
-  document.getElementById("loader").style.display = x?"block":"none";
+  let loader = document.getElementById("loader");
+  loader.style.display = x ? "flex" : "none";
 }
+
 function showMsg(t){
   document.getElementById("msg").innerText = t;
 }
+
 function logout(){
   localStorage.clear();
   window.location="index.html";
 }
+
 function goBack(){
   window.history.back();
 }
