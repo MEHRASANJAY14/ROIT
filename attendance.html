@@ -141,7 +141,6 @@
 
 <body>
 
-<!-- LOGIN CHECK -->
 <script>
 (function(){
   let login = localStorage.getItem("login");
@@ -193,7 +192,6 @@
     <button class="btn leave" onclick="showLeave()">➕ Apply Leave</button>
   </div>
 
-  <!-- LEAVE FORM -->
   <div id="leaveBox" class="card hidden">
 
     <h3 style="margin-top:0">📄 Apply Leave</h3>
@@ -212,8 +210,8 @@
       <label>Leave Type</label>
       <select id="type">
         <option value="">Select Leave Type</option>
-        <option>PL (Privilege Leave)</option>
-        <option>CL (Casual Leave)</option>
+        <option>PL</option>
+        <option>CL</option>
         <option>MEDICAL</option>
         <option>MATERNITY</option>
         <option>PATERNITY</option>
@@ -232,14 +230,12 @@
 
 <script>
 
-const URL = "YOUR_APPS_SCRIPT_URL";
+const URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
 let staffId = localStorage.getItem("staffId");
 let isAdmin = (staffId === "N07550");
 
-// LOAD DASHBOARD
 function load(){
-
   fetch(URL,{
     method:"POST",
     headers:{ "Content-Type":"text/plain" },
@@ -250,21 +246,23 @@ function load(){
   })
   .then(r=>r.json())
   .then(d=>{
+    if(!d || d.status !== "success"){
+      document.getElementById("welcome").innerText = "⚠ Data Error";
+      return;
+    }
 
     document.getElementById("welcome").innerHTML =
-      "👤 " + (d.name || "User") + "<br><small>("+staffId+")</small>" + (isAdmin?" <b>[ADMIN]</b>":"");
+      "👤 " + d.name + "<br><small>("+staffId+")</small>" + (isAdmin?" <b>[ADMIN]</b>":"");
 
-    document.getElementById("today").innerText = d.today || "--";
-    document.getElementById("present").innerText = d.present || 0;
-    document.getElementById("leave").innerText = d.leave || 0;
-
+    document.getElementById("today").innerText = d.today;
+    document.getElementById("present").innerText = d.present;
+    document.getElementById("leave").innerText = d.leave;
   })
   .catch(()=>{
-    document.getElementById("welcome").innerText = "⚠ Server Error";
+    document.getElementById("welcome").innerText = "❌ Server Error";
   });
 }
 
-// MARK
 function mark(){
   toggle(true);
 
@@ -284,21 +282,21 @@ function mark(){
       showMsg(d.message);
       toggle(false);
       load();
+    })
+    .catch(()=>{
+      showMsg("❌ Error");
+      toggle(false);
     });
   });
 }
 
-// LEAVE UI
 function showLeave(){
-  let t = new Date();
-  let d = t.toISOString().split("T")[0];
-
+  let d = new Date().toISOString().split("T")[0];
   document.getElementById("leaveBox").classList.remove("hidden");
   document.getElementById("from").value = d;
   document.getElementById("to").value = d;
 }
 
-// APPLY LEAVE
 function applyLeave(){
   toggle(true);
 
@@ -322,11 +320,14 @@ function applyLeave(){
       toggle(false);
       document.getElementById("leaveBox").classList.add("hidden");
       load();
+    })
+    .catch(()=>{
+      showMsg("❌ Error");
+      toggle(false);
     });
   });
 }
 
-// HELPERS
 function toggle(x){
   document.getElementById("loader").style.display = x?"block":"none";
 }
@@ -344,10 +345,9 @@ function goBack(){
   window.history.back();
 }
 
-// AUTO TO DATE
-document.addEventListener("change", function(e){
-  if(e.target.id === "from"){
-    document.getElementById("to").value = e.target.value;
+document.addEventListener("change", e=>{
+  if(e.target.id==="from"){
+    document.getElementById("to").value=e.target.value;
   }
 });
 
