@@ -7,65 +7,81 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
+    body{
       margin:0;
       font-family:'Inter',sans-serif;
-      background:linear-gradient(135deg,#edf2f7,#e2e8f0);
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      color:#fff;
     }
 
-    .header {
-      background:linear-gradient(135deg,#004d26,#00a65a);
-      color:white;
-      padding:18px;
-      border-bottom-left-radius:25px;
-      border-bottom-right-radius:25px;
+    .header{
       display:flex;
       justify-content:space-between;
       align-items:center;
+      padding:15px;
+      backdrop-filter:blur(10px);
+      background:rgba(255,255,255,0.1);
+      position:sticky;
+      top:0;
     }
 
-    .header h3 { margin:0; font-size:16px; }
+    .header h3{
+      margin:0;
+      font-size:14px;
+    }
 
-    .logout {
-      background:#fff;
-      color:#006633;
+    .header button{
+      background:white;
       border:none;
       padding:6px 10px;
       border-radius:8px;
-      font-size:12px;
+      font-size:11px;
       cursor:pointer;
+      margin-left:5px;
     }
 
-    .container {
+    .container{
       max-width:420px;
       margin:auto;
       padding:15px;
     }
 
-    .card {
-      background:white;
+    .card{
+      background:rgba(255,255,255,0.1);
       border-radius:16px;
       padding:18px;
       margin-bottom:14px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.06);
+      backdrop-filter:blur(12px);
+      box-shadow:0 8px 25px rgba(0,0,0,0.3);
     }
 
-    .title { font-size:12px; color:#888; }
-    .value { font-size:22px; font-weight:600; margin-top:6px; }
-
-    .grid { display:flex; gap:12px; }
-
-    .presentCard {
-      background:linear-gradient(135deg,#e6f4ea,#d1fadf);
-      color:#1b5e20;
+    .title{
+      font-size:12px;
+      opacity:0.7;
     }
 
-    .leaveCard {
-      background:linear-gradient(135deg,#fff4e5,#ffe0b2);
-      color:#e65100;
+    .value{
+      font-size:24px;
+      font-weight:600;
+      margin-top:6px;
     }
 
-    .btn {
+    .grid{
+      display:flex;
+      gap:12px;
+    }
+
+    .presentCard{
+      background:linear-gradient(135deg,#00c853,#69f0ae);
+      color:#003300;
+    }
+
+    .leaveCard{
+      background:linear-gradient(135deg,#ff9100,#ffcc80);
+      color:#5d2600;
+    }
+
+    .btn{
       width:100%;
       padding:14px;
       border:none;
@@ -73,30 +89,57 @@
       font-weight:600;
       margin-top:10px;
       cursor:pointer;
+      font-size:14px;
+      transition:0.2s;
     }
 
-    .present {
-      background:linear-gradient(135deg,#006633,#00a65a);
+    .btn:active{
+      transform:scale(0.96);
+    }
+
+    .present{
+      background:linear-gradient(135deg,#00c853,#00e676);
       color:white;
     }
 
-    .leave {
-      background:linear-gradient(135deg,#ff9800,#ff5722);
+    .leave{
+      background:linear-gradient(135deg,#ff6d00,#ff3d00);
       color:white;
     }
 
-    .hidden { display:none; }
+    .hidden{
+      display:none;
+    }
 
-    #msg { text-align:center; margin-top:12px; font-size:14px; }
+    #msg{
+      text-align:center;
+      margin-top:12px;
+      font-size:14px;
+    }
 
-    .loader { display:none; text-align:center; margin-top:10px; }
+    .loader{
+      display:none;
+      text-align:center;
+      margin-top:10px;
+      font-size:13px;
+    }
+
+    input,select{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:none;
+      margin-bottom:10px;
+      background:rgba(255,255,255,0.9);
+      font-size:14px;
+    }
 
   </style>
 </head>
 
 <body>
 
-<!-- ✅ LOGIN CHECK -->
+<!-- LOGIN CHECK -->
 <script>
 (function(){
   let login = localStorage.getItem("login");
@@ -118,7 +161,10 @@
 
 <div class="header">
   <h3 id="welcome">Loading...</h3>
-  <button class="logout" onclick="logout()">Logout</button>
+  <div>
+    <button onclick="goBack()">⬅ Back</button>
+    <button onclick="logout()">Logout</button>
+  </div>
 </div>
 
 <div class="container">
@@ -146,17 +192,20 @@
   </div>
 
   <div id="leaveBox" class="card hidden">
-    <input type="date" id="from"><br><br>
-    <input type="date" id="to"><br><br>
+    <input type="date" id="from">
+    <input type="date" id="to">
 
     <select id="type">
       <option value="">Select Leave</option>
       <option>PL</option>
       <option>CL</option>
       <option>MEDICAL</option>
+      <option>MATERNITY</option>
+      <option>PATERNITY</option>
+      <option>UCL</option>
     </select>
 
-    <button class="btn leave" onclick="applyLeave()">Submit</button>
+    <button class="btn leave" onclick="applyLeave()">Submit Leave</button>
   </div>
 
   <div class="loader" id="loader">Processing...</div>
@@ -168,12 +217,11 @@
 
 const URL = "YOUR_APPS_SCRIPT_URL";
 
-// ✅ Dynamic Login
 let staffId = localStorage.getItem("staffId");
 let branch = localStorage.getItem("branch");
 let isAdmin = (staffId === "N07550");
 
-// LOAD DASHBOARD
+// LOAD
 function load(){
   fetch(URL,{
     method:"POST",
@@ -186,7 +234,7 @@ function load(){
   .then(r=>r.json())
   .then(d=>{
     document.getElementById("welcome").innerText =
-      "👋 " + (d.name || "User") + " (" + staffId + ")" + (isAdmin ? " [ADMIN]" : "");
+      "👋 " + (d.name || "User") + " ("+staffId+")" + (isAdmin?" [ADMIN]":"");
 
     document.getElementById("today").innerText = d.today;
     document.getElementById("present").innerText = d.present;
@@ -194,7 +242,7 @@ function load(){
   });
 }
 
-// MARK ATTENDANCE
+// MARK
 function mark(){
   toggle(true);
 
@@ -218,12 +266,11 @@ function mark(){
   });
 }
 
-// SHOW LEAVE
+// LEAVE
 function showLeave(){
   document.getElementById("leaveBox").classList.remove("hidden");
 }
 
-// APPLY LEAVE
 function applyLeave(){
   toggle(true);
 
@@ -260,13 +307,15 @@ function showMsg(t){
   document.getElementById("msg").innerText = t;
 }
 
-// LOGOUT
 function logout(){
   localStorage.clear();
   window.location.replace("index.html");
 }
 
-// INIT
+function goBack(){
+  window.history.back();
+}
+
 load();
 
 </script>
