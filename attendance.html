@@ -4,7 +4,7 @@
   <title>Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
     body{
@@ -19,19 +19,18 @@
       justify-content:space-between;
       align-items:center;
       padding:15px;
-      backdrop-filter:blur(10px);
       background:rgba(255,255,255,0.1);
-      position:sticky;
-      top:0;
+      backdrop-filter:blur(10px);
     }
 
     .header h3{
       margin:0;
       font-size:14px;
+      line-height:1.4;
     }
 
     .header button{
-      background:white;
+      background:#fff;
       border:none;
       padding:6px 10px;
       border-radius:8px;
@@ -89,12 +88,6 @@
       font-weight:600;
       margin-top:10px;
       cursor:pointer;
-      font-size:14px;
-      transition:0.2s;
-    }
-
-    .btn:active{
-      transform:scale(0.96);
     }
 
     .present{
@@ -111,6 +104,26 @@
       display:none;
     }
 
+    .field{
+      margin-bottom:12px;
+    }
+
+    .field label{
+      font-size:12px;
+      opacity:0.8;
+      display:block;
+      margin-bottom:4px;
+    }
+
+    input,select{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:none;
+      background:rgba(255,255,255,0.9);
+      font-size:14px;
+    }
+
     #msg{
       text-align:center;
       margin-top:12px;
@@ -121,17 +134,6 @@
       display:none;
       text-align:center;
       margin-top:10px;
-      font-size:13px;
-    }
-
-    input,select{
-      width:100%;
-      padding:12px;
-      border-radius:10px;
-      border:none;
-      margin-bottom:10px;
-      background:rgba(255,255,255,0.9);
-      font-size:14px;
     }
 
   </style>
@@ -149,7 +151,7 @@
   let now = new Date().getTime();
 
   if(login !== "true" || !branch || !staffId){
-    window.location.replace("DASHBOARD.html");
+    window.location.replace("index.html");
   }
 
   if(time && (now - time > 30*60*1000)){
@@ -191,21 +193,36 @@
     <button class="btn leave" onclick="showLeave()">➕ Apply Leave</button>
   </div>
 
+  <!-- LEAVE FORM -->
   <div id="leaveBox" class="card hidden">
-    <input type="date" id="from">
-    <input type="date" id="to">
 
-    <select id="type">
-      <option value="">Select Leave</option>
-      <option>PL</option>
-      <option>CL</option>
-      <option>MEDICAL</option>
-      <option>MATERNITY</option>
-      <option>PATERNITY</option>
-      <option>UCL</option>
-    </select>
+    <h3 style="margin-top:0">📄 Apply Leave</h3>
+
+    <div class="field">
+      <label>From Date</label>
+      <input type="date" id="from">
+    </div>
+
+    <div class="field">
+      <label>To Date</label>
+      <input type="date" id="to">
+    </div>
+
+    <div class="field">
+      <label>Leave Type</label>
+      <select id="type">
+        <option value="">Select Leave Type</option>
+        <option>PL (Privilege Leave)</option>
+        <option>CL (Casual Leave)</option>
+        <option>MEDICAL</option>
+        <option>MATERNITY</option>
+        <option>PATERNITY</option>
+        <option>UCL</option>
+      </select>
+    </div>
 
     <button class="btn leave" onclick="applyLeave()">Submit Leave</button>
+
   </div>
 
   <div class="loader" id="loader">Processing...</div>
@@ -218,11 +235,11 @@
 const URL = "YOUR_APPS_SCRIPT_URL";
 
 let staffId = localStorage.getItem("staffId");
-let branch = localStorage.getItem("branch");
 let isAdmin = (staffId === "N07550");
 
-// LOAD
+// LOAD DASHBOARD
 function load(){
+
   fetch(URL,{
     method:"POST",
     headers:{ "Content-Type":"text/plain" },
@@ -233,12 +250,17 @@ function load(){
   })
   .then(r=>r.json())
   .then(d=>{
-    document.getElementById("welcome").innerText =
-      "👋 " + (d.name || "User") + " ("+staffId+")" + (isAdmin?" [ADMIN]":"");
 
-    document.getElementById("today").innerText = d.today;
-    document.getElementById("present").innerText = d.present;
-    document.getElementById("leave").innerText = d.leave;
+    document.getElementById("welcome").innerHTML =
+      "👤 " + (d.name || "User") + "<br><small>("+staffId+")</small>" + (isAdmin?" <b>[ADMIN]</b>":"");
+
+    document.getElementById("today").innerText = d.today || "--";
+    document.getElementById("present").innerText = d.present || 0;
+    document.getElementById("leave").innerText = d.leave || 0;
+
+  })
+  .catch(()=>{
+    document.getElementById("welcome").innerText = "⚠ Server Error";
   });
 }
 
@@ -266,11 +288,17 @@ function mark(){
   });
 }
 
-// LEAVE
+// LEAVE UI
 function showLeave(){
+  let t = new Date();
+  let d = t.toISOString().split("T")[0];
+
   document.getElementById("leaveBox").classList.remove("hidden");
+  document.getElementById("from").value = d;
+  document.getElementById("to").value = d;
 }
 
+// APPLY LEAVE
 function applyLeave(){
   toggle(true);
 
@@ -315,6 +343,13 @@ function logout(){
 function goBack(){
   window.history.back();
 }
+
+// AUTO TO DATE
+document.addEventListener("change", function(e){
+  if(e.target.id === "from"){
+    document.getElementById("to").value = e.target.value;
+  }
+});
 
 load();
 
