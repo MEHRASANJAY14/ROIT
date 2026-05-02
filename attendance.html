@@ -57,27 +57,27 @@ input,select{
 
 .form-row{display:flex;gap:10px;}
 .form-group{flex:1;}
+@media(max-width:480px){.form-row{flex-direction:column;}}
 
-@media(max-width:480px){
-  .form-row{flex-direction:column;}
-}
-
+/* Calendar */
 .calendar{
   display:grid;
   grid-template-columns: repeat(7,1fr);
   gap:5px;
   text-align:center;
 }
-
-.day{
-  padding:8px;
-  border-radius:6px;
-  font-size:11px;
+.day-name{
+font-weight:bold;
+color:#00e676;
 }
-
+.date{
+padding:8px;
+border-radius:6px;
+font-size:11px;
+}
 .presentDay{background:#4caf50;}
 .leaveDay{background:#f44336;}
-.empty{background:transparent;}
+.todayBox{border:2px solid yellow;}
 
 #loader{
   display:none;
@@ -99,19 +99,18 @@ input,select{
 <div id="loader">⏳ Processing...</div>
 
 <div class="header">
-  <button onclick="goBack()">⬅</button>
-  <b id="welcome">Loading...</b>
-  <button onclick="logout()">Logout</button>
+<button onclick="goBack()">⬅</button>
+<b id="welcome">Loading...</b>
+<button onclick="logout()">Logout</button>
 </div>
 
 <div class="container">
 
 <div class="card">
-  Today: <b id="todayText">--</b>
+Today: <b id="todayText">--</b>
 </div>
 
 <div class="card">
-
 <div id="userKPI">
 Present: <b id="present">0</b><br>
 Leave: <b id="leave">0</b>
@@ -125,14 +124,17 @@ Self<br>P:<span id="selfP">0</span><br>L:<span id="selfL">0</span>
 Staff Today<br>P:<span id="staffP">0</span><br>L:<span id="staffL">0</span>
 </div>
 </div>
+</div>
 
+<div class="card">
+Selected Staff: <b id="selectedName">Self</b>
 </div>
 
 <div class="card">
 <button id="markBtn" class="btn present" onclick="mark()">✔ Mark Attendance</button>
 <button id="leaveBtn" class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
 <button class="btn" style="background:#9c27b0;" onclick="openCalendar()">📅 Calendar</button>
-<button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff</button>
+<button id="adminBtn" class="btn hidden" onclick="openStaff()">👑 Staff</button>
 </div>
 
 <div id="leaveBox" class="card hidden">
@@ -158,9 +160,24 @@ Staff Today<br>P:<span id="staffP">0</span><br>L:<span id="staffL">0</span>
 <button class="btn leave" onclick="submitLeave()">Submit</button>
 </div>
 
+<!-- CALENDAR -->
 <div id="calendarBox" class="card hidden">
-<h3>📅 Attendance Calendar</h3>
+
+<div style="display:flex;justify-content:space-between;">
+<button onclick="changeMonth(-1)">◀</button>
+<div id="monthTitle"></div>
+<button onclick="changeMonth(1)">▶</button>
+</div>
+
 <div class="calendar" id="calendarGrid"></div>
+
+</div>
+
+<!-- STAFF -->
+<div id="staffBox" class="card hidden">
+<h3>👑 Staff List</h3>
+<input type="text" id="search" placeholder="Search..." onkeyup="filterStaff()">
+<div id="staffList"></div>
 </div>
 
 <p id="msg"></p>
@@ -175,216 +192,142 @@ let staffId=localStorage.getItem("staffId");
 let isAdmin=(staffId==="N07550");
 let selectedStaff=staffId;
 
-// RESET NEXT DAY
-let last=localStorage.getItem("markDate");
-let today=new Date().toDateString();
-if(last && last!==today){
-localStorage.removeItem("markDate");
-enableButtons();
-}
+selectedName.innerText=isAdmin?"Self (Admin)":staffId;
 
-// LOAD
-function load(){
+// ===== STAFF =====
+function openStaff(){
+staffBox.classList.toggle("hidden");
 
-fetch(URL + "?action=dashboard&staff_id=" + (isAdmin?"ALL":staffId))
-.then(res=>{
-if(!res.ok) throw new Error("HTTP error");
-return res.json();
-})
+fetch(URL+"?action=staff_list")
+.then(r=>r.json())
 .then(d=>{
-
-if(!d || d.status!=="success"){
-showMsg("❌ Server Error");
-return;
+let html="";
+(d.staff||[]).forEach(s=>{
+html+=`<div style="margin:6px;padding:8px;background:#fff2;border-radius:8px;">
+<b>${s.name}</b> (${s.staff_id})
+<br><button onclick="selectStaff('${s.staff_id}','${s.name}')">Select</button>
+</div>`;
+});
+staffList.innerHTML=html;
+});
 }
+
+function selectStaff(id,name){
+selectedStaff=id;
+selectedName.innerText=name+" ("+id+")";
+}
+
+// ===== LOAD =====
+function load(){
+fetch(URL+"?action=dashboard&staff_id="+(isAdmin?"ALL":staffId))
+.then(r=>r.json())
+.then(d=>{
+if(!d || d.status!=="success"){showMsg("Error");return;}
 
 welcome.innerText=(d.name||"User")+" ("+staffId+")";
-todayText.innerText=d.today || "--";
+todayText.innerText=d.today||"--";
 
-if(isAdmin && d.self && d.staff){
+if(isAdmin && d.self){
 userKPI.style.display="none";
 adminKPI.style.display="flex";
-
-selfP.innerText=d.self.present || 0;
-selfL.innerText=d.self.leave || 0;
-staffP.innerText=d.staff.present || 0;
-staffL.innerText=d.staff.leave || 0;
-
+selfP.innerText=d.self.present;
+selfL.innerText=d.self.leave;
+staffP.innerText=d.staff.present;
+staffL.innerText=d.staff.leave;
 adminBtn.classList.remove("hidden");
-
 }else{
-present.innerText=d.present || 0;
-leave.innerText=d.leave || 0;
+present.innerText=d.present;
+leave.innerText=d.leave;
 }
-
-if(d.today && (d.today.includes("Present")||d.today.includes("Leave"))){
-disableButtons();
-}
-
-})
-.catch(()=>{
-showMsg("❌ Network Error");
 });
-
 }
 
-// BUTTON CONTROL
-function disableButtons(){
-markBtn.disabled=true;
-leaveBtn.disabled=true;
-markBtn.style.opacity=0.5;
-leaveBtn.style.opacity=0.5;
+// ===== CALENDAR =====
+let currentMonth=new Date().getMonth();
+let currentYear=new Date().getFullYear();
+
+function changeMonth(step){
+currentMonth+=step;
+if(currentMonth<0){currentMonth=11;currentYear--;}
+if(currentMonth>11){currentMonth=0;currentYear++;}
+openCalendar();
 }
 
-function enableButtons(){
-markBtn.disabled=false;
-leaveBtn.disabled=false;
-markBtn.style.opacity=1;
-leaveBtn.style.opacity=1;
-}
-
-// MARK
-function mark(){
-
-toggle(true);
-
-navigator.geolocation.getCurrentPosition(pos=>{
-
-fetch(URL,{
-method:"POST",
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-body:JSON.stringify({
-staff_id:selectedStaff,
-status:"Present",
-lat:pos.coords.latitude,
-lng:pos.coords.longitude
-})
-})
-.then(r=>r.json())
-.then(d=>{
-toggle(false);
-
-if(d.status==="success"){
-showMsg("✔ Attendance Marked");
-disableButtons();
-localStorage.setItem("markDate",new Date().toDateString());
-}
-else if(d.already){
-showMsg("✔ Already Marked ("+d.type+")");
-disableButtons();
-}
-
-load();
-});
-
-});
-
-}
-
-// LEAVE
-function toggleLeave(){
-leaveBox.classList.toggle("hidden");
-}
-
-function submitLeave(){
-
-let f=from.value,t=to.value,ty=type.value;
-
-if(!f||!t||!ty){
-showMsg("⚠ Fill all fields");
-return;
-}
-
-toggle(true);
-
-navigator.geolocation.getCurrentPosition(pos=>{
-
-fetch(URL,{
-method:"POST",
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-body:JSON.stringify({
-staff_id:selectedStaff,
-status:"Leave",
-leave_type:ty,
-from_date:f,
-to_date:t,
-lat:pos.coords.latitude,
-lng:pos.coords.longitude
-})
-})
-.then(r=>r.json())
-.then(d=>{
-toggle(false);
-
-if(d.status==="success"){
-showMsg("✔ Leave Applied");
-disableButtons();
-localStorage.setItem("markDate",new Date().toDateString());
-leaveBox.classList.add("hidden");
-}
-else if(d.already){
-showMsg("✔ Already Marked ("+d.type+")");
-disableButtons();
-}
-
-load();
-});
-
-});
-
-}
-
-// CALENDAR
 function openCalendar(){
-
 calendarBox.classList.toggle("hidden");
 
-fetch(URL + "?action=calendar&staff_id=" + staffId)
+fetch(URL+"?action=calendar&staff_id="+staffId)
 .then(r=>r.json())
 .then(d=>{
 
 let map={};
 (d.data||[]).forEach(x=>map[x.date]=x.status);
 
-let now=new Date();
-let y=now.getFullYear();
-let m=now.getMonth();
+let months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+monthTitle.innerText=months[currentMonth]+" "+currentYear;
 
-let first=new Date(y,m,1).getDay();
-let total=new Date(y,m+1,0).getDate();
-
+let days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 let html="";
 
-for(let i=0;i<first;i++){
-html+=`<div class="day empty"></div>`;
-}
+days.forEach(d=>html+=`<div class="day-name">${d}</div>`);
+
+let first=new Date(currentYear,currentMonth,1).getDay();
+let total=new Date(currentYear,currentMonth+1,0).getDate();
+
+for(let i=0;i<first;i++) html+="<div></div>";
+
+let today=new Date();
 
 for(let i=1;i<=total;i++){
-let ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(i).padStart(2,"0");
+let ds=currentYear+"-"+String(currentMonth+1).padStart(2,"0")+"-"+String(i).padStart(2,"0");
 let st=map[ds]||"Absent";
 
-let cls="day";
+let cls="date";
 if(st==="Present") cls+=" presentDay";
 if(st==="Leave") cls+=" leaveDay";
+if(i===today.getDate() && currentMonth===today.getMonth()) cls+=" todayBox";
 
 html+=`<div class="${cls}">${i}<br>${st}</div>`;
 }
 
 calendarGrid.innerHTML=html;
-
 });
-
 }
 
-// HELPERS
-function toggle(x){ loader.style.display=x?"flex":"none"; }
-function showMsg(t){ msg.innerText=t; }
-function logout(){ localStorage.clear(); location="index.html"; }
-function goBack(){ history.back(); }
+// ===== ACTION =====
+function mark(){
+fetch(URL,{
+method:"POST",
+headers:{"Content-Type":"text/plain"},
+body:JSON.stringify({staff_id:selectedStaff,status:"Present"})
+}).then(r=>r.json()).then(()=>load());
+}
+
+function submitLeave(){
+fetch(URL,{
+method:"POST",
+headers:{"Content-Type":"text/plain"},
+body:JSON.stringify({
+staff_id:selectedStaff,
+status:"Leave",
+from_date:from.value,
+to_date:to.value,
+leave_type:type.value
+})
+}).then(r=>r.json()).then(()=>load());
+}
+
+// ===== HELPERS =====
+function toggleLeave(){leaveBox.classList.toggle("hidden");}
+function filterStaff(){
+let val=search.value.toLowerCase();
+[...staffList.children].forEach(x=>{
+x.style.display=x.innerText.toLowerCase().includes(val)?"block":"none";
+});
+}
+function showMsg(t){msg.innerText=t;}
+function logout(){localStorage.clear();location="index.html";}
+function goBack(){history.back();}
 
 load();
 
