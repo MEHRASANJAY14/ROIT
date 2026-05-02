@@ -182,13 +182,18 @@ enableButtons();
 // LOAD (GET)
 function load(){
 
-fetch(`${URL}?action=dashboard&staff_id=${isAdmin?"ALL":staffId}`)
-.then(r=>r.json())
-.then(d=>{
+fetch(URL + "?action=dashboard&staff_id=" + (isAdmin?"ALL":staffId))
+.then(res => {
+  if(!res.ok) throw new Error("HTTP error");
+  return res.json();
+})
+.then(d => {
+
+console.log("DATA:", d);
 
 if(!d || d.status!=="success"){
-showMsg("❌ Server Error");
-return;
+  showMsg("Server error");
+  return;
 }
 
 welcome.innerText=(d.name||"User")+" ("+staffId+")";
@@ -199,26 +204,23 @@ if(isAdmin && d.self && d.staff){
 userKPI.style.display="none";
 adminKPI.style.display="flex";
 
-selfP.innerText=d.self.present || 0;
-selfL.innerText=d.self.leave || 0;
-staffP.innerText=d.staff.present || 0;
-staffL.innerText=d.staff.leave || 0;
-
-adminBtn.classList.remove("hidden");
+selfP.innerText=d.self.present;
+selfL.innerText=d.self.leave;
+staffP.innerText=d.staff.present;
+staffL.innerText=d.staff.leave;
 
 }else{
 
-present.innerText=d.present || 0;
-leave.innerText=d.leave || 0;
+present.innerText=d.present;
+leave.innerText=d.leave;
 
-}
-
-if(d.today && (d.today.includes("Present")||d.today.includes("Leave"))){
-disableButtons();
 }
 
 })
-.catch(()=>showMsg("❌ Network Error"));
+.catch(err=>{
+console.log("ERROR:", err);
+showMsg("❌ Network Error");
+});
 
 }
 
