@@ -212,10 +212,14 @@ function login(){
       if(data.status === "success"){
 
         localStorage.setItem("login","true");
-        localStorage.setItem("branch", data.branch);
-        localStorage.setItem("sol", data.sol);
-        localStorage.setItem("userid", data.userid);
-        localStorage.setItem("time", new Date().getTime());
+localStorage.setItem("branch", data.branch);
+localStorage.setItem("sol", data.sol);
+localStorage.setItem("userid", data.userid);
+
+// ✅ ADD THIS LINE
+localStorage.setItem("staffId", data.userid);
+
+localStorage.setItem("time", new Date().getTime());
 
         msg.innerHTML = "✅ Welcome to <br><b>" + data.branch + "</b>";
         msg.style.color = "lightgreen";
