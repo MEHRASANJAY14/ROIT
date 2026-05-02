@@ -14,6 +14,10 @@ body{
   color:#fff;
 }
 
+.btn{
+margin:5px 2px;
+}
+
 .header{
   display:flex;
   justify-content:space-between;
@@ -181,6 +185,8 @@ Selected Staff: <b id="selectedName">Self</b>
 
 <script>
 
+ 
+
 const URL="https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
 
 let staffId=localStorage.getItem("staffId");
@@ -207,21 +213,32 @@ staffBox.classList.toggle("hidden");
 fetch(URL+"?action=staff_list")
 .then(r=>r.json())
 .then(d=>{
-let html="";
-(d.staff||[]).forEach(s=>{
-html+=`<div style="margin:6px;padding:8px;background:#fff2;border-radius:8px;">
-<b>${s.name}</b> (${s.staff_id})
-<br><button onclick="selectStaff('${s.staff_id}','${s.name}')">Select</button>
-</div>`;
-});
-staffList.innerHTML=html;
-});
-}
 
-function selectStaff(id,name){
-selectedStaff=id;
-selectedName.innerText=name+" ("+id+")";
-showMsg("✔ Selected: "+name);
+let html="";
+
+(d.staff||[]).forEach(s=>{
+
+html+=`
+<div style="margin:8px;padding:10px;background:#fff2;border-radius:10px;">
+
+<b>${s.name}</b> (${s.staff_id})
+
+<br><br>
+
+<button class="btn present" style="width:48%;" 
+onclick="adminMark('${s.staff_id}','Present')">✔ P</button>
+
+<button class="btn leave" style="width:48%;" 
+onclick="adminMark('${s.staff_id}','Leave')">✖ L</button>
+
+</div>
+`;
+
+});
+
+staffList.innerHTML=html;
+
+});
 }
 
 // ===== LOAD =====
@@ -334,7 +351,42 @@ load();
 });
 });
 }
+ function adminMark(id,type){
 
+toggle(true);
+
+fetch(URL,{
+method:"POST",
+headers:{"Content-Type":"text/plain"},
+body:JSON.stringify({
+staff_id:id,
+status:type
+})
+})
+.then(r=>r.json())
+.then(d=>{
+
+toggle(false);
+
+if(d.status==="success"){
+showMsg("✔ "+type+" Marked for " + id);
+}
+else if(d.already){
+showMsg("✔ Already Marked ("+d.type+")");
+}
+else{
+showMsg("❌ Error");
+}
+
+load();
+
+})
+.catch(()=>{
+toggle(false);
+showMsg("❌ Network Error");
+});
+
+}
 // ===== CALENDAR =====
 let currentMonth=new Date().getMonth();
 let currentYear=new Date().getFullYear();
