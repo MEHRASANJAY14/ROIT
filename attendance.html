@@ -130,18 +130,34 @@ input,select{
 
 <!-- LEAVE -->
 <div id="leaveBox" class="card hidden">
-  <input type="date" id="from">
-  <input type="date" id="to">
 
-  <select id="type">
-    <option value="">Select Leave</option>
-    <option>CL</option>
-    <option>PL</option>
-    <option>MEDICAL</option>
-    <option>UCL</option>
-  </select>
+  <h3 style="margin-bottom:10px;">📄 Apply Leave</h3>
 
-  <button class="btn leave" onclick="submitLeave()">Submit</button>
+  <div class="form-row">
+    <div class="form-group">
+      <label>From Date</label>
+      <input type="date" id="from">
+    </div>
+
+    <div class="form-group">
+      <label>To Date</label>
+      <input type="date" id="to">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Leave Type</label>
+    <select id="type">
+      <option value="">Select Leave</option>
+      <option>CL</option>
+      <option>PL</option>
+      <option>MEDICAL</option>
+      <option>UCL</option>
+    </select>
+  </div>
+
+  <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
+
 </div>
 
 <!-- ADMIN -->
