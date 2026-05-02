@@ -8,17 +8,21 @@
 (function(){
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
+  let staffId = localStorage.getItem("staffId"); // ✅ ADD THIS
   let time = localStorage.getItem("time");
   let now = new Date().getTime();
 
-  if(login !== "true" || !branch){
+  // अगर login नहीं या staffId नहीं
+  if(login !== "true" || !branch || !staffId){
     window.location.replace("index.html");
   }
 
+  // session timeout (30 min)
   if(time && (now - time > 30*60*1000)){
     localStorage.clear();
     window.location.replace("index.html");
   }
+
 })();
 </script>
 
