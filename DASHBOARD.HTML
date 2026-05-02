@@ -59,22 +59,26 @@ color:white;
 </tr>
 
 <script>
-let branches=["Jabalpur Main","Sihora","Katni","Narsinghpur","Mandla"];
+(function(){
 
-branches.forEach(function(b){
-let data=localStorage.getItem("daily_"+b);
+  let login = localStorage.getItem("login");
+  let branch = localStorage.getItem("branch");
+  let time = localStorage.getItem("time");
 
-if(data){
-let d=JSON.parse(data);
-document.write("<tr>");
-document.write("<td>"+d.branch+"</td>");
-document.write("<td>"+d.deposit+"</td>");
-document.write("<td>"+d.casa+"</td>");
-document.write("<td>"+d.advance+"</td>");
-document.write("<td>"+d.npa+"</td>");
-document.write("</tr>");
-}
-});
+  let now = new Date().getTime();
+
+  // Not logged in
+  if(login !== "true" || !branch){
+    window.location.replace("index.html");
+  }
+
+  // Session expiry (30 min)
+  if(time && (now - time > 30*60*1000)){
+    localStorage.clear();
+    window.location.replace("index.html");
+  }
+
+})();
 </script>
 
 </table>
