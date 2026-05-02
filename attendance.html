@@ -26,7 +26,6 @@
     .header h3{
       margin:0;
       font-size:14px;
-      line-height:1.4;
     }
 
     .header button{
@@ -36,7 +35,6 @@
       border-radius:8px;
       font-size:11px;
       cursor:pointer;
-      margin-left:5px;
     }
 
     .container{
@@ -51,18 +49,6 @@
       padding:18px;
       margin-bottom:14px;
       backdrop-filter:blur(12px);
-      box-shadow:0 8px 25px rgba(0,0,0,0.3);
-    }
-
-    .title{
-      font-size:12px;
-      opacity:0.7;
-    }
-
-    .value{
-      font-size:24px;
-      font-weight:600;
-      margin-top:6px;
     }
 
     .grid{
@@ -70,70 +56,35 @@
       gap:12px;
     }
 
-    .presentCard{
-      background:linear-gradient(135deg,#00c853,#69f0ae);
-      color:#003300;
-    }
-
-    .leaveCard{
-      background:linear-gradient(135deg,#ff9100,#ffcc80);
-      color:#5d2600;
-    }
-
     .btn{
       width:100%;
-      padding:14px;
+      padding:12px;
       border:none;
-      border-radius:12px;
-      font-weight:600;
+      border-radius:10px;
       margin-top:10px;
       cursor:pointer;
+      font-weight:bold;
     }
 
-    .present{
-      background:linear-gradient(135deg,#00c853,#00e676);
-      color:white;
-    }
+    .present{background:#00c853;color:#fff;}
+    .leave{background:#ff3d00;color:#fff;}
 
-    .leave{
-      background:linear-gradient(135deg,#ff6d00,#ff3d00);
-      color:white;
-    }
-
-    .hidden{
-      display:none;
-    }
-
-    .field{
-      margin-bottom:12px;
-    }
-
-    .field label{
-      font-size:12px;
-      opacity:0.8;
-      display:block;
-      margin-bottom:4px;
-    }
-
-    input,select{
+    input{
       width:100%;
-      padding:12px;
+      padding:10px;
       border-radius:10px;
       border:none;
-      background:rgba(255,255,255,0.9);
-      font-size:14px;
+      margin-bottom:10px;
     }
 
-    #msg{
-      text-align:center;
-      margin-top:12px;
-      font-size:14px;
-    }
+    .hidden{display:none;}
 
-    .loader{
-      display:none;
-      text-align:center;
-      margin-top:10px;
+    .staffCard{
+      background:#fff;
+      color:#000;
+      padding:10px;
+      border-radius:10px;
+      margin-bottom:8px;
     }
 
   </style>
@@ -171,74 +122,42 @@
 <div class="container">
 
   <div class="card">
-    <div class="title">Today's Attendance</div>
-    <div class="value" id="today">--</div>
-  </div>
-
-  <div class="grid">
-    <div class="card presentCard">
-      <div class="title">Present</div>
-      <div class="value" id="present">0</div>
-    </div>
-
-    <div class="card leaveCard">
-      <div class="title">Leave</div>
-      <div class="value" id="leave">0</div>
-    </div>
+    <b>Today:</b> <span id="today">--</span><br>
+    <b>Present:</b> <span id="present">0</span><br>
+    <b>Leave:</b> <span id="leave">0</span>
   </div>
 
   <div class="card">
     <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
-    <button class="btn leave" onclick="showLeave()">➕ Apply Leave</button>
   </div>
 
-  <div id="leaveBox" class="card hidden">
+  <!-- ADMIN PANEL -->
+  <div id="adminBox" class="card hidden">
+    <h3>👑 Staff Attendance</h3>
 
-    <h3 style="margin-top:0">📄 Apply Leave</h3>
+    <input type="text" id="search" placeholder="Search staff...">
 
-    <div class="field">
-      <label>From Date</label>
-      <input type="date" id="from">
-    </div>
-
-    <div class="field">
-      <label>To Date</label>
-      <input type="date" id="to">
-    </div>
-
-    <div class="field">
-      <label>Leave Type</label>
-      <select id="type">
-        <option value="">Select Leave Type</option>
-        <option>PL</option>
-        <option>CL</option>
-        <option>MEDICAL</option>
-        <option>MATERNITY</option>
-        <option>PATERNITY</option>
-        <option>UCL</option>
-      </select>
-    </div>
-
-    <button class="btn leave" onclick="applyLeave()">Submit Leave</button>
-
+    <div id="staffList"></div>
   </div>
 
-  <div class="loader" id="loader">Processing...</div>
   <p id="msg"></p>
 
 </div>
 
 <script>
 
-const URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
 
 let staffId = localStorage.getItem("staffId");
 let isAdmin = (staffId === "N07550");
 
+let markedToday = {};
+
+// ================= LOAD =================
 function load(){
+
   fetch(URL,{
     method:"POST",
-    headers:{ "Content-Type":"text/plain" },
     body:JSON.stringify({
       action:"dashboard",
       staff_id: isAdmin ? "ALL" : staffId
@@ -246,30 +165,61 @@ function load(){
   })
   .then(r=>r.json())
   .then(d=>{
-    if(!d || d.status !== "success"){
-      document.getElementById("welcome").innerText = "⚠ Data Error";
-      return;
-    }
 
     document.getElementById("welcome").innerHTML =
-      "👤 " + d.name + "<br><small>("+staffId+")</small>" + (isAdmin?" <b>[ADMIN]</b>":"");
+      d.name + " ("+staffId+")" + (isAdmin?" [ADMIN]":"");
 
     document.getElementById("today").innerText = d.today;
     document.getElementById("present").innerText = d.present;
     document.getElementById("leave").innerText = d.leave;
+  });
+
+  if(isAdmin){
+    loadStaff();
+  }
+}
+
+// ================= LOAD STAFF =================
+function loadStaff(){
+
+  fetch(URL,{
+    method:"POST",
+    body:JSON.stringify({ action:"staff_list" })
   })
-  .catch(()=>{
-    document.getElementById("welcome").innerText = "❌ Server Error";
+  .then(r=>r.json())
+  .then(d=>{
+
+    let html="";
+
+    d.staff.forEach(s=>{
+
+      let disabled = markedToday[s.staff_id] ? "disabled" : "";
+
+      html += `
+      <div class="staffCard" data-name="${s.name.toLowerCase()}">
+        <b>${s.name}</b> (${s.staff_id})<br>
+
+        <button class="btn present" ${disabled}
+        onclick="markStaff('${s.staff_id}','Present')">Present</button>
+
+        <button class="btn leave" ${disabled}
+        onclick="markStaff('${s.staff_id}','Leave')">Leave</button>
+      </div>`;
+    });
+
+    document.getElementById("staffList").innerHTML = html;
+    document.getElementById("adminBox").classList.remove("hidden");
+
   });
 }
 
+// ================= MARK SELF =================
 function mark(){
-  toggle(true);
 
   navigator.geolocation.getCurrentPosition(pos=>{
+
     fetch(URL,{
       method:"POST",
-      headers:{ "Content-Type":"text/plain" },
       body:JSON.stringify({
         staff_id:staffId,
         status:"Present",
@@ -280,36 +230,22 @@ function mark(){
     .then(r=>r.json())
     .then(d=>{
       showMsg(d.message);
-      toggle(false);
       load();
-    })
-    .catch(()=>{
-      showMsg("❌ Error");
-      toggle(false);
     });
+
   });
 }
 
-function showLeave(){
-  let d = new Date().toISOString().split("T")[0];
-  document.getElementById("leaveBox").classList.remove("hidden");
-  document.getElementById("from").value = d;
-  document.getElementById("to").value = d;
-}
-
-function applyLeave(){
-  toggle(true);
+// ================= MARK STAFF =================
+function markStaff(id, status){
 
   navigator.geolocation.getCurrentPosition(pos=>{
+
     fetch(URL,{
       method:"POST",
-      headers:{ "Content-Type":"text/plain" },
       body:JSON.stringify({
-        staff_id:staffId,
-        status:"Leave",
-        leave_type:document.getElementById("type").value,
-        from_date:document.getElementById("from").value,
-        to_date:document.getElementById("to").value,
+        staff_id:id,
+        status:status,
         lat:pos.coords.latitude,
         lng:pos.coords.longitude
       })
@@ -317,21 +253,32 @@ function applyLeave(){
     .then(r=>r.json())
     .then(d=>{
       showMsg(d.message);
-      toggle(false);
-      document.getElementById("leaveBox").classList.add("hidden");
+
+      markedToday[id] = true;
+
+      loadStaff();
       load();
-    })
-    .catch(()=>{
-      showMsg("❌ Error");
-      toggle(false);
     });
+
   });
 }
 
-function toggle(x){
-  document.getElementById("loader").style.display = x?"block":"none";
-}
+// ================= SEARCH =================
+document.addEventListener("input", function(e){
 
+  if(e.target.id === "search"){
+
+    let val = e.target.value.toLowerCase();
+
+    document.querySelectorAll(".staffCard").forEach(card=>{
+      let name = card.getAttribute("data-name");
+
+      card.style.display = name.includes(val) ? "block" : "none";
+    });
+  }
+});
+
+// ================= HELPERS =================
 function showMsg(t){
   document.getElementById("msg").innerText = t;
 }
@@ -344,12 +291,6 @@ function logout(){
 function goBack(){
   window.history.back();
 }
-
-document.addEventListener("change", e=>{
-  if(e.target.id==="from"){
-    document.getElementById("to").value=e.target.value;
-  }
-});
 
 load();
 
