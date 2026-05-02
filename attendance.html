@@ -446,6 +446,19 @@ function goBack(){history.back();}
 
 load();
 
+  function toggleLeave(){
+
+let box = document.getElementById("leaveBox");
+
+if(!box){
+showMsg("❌ Leave form not found");
+return;
+}
+
+box.classList.toggle("hidden");
+
+}
+
 </script>
 
 </body>
