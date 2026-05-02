@@ -13,118 +13,39 @@ body{
   background:linear-gradient(135deg,#141e30,#243b55);
   color:#fff;
 }
-
-/* HEADER */
 .header{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  padding:15px;
-  backdrop-filter:blur(10px);
-  background:rgba(255,255,255,0.08);
+  padding:12px;
+  background:rgba(255,255,255,0.1);
 }
-
-.header button{
-  padding:6px 10px;
-  border:none;
-  border-radius:8px;
-  background:#fff;
-  cursor:pointer;
-}
-
-/* CONTAINER */
-.container{
-  max-width:420px;
-  margin:auto;
-  padding:15px;
-}
-
-/* CARD */
+.container{max-width:420px;margin:auto;padding:15px;}
 .card{
   background:rgba(255,255,255,0.08);
-  border-radius:16px;
-  padding:18px;
-  margin-bottom:14px;
-  backdrop-filter:blur(15px);
-  box-shadow:0 8px 25px rgba(0,0,0,0.3);
-  transition:0.3s;
+  padding:15px;
+  border-radius:15px;
+  margin-bottom:12px;
 }
-
-.card:hover{
-  transform:translateY(-3px);
-}
-
-/* KPI */
-.kpi{
-  display:flex;
-  justify-content:space-between;
-  margin-top:10px;
-}
-
-.kpi div{
-  text-align:center;
-  flex:1;
-}
-
-/* BUTTON */
 .btn{
   width:100%;
-  padding:14px;
+  padding:12px;
   border:none;
-  border-radius:12px;
-  margin-top:10px;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.3s;
-}
-
-.btn:hover{
-  transform:scale(1.03);
-}
-
-.present{
-  background:linear-gradient(135deg,#00c853,#00e676);
-}
-
-.leave{
-  background:linear-gradient(135deg,#ff3d00,#ff7043);
-}
-
-/* STAFF CARD */
-.staffCard{
-  background:#fff;
-  color:#000;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:10px;
-  box-shadow:0 5px 10px rgba(0,0,0,0.1);
-}
-
-.staffCard b{
-  font-size:14px;
-}
-
-/* INPUT */
-input,select{
-  width:100%;
-  padding:12px;
   border-radius:10px;
-  border:none;
-  margin-bottom:10px;
-  font-size:14px;
+  margin-top:8px;
+  cursor:pointer;
 }
-
-/* LOADER */
-.loader{
-  display:none;
-  text-align:center;
-  margin-top:10px;
-  font-weight:bold;
+.present{background:#00c853;}
+.leave{background:#ff3d00;}
+.staffCard{
+  background:#fff;color:#000;padding:10px;
+  border-radius:10px;margin-bottom:8px;
 }
-
-/* HIDDEN */
 .hidden{display:none;}
-
+.loader{text-align:center;display:none;}
+input,select{
+  width:100%;padding:10px;border-radius:8px;
+  border:none;margin-bottom:10px;
+}
 </style>
 </head>
 
@@ -132,107 +53,89 @@ input,select{
 
 <div class="header">
   <button onclick="goBack()">⬅</button>
-  <h4 id="welcome">Loading...</h4>
+  <span id="welcome">Loading...</span>
   <button onclick="logout()">Logout</button>
 </div>
 
 <div class="container">
 
 <div class="card">
-  <div>📅 <b id="today">--</b></div>
-
-  <div class="kpi">
-    <div>
-      <small>Present</small>
-      <h2 id="present">0</h2>
-    </div>
-    <div>
-      <small>Leave</small>
-      <h2 id="leave">0</h2>
-    </div>
-  </div>
+  Today: <b id="today">--</b><br>
+  Present: <b id="present">0</b><br>
+  Leave: <b id="leave">0</b>
 </div>
 
 <div class="card">
-  <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
-  <button class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
-
-  <button id="adminBtn" class="btn" style="display:none;background:#2979ff;">
-    👑 Staff Attendance
-  </button>
+  <button class="btn present" onclick="mark()">✔ Mark</button>
+  <button class="btn leave" onclick="toggleLeave()">Leave</button>
+  <button id="adminBtn" class="btn hidden">👑 Staff</button>
 </div>
 
-<!-- LEAVE FORM -->
 <div id="leaveBox" class="card hidden">
-  <h3>📄 Apply Leave</h3>
-
   <input type="date" id="from">
   <input type="date" id="to">
-
   <select id="type">
-    <option value="">Select Leave Type</option>
-    <option>PL</option>
+    <option value="">Select</option>
     <option>CL</option>
-    <option>MEDICAL</option>
-    <option>MATERNITY</option>
-    <option>PATERNITY</option>
-    <option>UCL</option>
+    <option>PL</option>
   </select>
-
-  <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
+  <button class="btn leave" onclick="submitLeave()">Submit</button>
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel" class="card hidden">
-  <input type="text" id="search" placeholder="🔍 Search staff...">
+  <input id="search" placeholder="Search">
   <div id="staffList"></div>
 </div>
 
-<div class="loader" id="loader">⏳ Processing...</div>
+<div id="loader" class="loader">⏳ Processing...</div>
 <p id="msg"></p>
 
 </div>
 
 <script>
 
-const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
 
 let staffId = localStorage.getItem("staffId");
-let isAdmin = (staffId === "N07550");
+let isAdmin = (staffId==="N07550");
 let selectedStaff = staffId;
 
-// LOAD
+// ================= LOAD =================
 function load(){
   fetch(URL,{
     method:"POST",
     body:JSON.stringify({
       action:"dashboard",
-      staff_id: isAdmin ? "ALL" : staffId
+      staff_id:isAdmin?"ALL":staffId
     })
   })
   .then(r=>r.json())
   .then(d=>{
     document.getElementById("welcome").innerText =
-      d.name+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
+      (d.name||"User")+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
 
-    document.getElementById("today").innerText = d.today;
-    document.getElementById("present").innerText = d.present;
-    document.getElementById("leave").innerText = d.leave;
+    document.getElementById("today").innerText = d.today||"--";
+    document.getElementById("present").innerText = d.present||0;
+    document.getElementById("leave").innerText = d.leave||0;
 
     if(isAdmin){
-      document.getElementById("adminBtn").style.display="block";
+      document.getElementById("adminBtn").classList.remove("hidden");
     }
+  })
+  .catch(()=>{
+    document.getElementById("welcome").innerText="Error loading";
   });
 }
 
-// MARK
+// ================= MARK =================
 function mark(){
   toggle(true);
+
   navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
       body:JSON.stringify({
-        staff_id:staffId,
+        staff_id:selectedStaff,
         status:"Present",
         lat:pos.coords.latitude,
         lng:pos.coords.longitude
@@ -243,11 +146,15 @@ function mark(){
       toggle(false);
       showMsg(d.message);
       load();
+    })
+    .catch(()=>{
+      toggle(false);
+      showMsg("Error");
     });
   });
 }
 
-// LEAVE
+// ================= LEAVE =================
 function toggleLeave(){
   document.getElementById("leaveBox").classList.toggle("hidden");
 }
@@ -255,15 +162,19 @@ function toggleLeave(){
 function submitLeave(){
   toggle(true);
 
+  let from = document.getElementById("from").value;
+  let to = document.getElementById("to").value;
+  let type = document.getElementById("type").value;
+
   navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
       body:JSON.stringify({
         staff_id:selectedStaff,
         status:"Leave",
-        leave_type:type.value,
-        from_date:from.value,
-        to_date:to.value,
+        leave_type:type,
+        from_date:from,
+        to_date:to,
         lat:pos.coords.latitude,
         lng:pos.coords.longitude
       })
@@ -272,15 +183,20 @@ function submitLeave(){
     .then(d=>{
       toggle(false);
       showMsg(d.message);
-      leaveBox.classList.add("hidden");
+      document.getElementById("leaveBox").classList.add("hidden");
       load();
+    })
+    .catch(()=>{
+      toggle(false);
+      showMsg("Error");
     });
   });
 }
 
-// ADMIN
-adminBtn.onclick = ()=>{
-  adminPanel.classList.toggle("hidden");
+// ================= ADMIN =================
+document.getElementById("adminBtn").onclick=function(){
+  let p=document.getElementById("adminPanel");
+  p.classList.toggle("hidden");
   loadStaff();
 };
 
@@ -300,7 +216,7 @@ function loadStaff(){
         <button class="btn leave" onclick="openLeave('${s.staff_id}')">Leave</button>
       </div>`;
     });
-    staffList.innerHTML=html;
+    document.getElementById("staffList").innerHTML=html;
   });
 }
 
@@ -324,11 +240,20 @@ document.addEventListener("input",e=>{
   }
 });
 
-// HELPERS
-function toggle(x){ loader.style.display = x?"block":"none"; }
-function showMsg(t){ msg.innerText=t; }
-function logout(){ localStorage.clear(); location="index.html"; }
-function goBack(){ history.back(); }
+// ================= HELPERS =================
+function toggle(x){
+  document.getElementById("loader").style.display = x?"block":"none";
+}
+function showMsg(t){
+  document.getElementById("msg").innerText = t;
+}
+function logout(){
+  localStorage.clear();
+  window.location="index.html";
+}
+function goBack(){
+  window.history.back();
+}
 
 load();
 
