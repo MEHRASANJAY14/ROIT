@@ -10,7 +10,7 @@
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
-  background:linear-gradient(135deg,#141e30,#243b55);
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
 }
 
@@ -20,14 +20,8 @@ body{
   justify-content:space-between;
   align-items:center;
   padding:12px;
-  background:rgba(255,255,255,0.1);
-}
-
-.header button{
-  border:none;
-  padding:6px 10px;
-  border-radius:8px;
-  cursor:pointer;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
 }
 
 /* CONTAINER */
@@ -40,10 +34,11 @@ body{
 /* CARD */
 .card{
   background:rgba(255,255,255,0.08);
-  padding:18px;
   border-radius:18px;
+  padding:18px;
   margin-bottom:15px;
   backdrop-filter:blur(12px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
 }
 
 /* BUTTON */
@@ -52,9 +47,14 @@ body{
   padding:14px;
   border:none;
   border-radius:12px;
-  margin-top:12px;
+  margin-top:10px;
   font-weight:600;
   cursor:pointer;
+  transition:0.2s;
+}
+
+.btn:hover{
+  transform:scale(1.02);
 }
 
 .present{
@@ -83,6 +83,17 @@ input,select{
   margin-top:5px;
 }
 
+/* ANIMATION */
+#leaveBox{
+  max-height:0;
+  overflow:hidden;
+  transition:0.3s ease;
+}
+
+#leaveBox.show{
+  max-height:400px;
+}
+
 /* STAFF */
 .staffCard{
   background:#fff;
@@ -101,14 +112,12 @@ input,select{
   width:100%;
   height:100%;
   background:rgba(0,0,0,0.6);
-  z-index:999;
-  align-items:center;
   justify-content:center;
-  color:white;
+  align-items:center;
   font-size:18px;
+  z-index:999;
 }
 
-.hidden{display:none;}
 </style>
 </head>
 
@@ -118,7 +127,7 @@ input,select{
 
 <div class="header">
   <button onclick="goBack()">⬅</button>
-  <span id="welcome">Loading...</span>
+  <b id="welcome">Loading...</b>
   <button onclick="logout()">Logout</button>
 </div>
 
@@ -133,13 +142,13 @@ input,select{
 <div class="card">
   <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
   <button class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
-  <button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff Attendance</button>
+  <button id="adminBtn" class="btn" style="display:none;background:#2196f3;">
+    👑 Staff Attendance
+  </button>
 </div>
 
 <!-- LEAVE FORM -->
-<div id="leaveBox" class="card hidden">
-  <h3>📄 Apply Leave</h3>
-
+<div id="leaveBox" class="card">
   <div class="form-group">
     <label>From Date</label>
     <input type="date" id="from">
@@ -164,9 +173,9 @@ input,select{
   <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel" class="card hidden">
-  <input type="text" id="search" placeholder="🔍 Search staff">
+<!-- ADMIN -->
+<div id="adminPanel" class="card" style="display:none;">
+  <input id="search" placeholder="🔍 Search staff">
   <div id="staffList"></div>
 </div>
 
@@ -176,158 +185,140 @@ input,select{
 
 <script>
 
-const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
+const URL="https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
 
-let staffId = localStorage.getItem("staffId");
-let isAdmin = (staffId === "N07550");
-let selectedStaff = staffId;
+let staffId=localStorage.getItem("staffId");
+let isAdmin=(staffId==="N07550");
+let selectedStaff=staffId;
 
 // LOAD
 function load(){
-  fetch(URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"dashboard",
-      staff_id:isAdmin?"ALL":staffId
-    })
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    document.getElementById("welcome").innerText =
-      (d.name||"User")+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
+fetch(URL,{
+method:"POST",
+body:JSON.stringify({
+action:"dashboard",
+staff_id:isAdmin?"ALL":staffId
+})
+})
+.then(r=>r.json())
+.then(d=>{
+welcome.innerText=d.name+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
+today.innerText=d.today;
+present.innerText=d.present;
+leave.innerText=d.leave;
 
-    document.getElementById("today").innerText = d.today;
-    document.getElementById("present").innerText = d.present;
-    document.getElementById("leave").innerText = d.leave;
-
-    if(isAdmin){
-      document.getElementById("adminBtn").classList.remove("hidden");
-    }
-  });
+if(isAdmin){
+adminBtn.style.display="block";
+}
+});
 }
 
 // MARK
 function mark(){
-  toggle(true);
-
-  navigator.geolocation.getCurrentPosition(pos=>{
-    fetch(URL,{
-      method:"POST",
-      body:JSON.stringify({
-        staff_id:selectedStaff,
-        status:"Present",
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude
-      })
-    })
-    .then(r=>r.json())
-    .then(d=>{
-      toggle(false);
-      showMsg(d.message);
-      load();
-    });
-  });
+toggle(true);
+navigator.geolocation.getCurrentPosition(pos=>{
+fetch(URL,{
+method:"POST",
+body:JSON.stringify({
+staff_id:selectedStaff,
+status:"Present",
+lat:pos.coords.latitude,
+lng:pos.coords.longitude
+})
+})
+.then(r=>r.json())
+.then(d=>{
+toggle(false);
+msg.innerText=d.message;
+load();
+});
+});
 }
 
-// LEAVE
+// LEAVE TOGGLE
 function toggleLeave(){
-  document.getElementById("leaveBox").classList.toggle("hidden");
+leaveBox.classList.toggle("show");
 }
 
+// SUBMIT LEAVE
 function submitLeave(){
-  toggle(true);
+toggle(true);
 
-  let from = document.getElementById("from").value;
-  let to = document.getElementById("to").value;
-  let type = document.getElementById("type").value;
-
-  navigator.geolocation.getCurrentPosition(pos=>{
-    fetch(URL,{
-      method:"POST",
-      body:JSON.stringify({
-        staff_id:selectedStaff,
-        status:"Leave",
-        leave_type:type,
-        from_date:from,
-        to_date:to,
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude
-      })
-    })
-    .then(r=>r.json())
-    .then(d=>{
-      toggle(false);
-      showMsg(d.message);
-      document.getElementById("leaveBox").classList.add("hidden");
-      load();
-    });
-  });
+fetch(URL,{
+method:"POST",
+body:JSON.stringify({
+staff_id:selectedStaff,
+status:"Leave",
+leave_type:type.value,
+from_date:from.value,
+to_date:to.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+toggle(false);
+msg.innerText=d.message;
+leaveBox.classList.remove("show");
+load();
+});
 }
 
 // ADMIN
-document.getElementById("adminBtn").onclick=function(){
-  let p=document.getElementById("adminPanel");
-  p.classList.toggle("hidden");
-  loadStaff();
+adminBtn.onclick=()=>{
+adminPanel.style.display=adminPanel.style.display==="none"?"block":"none";
+loadStaff();
 };
 
 function loadStaff(){
-  fetch(URL,{
-    method:"POST",
-    body:JSON.stringify({action:"staff_list"})
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    let html="";
-    d.staff.forEach(s=>{
-      html+=`
-      <div class="staffCard" data-name="${s.name.toLowerCase()}">
-        <b>${s.name}</b> (${s.staff_id})<br>
-        <button class="btn present" onclick="markStaff('${s.staff_id}')">Present</button>
-        <button class="btn leave" onclick="openLeave('${s.staff_id}')">Leave</button>
-      </div>`;
-    });
-    document.getElementById("staffList").innerHTML=html;
-  });
+fetch(URL,{
+method:"POST",
+body:JSON.stringify({action:"staff_list"})
+})
+.then(r=>r.json())
+.then(d=>{
+let html="";
+d.staff.forEach(s=>{
+html+=`
+<div class="staffCard" data-name="${s.name.toLowerCase()}">
+<b>${s.name}</b> (${s.staff_id})<br>
+<button class="btn present" onclick="markStaff('${s.staff_id}')">Present</button>
+<button class="btn leave" onclick="openLeave('${s.staff_id}')">Leave</button>
+</div>`;
+});
+staffList.innerHTML=html;
+});
 }
 
 function markStaff(id){
-  selectedStaff=id;
-  mark();
+selectedStaff=id;
+mark();
 }
 
 function openLeave(id){
-  selectedStaff=id;
-  toggleLeave();
+selectedStaff=id;
+leaveBox.classList.add("show");
 }
 
 // SEARCH
 document.addEventListener("input",e=>{
-  if(e.target.id==="search"){
-    let val=e.target.value.toLowerCase();
-    document.querySelectorAll(".staffCard").forEach(c=>{
-      c.style.display = c.dataset.name.includes(val)?"block":"none";
-    });
-  }
+if(e.target.id==="search"){
+let val=e.target.value.toLowerCase();
+document.querySelectorAll(".staffCard").forEach(c=>{
+c.style.display=c.dataset.name.includes(val)?"block":"none";
+});
+}
 });
 
 // HELPERS
 function toggle(x){
-  let loader = document.getElementById("loader");
-  loader.style.display = x ? "flex" : "none";
+loader.style.display=x?"flex":"none";
 }
-
-function showMsg(t){
-  document.getElementById("msg").innerText = t;
-}
-
 function logout(){
-  localStorage.clear();
-  window.location="index.html";
+localStorage.clear();
+location="index.html";
 }
-
 function goBack(){
-  window.history.back();
+history.back();
 }
 
 load();
