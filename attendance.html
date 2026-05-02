@@ -1,3 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Attendance</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  padding:12px;
+  background:rgba(255,255,255,0.08);
+}
+
+.container{
+  max-width:420px;
+  margin:auto;
+  padding:15px;
+}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:15px;
+}
+
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  margin-top:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.present{background:#00c853;}
+.leave{background:#ff3d00;}
+
+input,select{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  margin-top:5px;
+}
+
+.form-row{display:flex;gap:10px;}
+.form-group{flex:1;}
+
+@media(max-width:480px){
+  .form-row{flex-direction:column;}
+}
+
+.calendar{
+  display:grid;
+  grid-template-columns: repeat(7,1fr);
+  gap:5px;
+  text-align:center;
+}
+
+.day{
+  padding:8px;
+  border-radius:6px;
+  font-size:11px;
+}
+
+.presentDay{background:#4caf50;}
+.leaveDay{background:#f44336;}
+.empty{background:transparent;}
+
+#loader{
+  display:none;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+}
+
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<div id="loader">⏳ Processing...</div>
+
+<div class="header">
+  <button onclick="goBack()">⬅</button>
+  <b id="welcome">Loading...</b>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+<div class="card">
+  Today: <b id="todayText">--</b>
+</div>
+
+<div class="card">
+
+<div id="userKPI">
+Present: <b id="present">0</b><br>
+Leave: <b id="leave">0</b>
+</div>
+
+<div id="adminKPI" style="display:none;justify-content:space-between;">
+<div>
+Self<br>P:<span id="selfP">0</span><br>L:<span id="selfL">0</span>
+</div>
+<div>
+Staff Today<br>P:<span id="staffP">0</span><br>L:<span id="staffL">0</span>
+</div>
+</div>
+
+</div>
+
+<div class="card">
+<button id="markBtn" class="btn present" onclick="mark()">✔ Mark Attendance</button>
+<button id="leaveBtn" class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
+<button class="btn" style="background:#9c27b0;" onclick="openCalendar()">📅 Calendar</button>
+<button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff</button>
+</div>
+
+<div id="leaveBox" class="card hidden">
+<div class="form-row">
+<div class="form-group">
+<label>From</label>
+<input type="date" id="from">
+</div>
+<div class="form-group">
+<label>To</label>
+<input type="date" id="to">
+</div>
+</div>
+
+<select id="type">
+<option value="">Select Leave</option>
+<option>CL</option>
+<option>PL</option>
+<option>MEDICAL</option>
+<option>UCL</option>
+</select>
+
+<button class="btn leave" onclick="submitLeave()">Submit</button>
+</div>
+
+<div id="calendarBox" class="card hidden">
+<h3>📅 Attendance Calendar</h3>
+<div class="calendar" id="calendarGrid"></div>
+</div>
+
+<p id="msg"></p>
+
+</div>
+
 <script>
 
 const URL="https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
@@ -14,16 +183,15 @@ localStorage.removeItem("markDate");
 enableButtons();
 }
 
-// ================= LOAD (GET FIX) =================
+// LOAD
 function load(){
 
-let url = URL + "?action=dashboard&staff_id=" + (isAdmin ? "ALL" : staffId);
-
-fetch(url)
-.then(res => res.json())
-.then(d => {
-
-console.log("DATA:", d);
+fetch(URL + "?action=dashboard&staff_id=" + (isAdmin?"ALL":staffId))
+.then(res=>{
+if(!res.ok) throw new Error("HTTP error");
+return res.json();
+})
+.then(d=>{
 
 if(!d || d.status!=="success"){
 showMsg("❌ Server Error");
@@ -33,8 +201,7 @@ return;
 welcome.innerText=(d.name||"User")+" ("+staffId+")";
 todayText.innerText=d.today || "--";
 
-if(isAdmin && d.self){
-
+if(isAdmin && d.self && d.staff){
 userKPI.style.display="none";
 adminKPI.style.display="flex";
 
@@ -46,10 +213,8 @@ staffL.innerText=d.staff.leave || 0;
 adminBtn.classList.remove("hidden");
 
 }else{
-
 present.innerText=d.present || 0;
 leave.innerText=d.leave || 0;
-
 }
 
 if(d.today && (d.today.includes("Present")||d.today.includes("Leave"))){
@@ -57,20 +222,20 @@ disableButtons();
 }
 
 })
-.catch(err=>{
-console.log("ERROR:", err);
+.catch(()=>{
 showMsg("❌ Network Error");
 });
 
 }
 
-// ================= BUTTON CONTROL =================
+// BUTTON CONTROL
 function disableButtons(){
 markBtn.disabled=true;
 leaveBtn.disabled=true;
 markBtn.style.opacity=0.5;
 leaveBtn.style.opacity=0.5;
 }
+
 function enableButtons(){
 markBtn.disabled=false;
 leaveBtn.disabled=false;
@@ -78,7 +243,7 @@ markBtn.style.opacity=1;
 leaveBtn.style.opacity=1;
 }
 
-// ================= MARK =================
+// MARK
 function mark(){
 
 toggle(true);
@@ -118,8 +283,10 @@ load();
 
 }
 
-// ================= LEAVE =================
-function toggleLeave(){leaveBox.classList.toggle("hidden");}
+// LEAVE
+function toggleLeave(){
+leaveBox.classList.toggle("hidden");
+}
 
 function submitLeave(){
 
@@ -171,7 +338,7 @@ load();
 
 }
 
-// ================= CALENDAR =================
+// CALENDAR
 function openCalendar(){
 
 calendarBox.classList.toggle("hidden");
@@ -192,7 +359,9 @@ let total=new Date(y,m+1,0).getDate();
 
 let html="";
 
-for(let i=0;i<first;i++) html+=`<div class="day empty"></div>`;
+for(let i=0;i<first;i++){
+html+=`<div class="day empty"></div>`;
+}
 
 for(let i=1;i<=total;i++){
 let ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(i).padStart(2,"0");
@@ -207,17 +376,19 @@ html+=`<div class="${cls}">${i}<br>${st}</div>`;
 
 calendarGrid.innerHTML=html;
 
-})
-.catch(()=>showMsg("❌ Network Error"));
+});
 
 }
 
-// ================= HELPERS =================
-function toggle(x){loader.style.display=x?"flex":"none";}
-function showMsg(t){msg.innerText=t;}
-function logout(){localStorage.clear();location="index.html";}
-function goBack(){history.back();}
+// HELPERS
+function toggle(x){ loader.style.display=x?"flex":"none"; }
+function showMsg(t){ msg.innerText=t; }
+function logout(){ localStorage.clear(); location="index.html"; }
+function goBack(){ history.back(); }
 
 load();
 
 </script>
+
+</body>
+</html>
