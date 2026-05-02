@@ -16,13 +16,25 @@
     .header {
       background:linear-gradient(135deg,#004d26,#00a65a);
       color:white;
-      padding:22px;
+      padding:18px;
       border-bottom-left-radius:25px;
       border-bottom-right-radius:25px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.1);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
     }
 
-    .header h3 { margin:0; font-size:18px; }
+    .header h3 { margin:0; font-size:16px; }
+
+    .logout {
+      background:#fff;
+      color:#006633;
+      border:none;
+      padding:6px 10px;
+      border-radius:8px;
+      font-size:12px;
+      cursor:pointer;
+    }
 
     .container {
       max-width:420px;
@@ -38,21 +50,10 @@
       box-shadow:0 6px 18px rgba(0,0,0,0.06);
     }
 
-    .title {
-      font-size:12px;
-      color:#888;
-    }
+    .title { font-size:12px; color:#888; }
+    .value { font-size:22px; font-weight:600; margin-top:6px; }
 
-    .value {
-      font-size:22px;
-      font-weight:600;
-      margin-top:6px;
-    }
-
-    .grid {
-      display:flex;
-      gap:12px;
-    }
+    .grid { display:flex; gap:12px; }
 
     .presentCard {
       background:linear-gradient(135deg,#e6f4ea,#d1fadf);
@@ -72,10 +73,7 @@
       font-weight:600;
       margin-top:10px;
       cursor:pointer;
-      transition:0.2s;
     }
-
-    .btn:active { transform:scale(0.97); }
 
     .present {
       background:linear-gradient(135deg,#006633,#00a65a);
@@ -89,79 +87,47 @@
 
     .hidden { display:none; }
 
-    #msg {
-      text-align:center;
-      margin-top:12px;
-      font-size:14px;
-      font-weight:500;
-    }
+    #msg { text-align:center; margin-top:12px; font-size:14px; }
 
-    /* LEAVE UI */
-    .leave-box { padding:0; overflow:hidden; }
-
-    .leave-header {
-      background:linear-gradient(135deg,#ff9800,#ff5722);
-      color:white;
-      padding:14px;
-      font-weight:600;
-    }
-
-    .leave-body {
-      padding:15px;
-    }
-
-    .field {
-      margin-bottom:12px;
-    }
-
-    .field label {
-      font-size:12px;
-      color:#777;
-      display:block;
-      margin-bottom:4px;
-    }
-
-    input,select {
-      width:100%;
-      padding:12px;
-      border-radius:10px;
-      border:1px solid #ddd;
-      background:#fafafa;
-      font-size:14px;
-    }
-
-    .row {
-      display:flex;
-      gap:10px;
-    }
-
-    .col { flex:1; }
-
-    .loader {
-      display:none;
-      text-align:center;
-      margin-top:10px;
-      color:#666;
-    }
+    .loader { display:none; text-align:center; margin-top:10px; }
 
   </style>
 </head>
 
 <body>
 
+<!-- ✅ LOGIN CHECK -->
+<script>
+(function(){
+  let login = localStorage.getItem("login");
+  let branch = localStorage.getItem("branch");
+  let staffId = localStorage.getItem("staffId");
+  let time = localStorage.getItem("time");
+  let now = new Date().getTime();
+
+  if(login !== "true" || !branch || !staffId){
+    window.location.replace("index.html");
+  }
+
+  if(time && (now - time > 30*60*1000)){
+    localStorage.clear();
+    window.location.replace("index.html");
+  }
+})();
+</script>
+
 <div class="header">
   <h3 id="welcome">Loading...</h3>
+  <button class="logout" onclick="logout()">Logout</button>
 </div>
 
 <div class="container">
 
-  <!-- TODAY -->
   <div class="card">
     <div class="title">Today's Attendance</div>
     <div class="value" id="today">--</div>
   </div>
 
-  <!-- MONTH -->
   <div class="grid">
     <div class="card presentCard">
       <div class="title">Present</div>
@@ -174,50 +140,23 @@
     </div>
   </div>
 
-  <!-- ACTION -->
   <div class="card">
-    <button id="btnPresent" class="btn present" onclick="mark()">✔ Mark Attendance</button>
+    <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
     <button class="btn leave" onclick="showLeave()">➕ Apply Leave</button>
   </div>
 
-  <!-- LEAVE -->
-  <div id="leaveBox" class="card leave-box hidden">
+  <div id="leaveBox" class="card hidden">
+    <input type="date" id="from"><br><br>
+    <input type="date" id="to"><br><br>
 
-    <div class="leave-header">Apply Leave</div>
+    <select id="type">
+      <option value="">Select Leave</option>
+      <option>PL</option>
+      <option>CL</option>
+      <option>MEDICAL</option>
+    </select>
 
-    <div class="leave-body">
-
-      <div class="field">
-        <label>From Date</label>
-        <input type="date" id="from">
-      </div>
-
-      <div class="row">
-
-        <div class="field col">
-          <label>To Date</label>
-          <input type="date" id="to">
-        </div>
-
-        <div class="field col">
-          <label>Leave Type</label>
-          <select id="type">
-            <option value="">Select</option>
-            <option>PL</option>
-            <option>CL</option>
-            <option>MEDICAL</option>
-            <option>MATERNITY</option>
-            <option>PATERNITY</option>
-            <option>UCL</option>
-          </select>
-        </div>
-
-      </div>
-
-      <button class="btn leave" onclick="applyLeave()">Submit Leave</button>
-
-    </div>
-
+    <button class="btn leave" onclick="applyLeave()">Submit</button>
   </div>
 
   <div class="loader" id="loader">Processing...</div>
@@ -227,20 +166,27 @@
 
 <script>
 
-const URL = "https://script.google.com/macros/s/AKfycbwRYZ4N0AZwHHwbh30JpTEovFzgJOgItmbpnWDKTvBKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
-let staffId = "N07550";
+const URL = "YOUR_APPS_SCRIPT_URL";
 
-// LOAD
+// ✅ Dynamic Login
+let staffId = localStorage.getItem("staffId");
+let branch = localStorage.getItem("branch");
+let isAdmin = (staffId === "N07550");
+
+// LOAD DASHBOARD
 function load(){
   fetch(URL,{
     method:"POST",
     headers:{ "Content-Type":"text/plain" },
-    body:JSON.stringify({action:"dashboard", staff_id:staffId})
+    body:JSON.stringify({
+      action:"dashboard",
+      staff_id: isAdmin ? "ALL" : staffId
+    })
   })
   .then(r=>r.json())
   .then(d=>{
     document.getElementById("welcome").innerText =
-      "👋 Hello " + (d.name || "User") + " ("+staffId+")";
+      "👋 " + (d.name || "User") + " (" + staffId + ")" + (isAdmin ? " [ADMIN]" : "");
 
     document.getElementById("today").innerText = d.today;
     document.getElementById("present").innerText = d.present;
@@ -248,9 +194,10 @@ function load(){
   });
 }
 
-// MARK
+// MARK ATTENDANCE
 function mark(){
   toggle(true);
+
   navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
@@ -271,18 +218,15 @@ function mark(){
   });
 }
 
-// LEAVE OPEN
+// SHOW LEAVE
 function showLeave(){
-  let t=new Date(); t.setDate(t.getDate()+1);
-  let d=t.toISOString().split("T")[0];
   document.getElementById("leaveBox").classList.remove("hidden");
-  document.getElementById("from").value=d;
-  document.getElementById("to").value=d;
 }
 
 // APPLY LEAVE
 function applyLeave(){
   toggle(true);
+
   navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
@@ -311,16 +255,18 @@ function applyLeave(){
 function toggle(x){
   document.getElementById("loader").style.display = x?"block":"none";
 }
+
 function showMsg(t){
   document.getElementById("msg").innerText = t;
 }
 
-document.addEventListener("change", e=>{
-  if(e.target.id==="from"){
-    document.getElementById("to").value=e.target.value;
-  }
-});
+// LOGOUT
+function logout(){
+  localStorage.clear();
+  window.location.replace("index.html");
+}
 
+// INIT
 load();
 
 </script>
