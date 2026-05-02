@@ -8,7 +8,7 @@
 (function(){
   let login = localStorage.getItem("login");
   let branch = localStorage.getItem("branch");
-  let staffId = localStorage.getItem("staffId"); // ✅ ADD THIS
+ let staffId = localStorage.getItem("staffId") || localStorage.getItem("userid");
   let time = localStorage.getItem("time");
   let now = new Date().getTime();
 
@@ -316,7 +316,7 @@ function go(page){
 
 /* PROFILE LOAD */
 window.onload = function(){
-  let id = localStorage.getItem("userid") || "N/A";
+ let id = localStorage.getItem("staffId") || localStorage.getItem("userid") || "N/A";
   let branch = localStorage.getItem("branch") || "N/A";
 
   document.getElementById("userName").innerText = "ID: " + id;
@@ -398,7 +398,7 @@ setInterval(()=>{
 },1000);
 
 /* ADMIN TILE */
-let user = localStorage.getItem("userid");
+let user = localStorage.getItem("staffId") || localStorage.getItem("userid");
 if(user==="N07550"){
   let grid=document.querySelector(".app-grid");
   let tile=document.createElement("div");
