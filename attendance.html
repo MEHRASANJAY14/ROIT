@@ -20,7 +20,6 @@
       align-items:center;
       padding:15px;
       background:rgba(255,255,255,0.1);
-      backdrop-filter:blur(10px);
     }
 
     .container{
@@ -34,12 +33,6 @@
       border-radius:16px;
       padding:18px;
       margin-bottom:14px;
-      backdrop-filter:blur(12px);
-    }
-
-    .grid{
-      display:flex;
-      gap:12px;
     }
 
     .btn{
@@ -47,13 +40,21 @@
       padding:14px;
       border:none;
       border-radius:12px;
-      font-weight:600;
       margin-top:10px;
       cursor:pointer;
+      font-weight:bold;
     }
 
     .present{background:#00c853;color:white;}
     .leave{background:#ff3d00;color:white;}
+
+    input,select{
+      width:100%;
+      padding:10px;
+      border-radius:10px;
+      border:none;
+      margin-bottom:10px;
+    }
 
     .hidden{display:none;}
 
@@ -64,36 +65,14 @@
       border-radius:10px;
       margin-bottom:8px;
     }
-
-    input{
-      width:100%;
-      padding:10px;
-      border-radius:10px;
-      border:none;
-      margin-bottom:10px;
-    }
   </style>
 </head>
 
 <body>
 
-<script>
-(function(){
-  let login = localStorage.getItem("login");
-  let branch = localStorage.getItem("branch");
-  let staffId = localStorage.getItem("staffId");
-  let time = localStorage.getItem("time");
-
-  if(login !== "true" || !branch || !staffId){
-    window.location.replace("index.html");
-  }
-})();
-</script>
-
 <div class="header">
   <h3 id="welcome">Loading...</h3>
   <div>
-    <button onclick="goBack()">⬅</button>
     <button onclick="logout()">Logout</button>
   </div>
 </div>
@@ -108,12 +87,32 @@
 
   <div class="card">
     <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
-    <button class="btn leave" onclick="showLeave()">➕ Apply Leave</button>
+    <button class="btn leave" onclick="openLeave()">➕ Apply Leave</button>
 
-    <!-- ADMIN LINK -->
-    <button id="adminBtn" class="btn" style="background:#2196f3;color:white;display:none;">
+    <!-- ADMIN BUTTON -->
+    <button id="adminBtn" class="btn" style="display:none;background:#2196f3;">
       👑 Staff Attendance
     </button>
+  </div>
+
+  <!-- LEAVE FORM (COMMON FOR ALL) -->
+  <div id="leaveBox" class="card hidden">
+    <h3>📄 Apply Leave</h3>
+
+    <input type="date" id="from">
+    <input type="date" id="to">
+
+    <select id="type">
+      <option value="">Select Leave Type</option>
+      <option>PL</option>
+      <option>CL</option>
+      <option>MEDICAL</option>
+      <option>MATERNITY</option>
+      <option>PATERNITY</option>
+      <option>UCL</option>
+    </select>
+
+    <button class="btn leave" onclick="submitLeave()">Submit</button>
   </div>
 
   <!-- ADMIN PANEL -->
@@ -122,6 +121,7 @@
     <div id="staffList"></div>
   </div>
 
+  <div id="loader" style="display:none;text-align:center;">⏳ Processing...</div>
   <p id="msg"></p>
 
 </div>
@@ -133,11 +133,11 @@ const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJq
 let staffId = localStorage.getItem("staffId");
 let isAdmin = (staffId === "N07550");
 
+let selectedStaff = staffId;
 let markedToday = {};
 
 // ================= LOAD =================
 function load(){
-
   fetch(URL,{
     method:"POST",
     body:JSON.stringify({
@@ -147,9 +147,8 @@ function load(){
   })
   .then(r=>r.json())
   .then(d=>{
-
     document.getElementById("welcome").innerHTML =
-      "👤 " + d.name + " ("+staffId+")" + (isAdmin?" [ADMIN]":"");
+      "👤 "+d.name+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
 
     document.getElementById("today").innerText = d.today;
     document.getElementById("present").innerText = d.present;
@@ -158,17 +157,82 @@ function load(){
     if(isAdmin){
       document.getElementById("adminBtn").style.display="block";
     }
-
   });
 }
 
-// ================= ADMIN BUTTON =================
+// ================= MARK =================
+function mark(){
+  toggle(true);
+
+  navigator.geolocation.getCurrentPosition(pos=>{
+    fetch(URL,{
+      method:"POST",
+      body:JSON.stringify({
+        staff_id:staffId,
+        status:"Present",
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude
+      })
+    })
+    .then(r=>r.json())
+    .then(d=>{
+      showMsg(d.message);
+      toggle(false);
+      load();
+    });
+  });
+}
+
+// ================= OPEN LEAVE =================
+function openLeave(id=null){
+  selectedStaff = id || staffId;
+
+  let d = new Date().toISOString().split("T")[0];
+  document.getElementById("from").value = d;
+  document.getElementById("to").value = d;
+
+  document.getElementById("leaveBox").classList.remove("hidden");
+}
+
+// ================= SUBMIT LEAVE =================
+function submitLeave(){
+
+  toggle(true);
+
+  navigator.geolocation.getCurrentPosition(pos=>{
+    fetch(URL,{
+      method:"POST",
+      body:JSON.stringify({
+        staff_id:selectedStaff,
+        status:"Leave",
+        leave_type:document.getElementById("type").value,
+        from_date:document.getElementById("from").value,
+        to_date:document.getElementById("to").value,
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude
+      })
+    })
+    .then(r=>r.json())
+    .then(d=>{
+      showMsg(d.message);
+
+      toggle(false);
+      document.getElementById("leaveBox").classList.add("hidden");
+
+      markedToday[selectedStaff]=true;
+
+      load();
+      if(isAdmin) loadStaff();
+    });
+  });
+}
+
+// ================= ADMIN =================
 document.getElementById("adminBtn").onclick = function(){
   document.getElementById("adminPanel").classList.toggle("hidden");
   loadStaff();
 };
 
-// ================= LOAD STAFF =================
 function loadStaff(){
 
   fetch(URL,{
@@ -189,65 +253,26 @@ function loadStaff(){
         <b>${s.name}</b> (${s.staff_id})<br>
 
         <button class="btn present" ${disabled}
-        onclick="markStaff('${s.staff_id}','Present')">Present</button>
+        onclick="markStaff('${s.staff_id}')">Present</button>
 
         <button class="btn leave" ${disabled}
-        onclick="markStaff('${s.staff_id}','Leave')">Leave</button>
+        onclick="openLeave('${s.staff_id}')">Leave</button>
       </div>`;
     });
 
     document.getElementById("staffList").innerHTML = html;
-
   });
 }
 
-// ================= MARK SELF =================
-function mark(){
-  navigator.geolocation.getCurrentPosition(pos=>{
-    fetch(URL,{
-      method:"POST",
-      body:JSON.stringify({
-        staff_id:staffId,
-        status:"Present",
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude
-      })
-    })
-    .then(r=>r.json())
-    .then(d=>{
-      showMsg(d.message);
-      load();
-    });
-  });
-}
-
-// ================= MARK STAFF =================
-function markStaff(id, status){
-
-  navigator.geolocation.getCurrentPosition(pos=>{
-    fetch(URL,{
-      method:"POST",
-      body:JSON.stringify({
-        staff_id:id,
-        status:status,
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude
-      })
-    })
-    .then(r=>r.json())
-    .then(d=>{
-      showMsg(d.message);
-      markedToday[id]=true;
-      loadStaff();
-    });
-  });
+function markStaff(id){
+  selectedStaff = id;
+  mark();
 }
 
 // ================= SEARCH =================
 document.addEventListener("input", function(e){
   if(e.target.id==="search"){
     let val = e.target.value.toLowerCase();
-
     document.querySelectorAll(".staffCard").forEach(c=>{
       let name = c.getAttribute("data-name");
       c.style.display = name.includes(val) ? "block":"none";
@@ -256,6 +281,10 @@ document.addEventListener("input", function(e){
 });
 
 // ================= HELPERS =================
+function toggle(x){
+  document.getElementById("loader").style.display = x?"block":"none";
+}
+
 function showMsg(t){
   document.getElementById("msg").innerText = t;
 }
@@ -263,10 +292,6 @@ function showMsg(t){
 function logout(){
   localStorage.clear();
   window.location.replace("index.html");
-}
-
-function goBack(){
-  window.history.back();
 }
 
 load();
