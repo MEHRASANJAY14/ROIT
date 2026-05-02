@@ -55,28 +55,17 @@ input,select{
   margin-top:5px;
 }
 
-/* FORM */
-.form-row{
-  display:flex;
-  gap:10px;
-}
+.form-row{display:flex;gap:10px;}
 .form-group{flex:1;}
-@media(max-width:480px){
-  .form-row{flex-direction:column;}
-}
+@media(max-width:480px){.form-row{flex-direction:column;}}
 
-/* CALENDAR */
 .calendar{
   display:grid;
   grid-template-columns: repeat(7,1fr);
   gap:5px;
   text-align:center;
 }
-.day{
-  padding:8px;
-  border-radius:6px;
-  font-size:11px;
-}
+.day{padding:8px;border-radius:6px;font-size:11px;}
 .presentDay{background:#4caf50;}
 .leaveDay{background:#f44336;}
 .empty{background:transparent;}
@@ -107,13 +96,12 @@ input,select{
 
 <div class="container">
 
-<!-- TODAY -->
 <div class="card">
   Today: <b id="todayText">--</b>
 </div>
 
-<!-- KPI -->
 <div class="card">
+
 <div id="userKPI">
 Present: <b id="present">0</b><br>
 Leave: <b id="leave">0</b>
@@ -121,15 +109,15 @@ Leave: <b id="leave">0</b>
 
 <div id="adminKPI" style="display:none;justify-content:space-between;">
 <div>
-Self<br>P:<span id="selfP"></span><br>L:<span id="selfL"></span>
+Self<br>P:<span id="selfP">0</span><br>L:<span id="selfL">0</span>
 </div>
 <div>
-Staff Today<br>P:<span id="staffP"></span><br>L:<span id="staffL"></span>
-</div>
+Staff Today<br>P:<span id="staffP">0</span><br>L:<span id="staffL">0</span>
 </div>
 </div>
 
-<!-- ACTION -->
+</div>
+
 <div class="card">
 <button id="markBtn" class="btn present" onclick="mark()">Mark Attendance</button>
 <button id="leaveBtn" class="btn leave" onclick="toggleLeave()">Apply Leave</button>
@@ -137,7 +125,6 @@ Staff Today<br>P:<span id="staffP"></span><br>L:<span id="staffL"></span>
 <button id="adminBtn" class="btn hidden" style="background:#2979ff;">Staff</button>
 </div>
 
-<!-- LEAVE -->
 <div id="leaveBox" class="card hidden">
 <div class="form-row">
 <div class="form-group">
@@ -161,7 +148,6 @@ Staff Today<br>P:<span id="staffP"></span><br>L:<span id="staffL"></span>
 <button class="btn leave" onclick="submitLeave()">Submit</button>
 </div>
 
-<!-- CALENDAR -->
 <div id="calendarBox" class="card hidden">
 <h3>Attendance Calendar</h3>
 <div class="calendar" id="calendarGrid"></div>
@@ -173,40 +159,67 @@ Staff Today<br>P:<span id="staffP"></span><br>L:<span id="staffL"></span>
 
 <script>
 
-const URL="YOUR_SCRIPT_URL"; // replace
+const URL="PASTE_NEW_DEPLOY_URL";
 
 let staffId=localStorage.getItem("staffId");
 let isAdmin=(staffId==="N07550");
 let selectedStaff=staffId;
 
+// RESET NEXT DAY
+let last=localStorage.getItem("markDate");
+let today=new Date().toDateString();
+if(last && last!==today){
+localStorage.removeItem("markDate");
+enableButtons();
+}
+
 // LOAD
 function load(){
+
 fetch(URL,{
 method:"POST",
 body:JSON.stringify({action:"dashboard",staff_id:isAdmin?"ALL":staffId})
 })
 .then(r=>r.json())
 .then(d=>{
-welcome.innerText=d.name+" ("+staffId+")";
-todayText.innerText=d.today;
 
-if(isAdmin){
+if(!d || d.status!=="success"){
+showMsg("Server error");
+return;
+}
+
+welcome.innerText=(d.name||"User")+" ("+staffId+")";
+todayText.innerText=d.today || "--";
+
+if(isAdmin && d.self && d.staff){
+
 userKPI.style.display="none";
 adminKPI.style.display="flex";
-selfP.innerText=d.self.present;
-selfL.innerText=d.self.leave;
-staffP.innerText=d.staff.present;
-staffL.innerText=d.staff.leave;
+
+selfP.innerText=d.self.present || 0;
+selfL.innerText=d.self.leave || 0;
+staffP.innerText=d.staff.present || 0;
+staffL.innerText=d.staff.leave || 0;
+
 adminBtn.classList.remove("hidden");
+
 }else{
-present.innerText=d.present;
-leave.innerText=d.leave;
+
+userKPI.style.display="block";
+adminKPI.style.display="none";
+
+present.innerText=d.present || 0;
+leave.innerText=d.leave || 0;
+
 }
 
-if(d.today.includes("Present")||d.today.includes("Leave")){
+if(d.today && (d.today.includes("Present")||d.today.includes("Leave"))){
 disableButtons();
 }
-});
+
+})
+.catch(()=>showMsg("Network error"));
+
 }
 
 // BUTTON CONTROL
@@ -216,10 +229,17 @@ leaveBtn.disabled=true;
 markBtn.style.opacity=0.5;
 leaveBtn.style.opacity=0.5;
 }
+function enableButtons(){
+markBtn.disabled=false;
+leaveBtn.disabled=false;
+markBtn.style.opacity=1;
+leaveBtn.style.opacity=1;
+}
 
 // MARK
 function mark(){
 toggle(true);
+
 navigator.geolocation.getCurrentPosition(pos=>{
 fetch(URL,{
 method:"POST",
@@ -233,13 +253,17 @@ lng:pos.coords.longitude
 .then(r=>r.json())
 .then(d=>{
 toggle(false);
+
 if(d.status==="success"){
 showMsg("✔ Attendance Marked");
 disableButtons();
-}else if(d.already){
+localStorage.setItem("markDate",new Date().toDateString());
+}
+else if(d.already){
 showMsg("✔ Already Marked ("+d.type+")");
 disableButtons();
 }
+
 load();
 });
 });
@@ -249,8 +273,13 @@ load();
 function toggleLeave(){leaveBox.classList.toggle("hidden");}
 
 function submitLeave(){
+
 let f=from.value,t=to.value,ty=type.value;
-if(!f||!t||!ty){showMsg("Fill all");return;}
+
+if(!f||!t||!ty){
+showMsg("Fill all fields");
+return;
+}
 
 toggle(true);
 
@@ -270,14 +299,18 @@ lng:pos.coords.longitude
 .then(r=>r.json())
 .then(d=>{
 toggle(false);
+
 if(d.status==="success"){
 showMsg("✔ Leave Applied");
 disableButtons();
+localStorage.setItem("markDate",new Date().toDateString());
 leaveBox.classList.add("hidden");
-}else if(d.already){
+}
+else if(d.already){
 showMsg("✔ Already Marked ("+d.type+")");
 disableButtons();
 }
+
 load();
 });
 });
@@ -295,7 +328,7 @@ body:JSON.stringify({action:"calendar",staff_id:staffId})
 .then(d=>{
 
 let map={};
-d.data.forEach(x=>map[x.date]=x.status);
+(d.data||[]).forEach(x=>map[x.date]=x.status);
 
 let now=new Date();
 let y=now.getFullYear();
