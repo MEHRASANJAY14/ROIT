@@ -95,13 +95,13 @@ input,select{
 <!-- KPI -->
 <div class="card">
 
-  <!-- USER KPI -->
+  <!-- USER -->
   <div id="userKPI">
     Present (Month): <b id="present">0</b><br>
     Leave (Month): <b id="leave">0</b>
   </div>
 
-  <!-- ADMIN KPI -->
+  <!-- ADMIN -->
   <div id="adminKPI" style="display:none;justify-content:space-between;">
 
     <div>
@@ -127,7 +127,7 @@ input,select{
   <button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff</button>
 </div>
 
-<!-- LEAVE FORM -->
+<!-- LEAVE -->
 <div id="leaveBox" class="card hidden">
   <input type="date" id="from">
   <input type="date" id="to">
@@ -175,26 +175,21 @@ staff_id:isAdmin?"ALL":staffId
 
 welcome.innerText=d.name+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
 
-// ADMIN KPI
 if(isAdmin){
+userKPI.style.display="none";
+adminKPI.style.display="flex";
 
-document.getElementById("userKPI").style.display="none";
-document.getElementById("adminKPI").style.display="flex";
+selfP.innerText=d.self.present;
+selfL.innerText=d.self.leave;
 
-document.getElementById("selfP").innerText=d.self.present;
-document.getElementById("selfL").innerText=d.self.leave;
-
-document.getElementById("staffP").innerText=d.staff.present;
-document.getElementById("staffL").innerText=d.staff.leave;
+staffP.innerText=d.staff.present;
+staffL.innerText=d.staff.leave;
 
 }else{
-
-document.getElementById("present").innerText=d.present;
-document.getElementById("leave").innerText=d.leave;
-
+present.innerText=d.present;
+leave.innerText=d.leave;
 }
 
-// show admin button
 if(isAdmin){
 adminBtn.classList.remove("hidden");
 }
@@ -217,9 +212,15 @@ lng:pos.coords.longitude
 })
 })
 .then(r=>r.json())
-.then(()=>{
+.then(d=>{
 toggle(false);
+
+if(d.status==="success"){
 showMsg("✔ Attendance Marked");
+}else if(d.already){
+showMsg("✔ Already Marked ("+d.type+")");
+}
+
 load();
 });
 });
@@ -257,10 +258,16 @@ lng:pos.coords.longitude
 })
 })
 .then(r=>r.json())
-.then(()=>{
+.then(d=>{
 toggle(false);
+
+if(d.status==="success"){
 showMsg("✔ Leave Applied");
 leaveBox.classList.add("hidden");
+}else if(d.already){
+showMsg("✔ Already Marked ("+d.type+")");
+}
+
 load();
 });
 });
@@ -275,6 +282,7 @@ loadStaff();
 function loadStaff(){
 fetch(URL,{
 method:"POST",
+headers:{ "Content-Type":"text/plain" },
 body:JSON.stringify({action:"staff_list"})
 })
 .then(r=>r.json())
