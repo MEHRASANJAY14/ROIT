@@ -21,7 +21,6 @@ body{
   align-items:center;
   padding:12px;
   background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(10px);
 }
 
 /* CONTAINER */
@@ -37,8 +36,6 @@ body{
   border-radius:18px;
   padding:18px;
   margin-bottom:15px;
-  backdrop-filter:blur(12px);
-  box-shadow:0 8px 20px rgba(0,0,0,0.3);
 }
 
 /* BUTTON */
@@ -50,11 +47,6 @@ body{
   margin-top:10px;
   font-weight:600;
   cursor:pointer;
-  transition:0.2s;
-}
-
-.btn:hover{
-  transform:scale(1.02);
 }
 
 .present{
@@ -83,17 +75,6 @@ input,select{
   margin-top:5px;
 }
 
-/* ANIMATION */
-#leaveBox{
-  max-height:0;
-  overflow:hidden;
-  transition:0.3s ease;
-}
-
-#leaveBox.show{
-  max-height:400px;
-}
-
 /* STAFF */
 .staffCard{
   background:#fff;
@@ -117,6 +98,8 @@ input,select{
   font-size:18px;
   z-index:999;
 }
+
+.hidden{display:none;}
 
 </style>
 </head>
@@ -142,13 +125,13 @@ input,select{
 <div class="card">
   <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
   <button class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
-  <button id="adminBtn" class="btn" style="display:none;background:#2196f3;">
-    👑 Staff Attendance
-  </button>
+  <button id="adminBtn" class="btn hidden" style="background:#2979ff;">👑 Staff Attendance</button>
 </div>
 
 <!-- LEAVE FORM -->
-<div id="leaveBox" class="card">
+<div id="leaveBox" class="card hidden">
+  <h3>📄 Apply Leave</h3>
+
   <div class="form-group">
     <label>From Date</label>
     <input type="date" id="from">
@@ -174,7 +157,7 @@ input,select{
 </div>
 
 <!-- ADMIN -->
-<div id="adminPanel" class="card" style="display:none;">
+<div id="adminPanel" class="card hidden">
   <input id="search" placeholder="🔍 Search staff">
   <div id="staffList"></div>
 </div>
@@ -208,7 +191,7 @@ present.innerText=d.present;
 leave.innerText=d.leave;
 
 if(isAdmin){
-adminBtn.style.display="block";
+adminBtn.classList.remove("hidden");
 }
 });
 }
@@ -216,6 +199,7 @@ adminBtn.style.display="block";
 // MARK
 function mark(){
 toggle(true);
+
 navigator.geolocation.getCurrentPosition(pos=>{
 fetch(URL,{
 method:"POST",
@@ -229,18 +213,17 @@ lng:pos.coords.longitude
 .then(r=>r.json())
 .then(d=>{
 toggle(false);
-msg.innerText=d.message;
+showMsg("✔ Attendance Marked");
 load();
 });
 });
 }
 
-// LEAVE TOGGLE
+// LEAVE
 function toggleLeave(){
-leaveBox.classList.toggle("show");
+document.getElementById("leaveBox").classList.toggle("hidden");
 }
 
-// SUBMIT LEAVE
 function submitLeave(){
 toggle(true);
 
@@ -249,23 +232,23 @@ method:"POST",
 body:JSON.stringify({
 staff_id:selectedStaff,
 status:"Leave",
-leave_type:type.value,
-from_date:from.value,
-to_date:to.value
+leave_type:document.getElementById("type").value,
+from_date:document.getElementById("from").value,
+to_date:document.getElementById("to").value
 })
 })
 .then(r=>r.json())
 .then(d=>{
 toggle(false);
-msg.innerText=d.message;
-leaveBox.classList.remove("show");
+showMsg("✔ Leave Applied");
+document.getElementById("leaveBox").classList.add("hidden");
 load();
 });
 }
 
 // ADMIN
 adminBtn.onclick=()=>{
-adminPanel.style.display=adminPanel.style.display==="none"?"block":"none";
+adminPanel.classList.toggle("hidden");
 loadStaff();
 };
 
@@ -296,7 +279,7 @@ mark();
 
 function openLeave(id){
 selectedStaff=id;
-leaveBox.classList.add("show");
+toggleLeave();
 }
 
 // SEARCH
@@ -313,10 +296,16 @@ c.style.display=c.dataset.name.includes(val)?"block":"none";
 function toggle(x){
 loader.style.display=x?"flex":"none";
 }
+
+function showMsg(t){
+msg.innerText=t;
+}
+
 function logout(){
 localStorage.clear();
 location="index.html";
 }
+
 function goBack(){
 history.back();
 }
