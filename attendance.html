@@ -1,142 +1,207 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
-  <style>
-    body{
-      margin:0;
-      font-family:'Inter',sans-serif;
-      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      color:#fff;
-    }
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#141e30,#243b55);
+  color:#fff;
+}
 
-    .header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:15px;
-      background:rgba(255,255,255,0.1);
-    }
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px;
+  backdrop-filter:blur(10px);
+  background:rgba(255,255,255,0.08);
+}
 
-    .container{
-      max-width:420px;
-      margin:auto;
-      padding:15px;
-    }
+.header button{
+  padding:6px 10px;
+  border:none;
+  border-radius:8px;
+  background:#fff;
+  cursor:pointer;
+}
 
-    .card{
-      background:rgba(255,255,255,0.1);
-      border-radius:16px;
-      padding:18px;
-      margin-bottom:14px;
-    }
+/* CONTAINER */
+.container{
+  max-width:420px;
+  margin:auto;
+  padding:15px;
+}
 
-    .btn{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:12px;
-      margin-top:10px;
-      cursor:pointer;
-      font-weight:bold;
-    }
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:14px;
+  backdrop-filter:blur(15px);
+  box-shadow:0 8px 25px rgba(0,0,0,0.3);
+  transition:0.3s;
+}
 
-    .present{background:#00c853;color:white;}
-    .leave{background:#ff3d00;color:white;}
+.card:hover{
+  transform:translateY(-3px);
+}
 
-    input,select{
-      width:100%;
-      padding:10px;
-      border-radius:10px;
-      border:none;
-      margin-bottom:10px;
-    }
+/* KPI */
+.kpi{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+}
 
-    .hidden{display:none;}
+.kpi div{
+  text-align:center;
+  flex:1;
+}
 
-    .staffCard{
-      background:#fff;
-      color:#000;
-      padding:10px;
-      border-radius:10px;
-      margin-bottom:8px;
-    }
-  </style>
+/* BUTTON */
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  margin-top:10px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.btn:hover{
+  transform:scale(1.03);
+}
+
+.present{
+  background:linear-gradient(135deg,#00c853,#00e676);
+}
+
+.leave{
+  background:linear-gradient(135deg,#ff3d00,#ff7043);
+}
+
+/* STAFF CARD */
+.staffCard{
+  background:#fff;
+  color:#000;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+  box-shadow:0 5px 10px rgba(0,0,0,0.1);
+}
+
+.staffCard b{
+  font-size:14px;
+}
+
+/* INPUT */
+input,select{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-bottom:10px;
+  font-size:14px;
+}
+
+/* LOADER */
+.loader{
+  display:none;
+  text-align:center;
+  margin-top:10px;
+  font-weight:bold;
+}
+
+/* HIDDEN */
+.hidden{display:none;}
+
+</style>
 </head>
 
 <body>
 
 <div class="header">
-  <h3 id="welcome">Loading...</h3>
-  <div>
-    <button onclick="logout()">Logout</button>
-  </div>
+  <button onclick="goBack()">⬅</button>
+  <h4 id="welcome">Loading...</h4>
+  <button onclick="logout()">Logout</button>
 </div>
 
 <div class="container">
 
-  <div class="card">
-    <div>Today: <b id="today">--</b></div>
-    <div>Present: <b id="present">0</b></div>
-    <div>Leave: <b id="leave">0</b></div>
+<div class="card">
+  <div>📅 <b id="today">--</b></div>
+
+  <div class="kpi">
+    <div>
+      <small>Present</small>
+      <h2 id="present">0</h2>
+    </div>
+    <div>
+      <small>Leave</small>
+      <h2 id="leave">0</h2>
+    </div>
   </div>
+</div>
 
-  <div class="card">
-    <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
-    <button class="btn leave" onclick="openLeave()">➕ Apply Leave</button>
+<div class="card">
+  <button class="btn present" onclick="mark()">✔ Mark Attendance</button>
+  <button class="btn leave" onclick="toggleLeave()">➕ Apply Leave</button>
 
-    <!-- ADMIN BUTTON -->
-    <button id="adminBtn" class="btn" style="display:none;background:#2196f3;">
-      👑 Staff Attendance
-    </button>
-  </div>
+  <button id="adminBtn" class="btn" style="display:none;background:#2979ff;">
+    👑 Staff Attendance
+  </button>
+</div>
 
-  <!-- LEAVE FORM (COMMON FOR ALL) -->
-  <div id="leaveBox" class="card hidden">
-    <h3>📄 Apply Leave</h3>
+<!-- LEAVE FORM -->
+<div id="leaveBox" class="card hidden">
+  <h3>📄 Apply Leave</h3>
 
-    <input type="date" id="from">
-    <input type="date" id="to">
+  <input type="date" id="from">
+  <input type="date" id="to">
 
-    <select id="type">
-      <option value="">Select Leave Type</option>
-      <option>PL</option>
-      <option>CL</option>
-      <option>MEDICAL</option>
-      <option>MATERNITY</option>
-      <option>PATERNITY</option>
-      <option>UCL</option>
-    </select>
+  <select id="type">
+    <option value="">Select Leave Type</option>
+    <option>PL</option>
+    <option>CL</option>
+    <option>MEDICAL</option>
+    <option>MATERNITY</option>
+    <option>PATERNITY</option>
+    <option>UCL</option>
+  </select>
 
-    <button class="btn leave" onclick="submitLeave()">Submit</button>
-  </div>
+  <button class="btn leave" onclick="submitLeave()">Submit Leave</button>
+</div>
 
-  <!-- ADMIN PANEL -->
-  <div id="adminPanel" class="card hidden">
-    <input type="text" id="search" placeholder="Search staff...">
-    <div id="staffList"></div>
-  </div>
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="card hidden">
+  <input type="text" id="search" placeholder="🔍 Search staff...">
+  <div id="staffList"></div>
+</div>
 
-  <div id="loader" style="display:none;text-align:center;">⏳ Processing...</div>
-  <p id="msg"></p>
+<div class="loader" id="loader">⏳ Processing...</div>
+<p id="msg"></p>
 
 </div>
 
 <script>
 
-const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMk8OjQJqmE7W4PP401PA/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzwZiRF2QF96MrX0wGFySzZ7IJqtzT354DNq1YZS4lPdg_gqKMg5GkqiyHtWXYq7U4-8WrdnAtw/exec";
 
 let staffId = localStorage.getItem("staffId");
 let isAdmin = (staffId === "N07550");
-
 let selectedStaff = staffId;
-let markedToday = {};
 
-// ================= LOAD =================
+// LOAD
 function load(){
   fetch(URL,{
     method:"POST",
@@ -147,8 +212,8 @@ function load(){
   })
   .then(r=>r.json())
   .then(d=>{
-    document.getElementById("welcome").innerHTML =
-      "👤 "+d.name+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
+    document.getElementById("welcome").innerText =
+      d.name+" ("+staffId+")"+(isAdmin?" [ADMIN]":"");
 
     document.getElementById("today").innerText = d.today;
     document.getElementById("present").innerText = d.present;
@@ -160,10 +225,9 @@ function load(){
   });
 }
 
-// ================= MARK =================
+// MARK
 function mark(){
   toggle(true);
-
   navigator.geolocation.getCurrentPosition(pos=>{
     fetch(URL,{
       method:"POST",
@@ -176,27 +240,19 @@ function mark(){
     })
     .then(r=>r.json())
     .then(d=>{
-      showMsg(d.message);
       toggle(false);
+      showMsg(d.message);
       load();
     });
   });
 }
 
-// ================= OPEN LEAVE =================
-function openLeave(id=null){
-  selectedStaff = id || staffId;
-
-  let d = new Date().toISOString().split("T")[0];
-  document.getElementById("from").value = d;
-  document.getElementById("to").value = d;
-
-  document.getElementById("leaveBox").classList.remove("hidden");
+// LEAVE
+function toggleLeave(){
+  document.getElementById("leaveBox").classList.toggle("hidden");
 }
 
-// ================= SUBMIT LEAVE =================
 function submitLeave(){
-
   toggle(true);
 
   navigator.geolocation.getCurrentPosition(pos=>{
@@ -205,94 +261,74 @@ function submitLeave(){
       body:JSON.stringify({
         staff_id:selectedStaff,
         status:"Leave",
-        leave_type:document.getElementById("type").value,
-        from_date:document.getElementById("from").value,
-        to_date:document.getElementById("to").value,
+        leave_type:type.value,
+        from_date:from.value,
+        to_date:to.value,
         lat:pos.coords.latitude,
         lng:pos.coords.longitude
       })
     })
     .then(r=>r.json())
     .then(d=>{
-      showMsg(d.message);
-
       toggle(false);
-      document.getElementById("leaveBox").classList.add("hidden");
-
-      markedToday[selectedStaff]=true;
-
+      showMsg(d.message);
+      leaveBox.classList.add("hidden");
       load();
-      if(isAdmin) loadStaff();
     });
   });
 }
 
-// ================= ADMIN =================
-document.getElementById("adminBtn").onclick = function(){
-  document.getElementById("adminPanel").classList.toggle("hidden");
+// ADMIN
+adminBtn.onclick = ()=>{
+  adminPanel.classList.toggle("hidden");
   loadStaff();
 };
 
 function loadStaff(){
-
   fetch(URL,{
     method:"POST",
-    body:JSON.stringify({ action:"staff_list" })
+    body:JSON.stringify({action:"staff_list"})
   })
   .then(r=>r.json())
   .then(d=>{
-
     let html="";
-
     d.staff.forEach(s=>{
-
-      let disabled = markedToday[s.staff_id] ? "disabled" : "";
-
-      html += `
+      html+=`
       <div class="staffCard" data-name="${s.name.toLowerCase()}">
         <b>${s.name}</b> (${s.staff_id})<br>
-
-        <button class="btn present" ${disabled}
-        onclick="markStaff('${s.staff_id}')">Present</button>
-
-        <button class="btn leave" ${disabled}
-        onclick="openLeave('${s.staff_id}')">Leave</button>
+        <button class="btn present" onclick="markStaff('${s.staff_id}')">Present</button>
+        <button class="btn leave" onclick="openLeave('${s.staff_id}')">Leave</button>
       </div>`;
     });
-
-    document.getElementById("staffList").innerHTML = html;
+    staffList.innerHTML=html;
   });
 }
 
 function markStaff(id){
-  selectedStaff = id;
+  selectedStaff=id;
   mark();
 }
 
-// ================= SEARCH =================
-document.addEventListener("input", function(e){
+function openLeave(id){
+  selectedStaff=id;
+  toggleLeave();
+}
+
+// SEARCH
+document.addEventListener("input",e=>{
   if(e.target.id==="search"){
-    let val = e.target.value.toLowerCase();
+    let val=e.target.value.toLowerCase();
     document.querySelectorAll(".staffCard").forEach(c=>{
-      let name = c.getAttribute("data-name");
-      c.style.display = name.includes(val) ? "block":"none";
+      c.style.display = c.dataset.name.includes(val)?"block":"none";
     });
   }
 });
 
-// ================= HELPERS =================
-function toggle(x){
-  document.getElementById("loader").style.display = x?"block":"none";
-}
-
-function showMsg(t){
-  document.getElementById("msg").innerText = t;
-}
-
-function logout(){
-  localStorage.clear();
-  window.location.replace("index.html");
-}
+// HELPERS
+function toggle(x){ loader.style.display = x?"block":"none"; }
+function showMsg(t){ msg.innerText=t; }
+function logout(){ localStorage.clear(); location="index.html"; }
+function goBack(){ history.back(); }
 
 load();
 
